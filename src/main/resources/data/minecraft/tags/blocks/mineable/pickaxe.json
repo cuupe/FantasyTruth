@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    "stratacubes:abyss_stone",
+    "stratacubes:cable",
+    "stratacubes:l1_chalk",
+    "stratacubes:orth_cobble",
+    "stratacubes:orth_iron_bolt",
+    "stratacubes:orth_plaster",
+    "stratacubes:orth_slate",
+    "stratacubes:pier_platform",
+    "stratacubes:l1_windmill_base",
+    "stratacubes:relic_ore"
+  ]
+}

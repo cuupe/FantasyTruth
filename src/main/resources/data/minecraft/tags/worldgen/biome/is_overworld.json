@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    "stratacubes:shelf_sea",
+    "stratacubes:estuary",
+    "stratacubes:floodplain",
+    "stratacubes:steppe",
+    "stratacubes:dune_sea",
+    "stratacubes:rainshadow_scrub",
+    "stratacubes:mistwood",
+    "stratacubes:monsoon_forest",
+    "stratacubes:boreal_woodland",
+    "stratacubes:alpine_heath",
+    "stratacubes:glacial_cirque",
+    "stratacubes:karst_depths",
+    "stratacubes:cloud_barrens"
+  ]
+}

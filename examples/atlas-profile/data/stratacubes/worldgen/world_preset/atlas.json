@@ -1,0 +1,58 @@
+{
+  "dimensions": {
+    "minecraft:overworld": {
+      "type": "stratacubes:high_relief",
+      "generator": {
+        "type": "stratacubes:atlas",
+        "biome_source": {
+          "regions": {
+            "shelf_sea": "stratacubes:shelf_sea",
+            "estuary": "stratacubes:estuary",
+            "floodplain": "stratacubes:floodplain",
+            "steppe": "stratacubes:steppe",
+            "dune_sea": "stratacubes:dune_sea",
+            "rainshadow_scrub": "stratacubes:rainshadow_scrub",
+            "mistwood": "stratacubes:mistwood",
+            "monsoon_forest": "stratacubes:monsoon_forest",
+            "boreal_woodland": "stratacubes:boreal_woodland",
+            "alpine_heath": "stratacubes:alpine_heath",
+            "glacial_cirque": "stratacubes:glacial_cirque",
+            "karst_depths": "stratacubes:karst_depths",
+            "cloud_barrens": "stratacubes:cloud_barrens"
+          }
+        },
+        "profile": {
+          "sea_level": 62,
+          "horizontal_scale": 1.0,
+          "relief": 1.0,
+          "foothill_detail": 1.0,
+          "rock_detail": 1.0,
+          "ravine_depth": 36.0,
+          "ravine_width": 0.25,
+          "caves": 1.0,
+          "temperature_offset": 0.0,
+          "moisture_offset": 0.0,
+          "tree_density": 0.85,
+          "settlement_spacing": 144,
+          "settlement_density": 0.65,
+          "runoff_strength": 1.0,
+          "runoff_spacing": 48,
+          "runoff_steps": 14,
+          "shape": {
+            "summit_limit": 420,
+            "land_bias": 0.24,
+            "mountain_frequency": 0.22
+          }
+        }
+      }
+    },
+    "minecraft:the_nether": {
+      "type": "minecraft:the_nether",
+      "generator": {"type": "minecraft:noise", "biome_source": {"type": "minecraft:multi_noise", "preset": "minecraft:nether"}, "settings": "minecraft:nether"}
+    },
+    "minecraft:the_end": {
+      "type": "minecraft:the_end",
+      "generator": {"type": "minecraft:noise", "biome_source": {"type": "minecraft:the_end"}, "settings": "minecraft:end"}
+    }
+  }
+}

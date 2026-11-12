@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "conditions": [{ "condition": "minecraft:survives_explosion" }],
+      "entries": [
+        { "type": "minecraft:loot_table", "name": "stratacubes:gameplay/edge_relic_find", "weight": 7 },
+        { "type": "minecraft:item", "name": "minecraft:flint", "weight": 2 },
+        { "type": "minecraft:item", "name": "minecraft:raw_copper", "weight": 1 }
+      ]
+    }
+  ]
+}

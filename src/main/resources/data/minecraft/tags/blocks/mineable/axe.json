@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "stratacubes:orth_crate",
+    "stratacubes:orth_dock_plank",
+    "stratacubes:orth_timber",
+    "stratacubes:giant_log",
+    "stratacubes:camp_supply_crate"
+  ]
+}

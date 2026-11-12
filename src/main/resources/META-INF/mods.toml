@@ -1,0 +1,23 @@
+modLoader = "javafml"
+loaderVersion = "[47,)"
+license = "All Rights Reserved"
+
+[[mods]]
+modId = "stratacubes"
+version = "0.11.0-alpha.1"
+displayName = "FantasyTruth"
+description = "Explore Orth, an island city built around the Abyss, or create a configurable Atlas Overworld."
+
+[[dependencies.stratacubes]]
+modId = "forge"
+mandatory = true
+versionRange = "[47.1.106,47.1.107)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.stratacubes]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.1]"
+ordering = "NONE"
+side = "BOTH"

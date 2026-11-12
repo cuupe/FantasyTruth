@@ -1,0 +1,144 @@
+{
+  "deposits": [
+    {
+      "id": "coal",
+      "block": "minecraft:coal_ore",
+      "below_zero_block": "minecraft:deepslate_coal_ore",
+      "min_y": -128,
+      "max_y": 2200,
+      "attempts": 2,
+      "chance": 0.47,
+      "radius": 5,
+      "minimum_cover": 2
+    },
+    {
+      "id": "copper",
+      "block": "minecraft:copper_ore",
+      "below_zero_block": "minecraft:deepslate_copper_ore",
+      "min_y": -256,
+      "max_y": 640,
+      "attempts": 2,
+      "chance": 0.56,
+      "radius": 6,
+      "minimum_cover": 3
+    },
+    {
+      "id": "iron",
+      "block": "minecraft:iron_ore",
+      "below_zero_block": "minecraft:deepslate_iron_ore",
+      "min_y": -2400,
+      "max_y": 2200,
+      "attempts": 2,
+      "chance": 0.61,
+      "radius": 4,
+      "minimum_cover": 3
+    },
+    {
+      "id": "gold",
+      "block": "minecraft:gold_ore",
+      "below_zero_block": "minecraft:deepslate_gold_ore",
+      "min_y": -1300,
+      "max_y": 96,
+      "attempts": 1,
+      "chance": 0.36,
+      "radius": 4,
+      "minimum_cover": 5
+    },
+    {
+      "id": "lapis",
+      "block": "minecraft:lapis_ore",
+      "below_zero_block": "minecraft:deepslate_lapis_ore",
+      "min_y": -980,
+      "max_y": 144,
+      "attempts": 1,
+      "chance": 0.25,
+      "radius": 3,
+      "minimum_cover": 4
+    },
+    {
+      "id": "redstone",
+      "block": "minecraft:redstone_ore",
+      "below_zero_block": "minecraft:deepslate_redstone_ore",
+      "min_y": -2300,
+      "max_y": -32,
+      "attempts": 1,
+      "chance": 0.39,
+      "radius": 4,
+      "minimum_cover": 4
+    },
+    {
+      "id": "diamond",
+      "block": "minecraft:diamond_ore",
+      "below_zero_block": "minecraft:deepslate_diamond_ore",
+      "min_y": -2300,
+      "max_y": -48,
+      "attempts": 1,
+      "chance": 0.16,
+      "radius": 3,
+      "minimum_cover": 7
+    },
+    {
+      "id": "emerald",
+      "block": "minecraft:emerald_ore",
+      "below_zero_block": "minecraft:deepslate_emerald_ore",
+      "min_y": 180,
+      "max_y": 2200,
+      "attempts": 1,
+      "chance": 0.19,
+      "radius": 2,
+      "minimum_cover": 3
+    },
+    {
+      "id": "gravel_pocket",
+      "block": "minecraft:gravel",
+      "min_y": -48,
+      "max_y": 800,
+      "attempts": 1,
+      "chance": 0.26,
+      "radius": 4,
+      "minimum_cover": 4
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "homestead",
+      "kind": "homestead",
+      "chance": 0.86,
+      "max_slope": 0.62,
+      "wall": "minecraft:cobblestone",
+      "floor": "minecraft:spruce_planks",
+      "loot_table": "stratacubes:chests/homestead"
+    },
+    {
+      "id": "watchtower",
+      "kind": "watchtower",
+      "spacing": 144,
+      "chance": 0.72,
+      "max_slope": 1.28,
+      "wall": "minecraft:stone_bricks",
+      "floor": "minecraft:spruce_planks",
+      "loot_table": "stratacubes:chests/watchtower"
+    },
+    {
+      "id": "ruin",
+      "kind": "ruin",
+      "spacing": 112,
+      "chance": 0.82,
+      "max_slope": 1.1,
+      "wall": "minecraft:mossy_stone_bricks",
+      "floor": "minecraft:cracked_stone_bricks",
+      "loot_table": "stratacubes:chests/ruin"
+    },
+    {
+      "id": "mine",
+      "kind": "mine",
+      "spacing": 132,
+      "chance": 0.82,
+      "max_slope": 0.95,
+      "wall": "minecraft:cobbled_deepslate",
+      "floor": "minecraft:oak_planks",
+      "loot_table": "stratacubes:chests/mine"
+    }
+  ],
+  "fixed_sites": []
+}

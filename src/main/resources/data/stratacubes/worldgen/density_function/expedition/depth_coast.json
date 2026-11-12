@@ -1,0 +1,35 @@
+{
+  "type": "minecraft:add",
+  "argument1": {
+    "type": "minecraft:spline",
+    "spline": {
+      "coordinate": {
+        "type": "minecraft:y_clamped_gradient",
+        "from_y": -512,
+        "to_y": 640,
+        "from_value": -512.0,
+        "to_value": 640.0
+      },
+      "points": [
+        { "location": -512.0, "value": 3.68045, "derivative": -0.005279 },
+        { "location": -26.0, "value": 1.1149, "derivative": -0.005279 },
+        { "location": 78.0, "value": 0.5078125, "derivative": -0.006621 },
+        { "location": 640.0, "value": -3.21305, "derivative": -0.006621 }
+      ]
+    }
+  },
+  "argument2": {
+    "type": "minecraft:add",
+    "argument1": "minecraft:overworld/offset",
+    "argument2": {
+      "type": "minecraft:spline",
+      "spline": {
+        "coordinate": "minecraft:overworld/continents",
+        "points": [
+          { "location": -0.10, "value": 0.0, "derivative": 0.0 },
+          { "location": 0.55, "value": 0.058, "derivative": 0.0 }
+        ]
+      }
+    }
+  }
+}

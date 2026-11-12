@@ -1,0 +1,21 @@
+{
+  "blend": { "func": "add", "srcrgb": "srcalpha", "dstrgb": "1-srcalpha" },
+  "vertex": "fantasytruth_abyss_air",
+  "fragment": "fantasytruth_abyss_air",
+  "attributes": ["Position"],
+  "samplers": [],
+  "uniforms": [
+    { "name": "Forward", "type": "float", "count": 3, "values": [0, 0, 1] },
+    { "name": "Left", "type": "float", "count": 3, "values": [1, 0, 0] },
+    { "name": "Up", "type": "float", "count": 3, "values": [0, 1, 0] },
+    { "name": "ViewScale", "type": "float", "count": 2, "values": [1, 1] },
+    { "name": "LightDirection", "type": "float", "count": 3, "values": [0, 1, 0] },
+    { "name": "CameraOffset", "type": "float", "count": 3, "values": [0, 0, 0] },
+    { "name": "UpperColor", "type": "float", "count": 3, "values": [1, 1, 1] },
+    { "name": "HorizonColor", "type": "float", "count": 3, "values": [1, 1, 1] },
+    { "name": "LowerColor", "type": "float", "count": 3, "values": [1, 1, 1] },
+    { "name": "CloudStrength", "type": "float", "count": 1, "values": [0] },
+    { "name": "ApertureStrength", "type": "float", "count": 1, "values": [0] },
+    { "name": "SurfaceOnly", "type": "float", "count": 1, "values": [0] }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:mul",
+  "argument1": 0.08333333333333333,
+  "argument2": {
+    "type": "minecraft:add",
+    "argument1": "stratacubes:surface_height",
+    "argument2": {
+      "type": "minecraft:y_clamped_gradient",
+      "from_y": -1024,
+      "to_y": 1008,
+      "from_value": 1024,
+      "to_value": -1008
+    }
+  }
+}

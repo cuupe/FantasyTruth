@@ -1,0 +1,215 @@
+package dev.fantasytruth.abyss;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.BitSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.util.Mth;
+import net.minecraft.util.SimpleBitStorage;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.NoiseColumn;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.PalettedContainer;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.blending.Blender;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+
+/** The Edge of the Abyss occupies its own dimension at the same absolute coordinates. */
+public final class AbyssEdgeGenerator extends ChunkGenerator {
+    public static final int ENTRANCE = 0;
+    public static final int EXIT = EdgeTerrain.EXIT;
+    public static final Codec<AbyssEdgeGenerator> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            BiomeSource.CODEC.fieldOf("biome_source").forGetter(AbyssEdgeGenerator::getBiomeSource),
+            Codec.BOOL.optionalFieldOf("expanded_edge", false).forGetter(AbyssEdgeGenerator::expanded),
+            Codec.BOOL.optionalFieldOf("forested_edge", false).forGetter(AbyssEdgeGenerator::forested)
+    ).apply(instance, AbyssEdgeGenerator::new));
+    private static final Set<Heightmap.Types> HEIGHTMAPS = Set.of(
+            Heightmap.Types.WORLD_SURFACE_WG, Heightmap.Types.OCEAN_FLOOR_WG);
+
+    private final boolean expanded;
+    private final boolean forested;
+
+    private AbyssEdgeGenerator(BiomeSource biomes, boolean expanded, boolean forested) {
+        super(biomes);
+        this.expanded = expanded;
+        this.forested = expanded && forested;
+    }
+
+    boolean expanded() { return expanded; }
+    boolean forested() { return forested; }
+    @Override protected Codec<? extends ChunkGenerator> codec() { return CODEC; }
+
+    @Override
+    public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender blender, RandomState state,
+                                                       StructureManager structures, ChunkAccess chunk) {
+        return CompletableFuture.supplyAsync(() -> fill(chunk), executor);
+    }
+
+    private ChunkAccess fill(ChunkAccess chunk) {
+        var columns = new EdgeTerrain.Column[256];
+        int x0 = chunk.getPos().getMinBlockX(), z0 = chunk.getPos().getMinBlockZ();
+        boolean allWall = true;
+        int solidBottom = Integer.MAX_VALUE;
+        int top = EdgeTerrain.MIN_Y;
+        for (int i = 0; i < columns.length; i++) {
+            var column = EdgeTerrain.column(x0 + (i & 15), z0 + (i >> 4), expanded, forested);
+            columns[i] = column;
+            allWall &= !column.opening();
+            solidBottom = Math.min(solidBottom, column.bottom());
+            top = Math.max(top, column.top());
+        }
+        LevelChunkSection[] sections = chunk.getSections();
+        BitSet occupied = allWall ? null : occupiedSections(chunk, columns, sections.length);
+        for (int i = 0, low = chunk.getMinBuildHeight(); i < sections.length && low <= top; i++, low += 16) {
+            if (occupied != null && !occupied.get(i)) continue;
+            int high = low + 15;
+            if (i > 0 && (high < 0 && allWall || high <= solidBottom - 4)) {
+                // Each section owns its palette, including the palette resize callback.
+                var blocks = new PalettedContainer<>(Block.BLOCK_STATE_REGISTRY, EdgeTerrain.wall(low + 8),
+                        PalettedContainer.Strategy.SECTION_STATES);
+                sections[i] = new LevelChunkSection(blocks, sections[i].getBiomes());
+            } else {
+                fillSection(sections[i], low, high, columns);
+            }
+        }
+        fillHeightmaps(chunk, columns);
+        return chunk;
+    }
+
+    private static BitSet occupiedSections(ChunkAccess chunk, EdgeTerrain.Column[] columns, int sections) {
+        var occupied = new BitSet(sections);
+        int min = chunk.getMinBuildHeight();
+        for (var column : columns) {
+            if (!column.opening()) {
+                markSections(occupied, min, sections, min, column.top());
+            } else {
+                markSections(occupied, min, sections, min, column.bottom());
+                for (var rock : column.rocks()) markSections(occupied, min, sections, rock.bottom(), rock.top());
+                for (var shelf : column.shelves()) markSections(occupied, min, sections, shelf.bottom(), shelf.water());
+            }
+        }
+        return occupied;
+    }
+
+    private static void markSections(BitSet occupied, int min, int sections, int low, int high) {
+        int start = Mth.clamp((low - min) >> 4, 0, sections);
+        int end = Mth.clamp(((high - min) >> 4) + 1, 0, sections);
+        if (start < end) occupied.set(start, end);
+    }
+
+    private static void fillHeightmaps(ChunkAccess chunk, EdgeTerrain.Column[] columns) {
+        int min = chunk.getMinBuildHeight();
+        if (min != EdgeTerrain.MIN_Y || chunk.getMaxBuildHeight() != EdgeTerrain.MAX_Y) {
+            Heightmap.primeHeightmaps(chunk, HEIGHTMAPS);
+            return;
+        }
+        int bits = Mth.ceillog2(chunk.getHeight() + 1);
+        var surface = new SimpleBitStorage(bits, columns.length);
+        var floor = new SimpleBitStorage(bits, columns.length);
+        for (int i = 0; i < columns.length; i++) {
+            var column = columns[i];
+            surface.set(i, column.top() + 1 - min);
+            int ground = column.opening() ? column.solidTop() : Math.max(-1, column.upper());
+            floor.set(i, ground + 1 - min);
+        }
+        chunk.setHeightmap(Heightmap.Types.WORLD_SURFACE_WG, surface.getRaw());
+        chunk.setHeightmap(Heightmap.Types.OCEAN_FLOOR_WG, floor.getRaw());
+    }
+
+    private static void fillSection(LevelChunkSection section, int low, int high, EdgeTerrain.Column[] columns) {
+        for (int i = 0; i < columns.length; i++) {
+            var column = columns[i];
+            int x = i & 15, z = i >> 4;
+            if (!column.opening()) {
+                for (int y = low; y <= high && y <= column.top(); y++) {
+                    section.setBlockState(x, y - low, z, EdgeTerrain.block(column, y), false);
+                }
+                continue;
+            }
+            for (int y = low; y <= high && y <= column.bottom(); y++) {
+                section.setBlockState(x, y - low, z, EdgeTerrain.block(column, y), false);
+            }
+            for (var rock : column.rocks()) {
+                for (int y = Math.max(low, rock.bottom()); y <= Math.min(high, rock.top()); y++) {
+                    section.setBlockState(x, y - low, z, EdgeTerrain.scarpMaterial(rock, y), false);
+                }
+            }
+            for (var span : column.shelves()) {
+                for (int y = Math.max(low, span.bottom()); y <= Math.min(high, span.top()); y++) {
+                    section.setBlockState(x, y - low, z, EdgeTerrain.shelfMaterial(span, y), false);
+                }
+                for (int y = Math.max(low, span.top() + 1); y <= Math.min(high, span.water()); y++) {
+                    section.setBlockState(x, y - low, z, Blocks.WATER.defaultBlockState(), false);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void buildSurface(WorldGenRegion region, StructureManager structures, RandomState state, ChunkAccess chunk) {
+        if (AbyssLayer.passage(chunk.getPos().getMiddleBlockX(), chunk.getPos().getMiddleBlockZ(), 656)) {
+            OrthCity.generateSurface(chunk, true, true, expanded, forested);
+        }
+        if (expanded) {
+            EdgeRelics.place(chunk, region.getSeed(), forested);
+            EdgeExploration.place(chunk, forested);
+        } else {
+            EdgeFeatures.place(chunk);
+        }
+    }
+
+    @Override public void createStructures(RegistryAccess registries, ChunkGeneratorStructureState state,
+                                           StructureManager structures, ChunkAccess chunk, StructureTemplateManager templates) {}
+    @Override
+    public void applyBiomeDecoration(WorldGenLevel level, ChunkAccess chunk, StructureManager structures) {
+        if (expanded && AbyssLayer.passage(chunk.getPos().getMiddleBlockX(), chunk.getPos().getMiddleBlockZ(),
+                forested ? 475 : 383)) {
+            EdgeVegetation.placeVanillaTrees(level, chunk, this);
+        }
+    }
+    @Override public void applyCarvers(WorldGenRegion region, long seed, RandomState state, BiomeManager biomes,
+                                       StructureManager structures, ChunkAccess chunk, GenerationStep.Carving stage) {}
+    @Override public void spawnOriginalMobs(WorldGenRegion region) {}
+
+    @Override
+    public int getBaseHeight(int x, int z, Heightmap.Types type, LevelHeightAccessor height, RandomState state) {
+        var column = EdgeTerrain.column(x, z, expanded, forested);
+        if (column.opening()) {
+            return (type.isOpaque().test(Blocks.WATER.defaultBlockState()) ? column.top() : column.solidTop()) + 1;
+        }
+        return type.isOpaque().test(Blocks.WATER.defaultBlockState()) ? column.top() + 1 : Math.max(-1, column.upper()) + 1;
+    }
+
+    @Override
+    public NoiseColumn getBaseColumn(int x, int z, LevelHeightAccessor height, RandomState state) {
+        var column = EdgeTerrain.column(x, z, expanded, forested);
+        var blocks = new BlockState[height.getHeight()];
+        for (int i = 0; i < blocks.length; i++) blocks[i] = EdgeTerrain.block(column, height.getMinBuildHeight() + i);
+        return new NoiseColumn(height.getMinBuildHeight(), blocks);
+    }
+
+    @Override public int getGenDepth() { return EdgeTerrain.MAX_Y - EdgeTerrain.MIN_Y; }
+    @Override public int getMinY() { return EdgeTerrain.MIN_Y; }
+    @Override public int getSeaLevel() { return OrthIsland.SEA; }
+    @Override public void addDebugScreenInfo(List<String> lines, RandomState state, BlockPos pos) {
+        lines.add("Abyss L1 · depth " + Math.max(0, -pos.getY()) + " / " + -EXIT);
+    }
+}

@@ -1,0 +1,497 @@
+{
+  "format": 1,
+  "terrain": {
+    "sea_level": 62,
+    "horizontal_scale": 1.15,
+    "relief": 1.2,
+    "shape": {
+      "summit_limit": 300,
+      "land_bias": 0.4,
+      "mountain_frequency": 0.21
+    },
+    "foothill_detail": 1.55,
+    "rock_detail": 1.5,
+    "ravine_depth": 32,
+    "ravine_width": 0.24,
+    "runoff_strength": 0.9,
+    "runoff_spacing": 64,
+    "runoff_steps": 11,
+    "caves": 0.95,
+    "temperature_offset": 0,
+    "moisture_offset": 0.04,
+    "tree_density": 0.83,
+    "settlement_spacing": 116,
+    "settlement_density": 0.8
+  },
+  "biomes": {
+    "shelf_sea": "stratacubes:shelf_sea",
+    "estuary": "stratacubes:estuary",
+    "floodplain": "stratacubes:floodplain",
+    "steppe": "stratacubes:steppe",
+    "dune_sea": "stratacubes:dune_sea",
+    "rainshadow_scrub": "stratacubes:rainshadow_scrub",
+    "mistwood": "stratacubes:mistwood",
+    "monsoon_forest": "stratacubes:monsoon_forest",
+    "boreal_woodland": "stratacubes:boreal_woodland",
+    "alpine_heath": "stratacubes:alpine_heath",
+    "glacial_cirque": "stratacubes:glacial_cirque",
+    "karst_depths": "stratacubes:karst_depths",
+    "cloud_barrens": "stratacubes:cloud_barrens"
+  },
+  "content": {
+    "deposits": [
+      {
+        "id": "coal",
+        "block": "minecraft:coal_ore",
+        "below_zero_block": "minecraft:deepslate_coal_ore",
+        "min_y": -128,
+        "max_y": 362,
+        "attempts": 2,
+        "chance": 0.46,
+        "radius": 4,
+        "minimum_cover": 2
+      },
+      {
+        "id": "copper",
+        "block": "minecraft:copper_ore",
+        "below_zero_block": "minecraft:deepslate_copper_ore",
+        "min_y": -256,
+        "max_y": 362,
+        "attempts": 2,
+        "chance": 0.48,
+        "radius": 5,
+        "minimum_cover": 3
+      },
+      {
+        "id": "iron",
+        "block": "minecraft:iron_ore",
+        "below_zero_block": "minecraft:deepslate_iron_ore",
+        "min_y": -2400,
+        "max_y": 362,
+        "attempts": 2,
+        "chance": 0.60,
+        "radius": 4,
+        "minimum_cover": 3
+      },
+      {
+        "id": "gold",
+        "block": "minecraft:gold_ore",
+        "below_zero_block": "minecraft:deepslate_gold_ore",
+        "min_y": -1300,
+        "max_y": 96,
+        "attempts": 1,
+        "chance": 0.36,
+        "radius": 4,
+        "minimum_cover": 5
+      },
+      {
+        "id": "lapis",
+        "block": "minecraft:lapis_ore",
+        "below_zero_block": "minecraft:deepslate_lapis_ore",
+        "min_y": -980,
+        "max_y": 144,
+        "attempts": 1,
+        "chance": 0.25,
+        "radius": 3,
+        "minimum_cover": 4
+      },
+      {
+        "id": "redstone",
+        "block": "minecraft:redstone_ore",
+        "below_zero_block": "minecraft:deepslate_redstone_ore",
+        "min_y": -2300,
+        "max_y": -32,
+        "attempts": 1,
+        "chance": 0.39,
+        "radius": 4,
+        "minimum_cover": 4
+      },
+      {
+        "id": "diamond",
+        "block": "minecraft:diamond_ore",
+        "below_zero_block": "minecraft:deepslate_diamond_ore",
+        "min_y": -2300,
+        "max_y": -48,
+        "attempts": 1,
+        "chance": 0.16,
+        "radius": 3,
+        "minimum_cover": 7
+      },
+      {
+        "id": "emerald",
+        "block": "minecraft:emerald_ore",
+        "below_zero_block": "minecraft:deepslate_emerald_ore",
+        "min_y": 180,
+        "max_y": 362,
+        "attempts": 1,
+        "chance": 0.19,
+        "radius": 2,
+        "minimum_cover": 3
+      },
+      {
+        "id": "gravel_pocket",
+        "block": "minecraft:gravel",
+        "min_y": -48,
+        "max_y": 362,
+        "attempts": 1,
+        "chance": 0.26,
+        "radius": 4,
+        "minimum_cover": 4
+      }
+    ],
+    "landmarks": [
+      {
+        "id": "homestead",
+        "kind": "homestead",
+        "chance": 0.92,
+        "max_slope": 0.5,
+        "wall": "minecraft:cobblestone",
+        "floor": "minecraft:spruce_planks",
+        "loot_table": "stratacubes:chests/homestead"
+      },
+      {
+        "id": "watchtower",
+        "kind": "watchtower",
+        "spacing": 156,
+        "chance": 0.78,
+        "max_slope": 1.28,
+        "wall": "minecraft:stone_bricks",
+        "floor": "minecraft:spruce_planks",
+        "loot_table": "stratacubes:chests/watchtower"
+      },
+      {
+        "id": "ruin",
+        "kind": "ruin",
+        "spacing": 136,
+        "chance": 0.82,
+        "max_slope": 1.1,
+        "wall": "minecraft:mossy_stone_bricks",
+        "floor": "minecraft:cracked_stone_bricks",
+        "loot_table": "stratacubes:chests/ruin"
+      },
+      {
+        "id": "mine",
+        "kind": "mine",
+        "spacing": 116,
+        "chance": 0.88,
+        "max_slope": 0.95,
+        "wall": "minecraft:cobbled_deepslate",
+        "floor": "minecraft:oak_planks",
+        "loot_table": "stratacubes:chests/mine"
+      }
+    ],
+    "fixed_sites": []
+  },
+  "loot_tables": {
+    "stratacubes:chests/homestead": {
+      "type": "minecraft:chest",
+      "pools": [
+        {
+          "name": "supplies",
+          "rolls": {
+            "type": "minecraft:uniform",
+            "min": 3,
+            "max": 5
+          },
+          "entries": [
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:bread",
+              "weight": 14,
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": {
+                    "type": "minecraft:uniform",
+                    "min": 2,
+                    "max": 6
+                  }
+                }
+              ]
+            },
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:wheat_seeds",
+              "weight": 9,
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": {
+                    "type": "minecraft:uniform",
+                    "min": 3,
+                    "max": 7
+                  }
+                }
+              ]
+            },
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:potato",
+              "weight": 8,
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": {
+                    "type": "minecraft:uniform",
+                    "min": 2,
+                    "max": 4
+                  }
+                }
+              ]
+            },
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:iron_nugget",
+              "weight": 6,
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": {
+                    "type": "minecraft:uniform",
+                    "min": 3,
+                    "max": 12
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "stratacubes:chests/watchtower": {
+      "type": "minecraft:chest",
+      "pools": [
+        {
+          "name": "supplies",
+          "rolls": {
+            "type": "minecraft:uniform",
+            "min": 3,
+            "max": 5
+          },
+          "entries": [
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:arrow",
+              "weight": 12,
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": {
+                    "type": "minecraft:uniform",
+                    "min": 5,
+                    "max": 18
+                  }
+                }
+              ]
+            },
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:bread",
+              "weight": 10,
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": {
+                    "type": "minecraft:uniform",
+                    "min": 2,
+                    "max": 5
+                  }
+                }
+              ]
+            },
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:iron_ingot",
+              "weight": 6,
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": {
+                    "type": "minecraft:uniform",
+                    "min": 1,
+                    "max": 3
+                  }
+                }
+              ]
+            },
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:spyglass",
+              "weight": 2
+            },
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:compass",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    },
+    "stratacubes:chests/ruin": {
+      "type": "minecraft:chest",
+      "pools": [
+        {
+          "name": "supplies",
+          "rolls": {
+            "type": "minecraft:uniform",
+            "min": 3,
+            "max": 5
+          },
+          "entries": [
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:gold_nugget",
+              "weight": 15,
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": {
+                    "type": "minecraft:uniform",
+                    "min": 3,
+                    "max": 14
+                  }
+                }
+              ]
+            },
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:bone",
+              "weight": 10,
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": {
+                    "type": "minecraft:uniform",
+                    "min": 2,
+                    "max": 6
+                  }
+                }
+              ]
+            },
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:lapis_lazuli",
+              "weight": 6,
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": {
+                    "type": "minecraft:uniform",
+                    "min": 2,
+                    "max": 8
+                  }
+                }
+              ]
+            },
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:emerald",
+              "weight": 3,
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": {
+                    "type": "minecraft:uniform",
+                    "min": 1,
+                    "max": 2
+                  }
+                }
+              ]
+            },
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:golden_apple",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    },
+    "stratacubes:chests/mine": {
+      "type": "minecraft:chest",
+      "pools": [
+        {
+          "name": "supplies",
+          "rolls": {
+            "type": "minecraft:uniform",
+            "min": 3,
+            "max": 5
+          },
+          "entries": [
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:torch",
+              "weight": 15,
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": {
+                    "type": "minecraft:uniform",
+                    "min": 5,
+                    "max": 14
+                  }
+                }
+              ]
+            },
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:raw_iron",
+              "weight": 12,
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": {
+                    "type": "minecraft:uniform",
+                    "min": 2,
+                    "max": 6
+                  }
+                }
+              ]
+            },
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:raw_copper",
+              "weight": 9,
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": {
+                    "type": "minecraft:uniform",
+                    "min": 3,
+                    "max": 8
+                  }
+                }
+              ]
+            },
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:rail",
+              "weight": 7,
+              "functions": [
+                {
+                  "function": "minecraft:set_count",
+                  "count": {
+                    "type": "minecraft:uniform",
+                    "min": 3,
+                    "max": 9
+                  }
+                }
+              ]
+            },
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:iron_pickaxe",
+              "weight": 2
+            },
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:diamond",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
