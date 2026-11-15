@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "stratacubes:block/shelf_fungus"
+    },
+    "facing=east": {
+      "model": "stratacubes:block/shelf_fungus",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "stratacubes:block/shelf_fungus",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "stratacubes:block/shelf_fungus",
+      "y": 270
+    }
+  }
+}

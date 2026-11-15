@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "stratacubes:petrified_log"
+    }
+  ],
+  "result": {
+    "item": "stratacubes:petrified_planks",
+    "count": 4
+  }
+}

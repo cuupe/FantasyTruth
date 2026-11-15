@@ -38,7 +38,7 @@ $toOfficial = Join-Path $stage 'srg-to-official.tsrg'
 $toSrg = Join-Path $stage 'official-to-srg.tsrg'
 $named = Join-Path $stage 'minecraft-official.jar'
 $devJar = Join-Path $stage 'FantasyTruth-dev.jar'
-$modJar = Join-Path $out 'FantasyTruth-0.11.0-alpha.1.jar'
+$modJar = Join-Path $out 'FantasyTruth-0.11.0-alpha.17.jar'
 
 Run-Jdk 'java' @('-cp', $mappingLib, (Join-Path $PSScriptRoot 'LocalMappings.java'),
     $merged, "$client-mappings.txt", $toOfficial, $toSrg)
@@ -52,6 +52,13 @@ $deps = @($named, $forge) + @($profile.libraries | ForEach-Object {
         if (Test-Path -LiteralPath $file -PathType Leaf) { $file }
     }
 })
+# Match the stock NeoForge access rule needed by BlockEntityType.Builder on the local vanilla compile classpath.
+$localAccess = Join-Path $stage 'local-access.cfg'
+'public net.minecraft.world.level.block.entity.BlockEntityType$BlockEntitySupplier' | Set-Content $localAccess -Encoding ascii
+$compileMinecraft = Join-Path $stage 'minecraft-compile.jar'
+Run-Jdk 'java' @('-cp', ($deps -join ';'), 'net.minecraftforge.accesstransformer.TransformerProcessor',
+    '--inJar', $named, '--outJar', $compileMinecraft, '--atFile', $localAccess) *> (Join-Path $stage 'compile-access.log')
+$deps[0] = $compileMinecraft
 $sources = @(Get-ChildItem -Path (Join-Path $project 'src/main/java') -Recurse -Filter '*.java' -File |
     ForEach-Object FullName)
 Run-Jdk 'javac' (@('--release', '17', '-proc:none', '-encoding', 'UTF-8', '-cp', ($deps -join ';'), '-d', $classes) + $sources)

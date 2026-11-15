@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "RSR",
+    "RSR",
+    "RSR"
+  ],
+  "key": {
+    "R": {
+      "item": "stratacubes:i_rope"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "item": "stratacubes:ropeladder",
+    "count": 9
+  }
+}

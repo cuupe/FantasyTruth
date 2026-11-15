@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ICI",
+    "C C",
+    "ICI"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "C": {
+      "item": "stratacubes:cable"
+    }
+  },
+  "result": {
+    "item": "stratacubes:elevator_shaft",
+    "count": 6
+  }
+}

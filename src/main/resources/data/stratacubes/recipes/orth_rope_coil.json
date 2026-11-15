@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "stratacubes:i_rope"
+    },
+    {
+      "item": "stratacubes:i_rope"
+    },
+    {
+      "item": "stratacubes:i_rope"
+    }
+  ],
+  "result": {
+    "item": "stratacubes:orth_rope_coil",
+    "count": 1
+  }
+}

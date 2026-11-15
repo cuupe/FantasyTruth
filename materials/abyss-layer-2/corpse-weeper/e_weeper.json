@@ -1,0 +1,58 @@
+{
+  "id": "e_weeper",
+  "identifier": "geometry.entity/e_weeper",
+  "texSize": "128x128",
+  "uvUsed": 5382,
+  "bones": [
+    "part_root",
+    "part_body",
+    "part_chest",
+    "part_neck_0",
+    "part_neck_1",
+    "part_head",
+    "part_jaw",
+    "part_wattle",
+    "part_wing_l",
+    "part_wing_r",
+    "part_blade_l",
+    "part_blade_r",
+    "part_tail_0",
+    "part_tail_1",
+    "part_tail_2",
+    "part_leg_l",
+    "part_leg_r",
+    "part_shank_l",
+    "part_shank_r",
+    "part_foot_l",
+    "part_foot_r"
+  ],
+  "cubes": 57,
+  "anims": [
+    "animation.e_weeper.idle:3.4s",
+    "animation.e_weeper.walk:1.8s",
+    "animation.e_weeper.fly:1.3s",
+    "animation.e_weeper.attack:1.5s",
+    "animation.e_weeper.hurt:0.55s",
+    "animation.e_weeper.death:2.3s"
+  ],
+  "files": [
+    "geo/e_weeper.geo.json",
+    "animations/e_weeper.animation.json",
+    "textures/e_weeper.png",
+    "projects/e_weeper.bbmodel"
+  ],
+  "warnings": [],
+  "bbox": [
+    26,
+    35,
+    29,
+    0
+  ],
+  "uvPct": 32.8,
+  "tris": 342,
+  "zfix": {
+    "culled": 24,
+    "coplanar": 97,
+    "inflated": 27
+  }
+}

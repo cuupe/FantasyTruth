@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:glass_bottle"
+    },
+    [
+      {
+        "item": "stratacubes:mat_meat"
+      },
+      {
+        "item": "stratacubes:mat_squid_meat"
+      },
+      {
+        "item": "stratacubes:mat_ink"
+      }
+    ]
+  ],
+  "result": {
+    "item": "stratacubes:i_oil",
+    "count": 1
+  }
+}

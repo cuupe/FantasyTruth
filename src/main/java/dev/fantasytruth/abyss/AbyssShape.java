@@ -19,17 +19,19 @@ final class AbyssShape {
     private static final BlockState TERRACOTTA = Blocks.TERRACOTTA.defaultBlockState();
     private static final BlockState BASALT = Blocks.SMOOTH_BASALT.defaultBlockState();
 
-    record Column(double radius, double angle, double warp, int roof, int phase) {}
+    record Column(double radius, double angle, double warp, int roof, int phase, java.util.List<EdgeTerrain.Span> entrance) {}
     private record Slice(double progress, double blend, double radius, double ledge) {}
 
     final AbyssLayer layer;
     final long seed;
     private final TerrainField noise;
+    final boolean forestMouth;
     private final Slice[] slices = new Slice[AbyssLayer.MAX_Y - AbyssLayer.MIN_Y];
 
-    AbyssShape(AbyssLayer layer, long seed) {
+    AbyssShape(AbyssLayer layer, long seed, boolean forestMouth) {
         this.layer = layer;
         this.seed = seed;
+        this.forestMouth = forestMouth;
         this.noise = new TerrainField(seed ^ (0x9e3779b97f4a7c15L * (layer.ordinal() + 1)));
         for (int y = AbyssLayer.MIN_Y; y < AbyssLayer.MAX_Y; y++) {
             double progress = Math.max(0, Math.min(1, (layer.entrance - y) / (double) (layer.entrance - layer.exit)));
@@ -58,7 +60,13 @@ final class AbyssShape {
                 + 10 * Math.sin(7 * angle) + 5 * Math.cos(15 * angle);
         int roof = layer.entrance + 60 + (int) (18 * noise.noise(x, z, 93, 73));
         int phase = Math.floorMod(AtlasField.hash(seed, x >> 3, 0, z >> 3), 23);
-        return new Column(radius, angle, warp, roof, phase);
+        java.util.List<EdgeTerrain.Span> entrance = null;
+        if (forestMouth && radius < ForestMouth.RADIUS) {
+            entrance = ForestMouth.shelves((int) dx, (int) dz, radius);
+            roof = entrance.isEmpty() ? ForestMouth.BOTTOM + ForestMouth.OFFSET
+                    : entrance.get(0).top() + ForestMouth.OFFSET;
+        }
+        return new Column(radius, angle, warp, roof, phase, entrance);
     }
 
     BlockState block(Column column, int y) {
@@ -80,6 +88,16 @@ final class AbyssShape {
 
         // The rock collar keeps the fifth-layer basin separate from the central descent.
         if (layer == AbyssLayer.SEA && y >= 326 && y <= 410 && r <= 39) return CALCITE;
+        if (column.entrance != null) {
+            int relativeY = y - ForestMouth.OFFSET;
+            if (relativeY >= ForestMouth.BOTTOM) return ForestMouth.rock(column.entrance, relativeY);
+            double depth = ForestMouth.BOTTOM - relativeY;
+            if (depth < 85) {
+                double t = depth / 85;
+                double rim = ForestMouth.throat(column.angle);
+                wall = rim + (wall - rim) * t * t * (3 - 2 * t);
+            }
+        }
         if (r < wall) {
             if (layer == AbyssLayer.SEA && y >= 326 && y <= 401) return y <= 341 ? CALCITE : WATER;
             return AIR;

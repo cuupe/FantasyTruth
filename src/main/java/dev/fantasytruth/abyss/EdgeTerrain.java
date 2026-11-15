@@ -13,6 +13,22 @@ final class EdgeTerrain {
     static final int MAX_Y = AbyssLayer.MAX_Y;
     static final int EXIT = -1350;
     static final int NO_SHELF = Integer.MIN_VALUE;
+    enum Layout {
+        LEGACY(false, false), EXPANDED(false, false), FORESTED(true, false), MOSS_PIT(true, true), ERODED(true, true), FOREST_MOUTH(true, true), WALL_TERRACES(true, true), WILD_EDGE(true, true);
+
+        final boolean forested;
+        final boolean mossPit;
+
+        boolean forestMouth() { return this == FOREST_MOUTH || wallTerraces(); }
+        boolean wallTerraces() { return this == WALL_TERRACES || wildEdge(); }
+        boolean wildEdge() { return this == WILD_EDGE; }
+        boolean eroded() { return this == ERODED || forestMouth(); }
+
+        Layout(boolean forested, boolean mossPit) {
+            this.forested = forested;
+            this.mossPit = mossPit;
+        }
+    }
     private static final TerrainField FIELD = new TerrainField(0x61627973732d6c31L);
 
     static final List<Shelf> SHELVES = List.of(
@@ -26,22 +42,20 @@ final class EdgeTerrain {
             new Shelf(2.72, 0.83, 142, -1241, 39));
 
     static Column column(int x, int z) {
-        return column(x, z, false);
+        return column(x, z, Layout.LEGACY);
     }
 
-    static Column column(int x, int z, boolean expanded) {
-        return column(x, z, expanded, false);
-    }
-
-    static Column column(int x, int z, boolean expanded, boolean forested) {
+    static Column column(int x, int z, Layout layout) {
         int dx = OrthIsland.localX(x), dz = OrthIsland.localZ(z);
+        double pit = Math.abs(dx) < 650 && Math.abs(dz) < 650 ? OrthRelief.pitDistance(dx, dz) : Double.POSITIVE_INFINITY;
+        if (pit >= OrthIsland.SHAFT_RADIUS) return new Column(OrthRelief.elevation(dx, dz), false, -1, List.of());
         double radius = OrthIsland.distance(dx, dz);
-        boolean opening = OrthIsland.shaftColumn(dx, dz);
-        int upper = opening ? -1 : OrthRelief.elevation(dx, dz);
-        int bottom = opening ? -1462 + (int) (22 * FIELD.noise(dx, dz, 102, 9)) : -1;
-        if (!opening) return new Column(upper, false, bottom, List.of());
-        if (expanded) return new Column(upper, true, bottom, EdgeLandscape.shelves(dx, dz, radius, forested),
-                EdgeLandscape.scarps(dx, dz, radius));
+        int upper = -1;
+        int bottom = -1462 + (int) (22 * FIELD.noise(dx, dz, 102, 9));
+        if (layout.forestMouth() ? ForestMouth.opening(dx, dz)
+                : layout.mossPit && radius < EdgeBasin.APPROACH_RADIUS && EdgeBasin.hole(dx, dz)) bottom = -1527;
+        if (layout != Layout.LEGACY) return new Column(upper, true, bottom, EdgeLandscape.shelves(dx, dz, radius, layout),
+                EdgeLandscape.scarps(dx, dz, radius, OrthIsland.SHAFT_RADIUS - pit, layout));
         if (radius < 133) return new Column(upper, true, bottom, List.of());
         var shelves = new ArrayList<Span>(3);
         double angle = Math.atan2(dz, dx);
@@ -74,53 +88,56 @@ final class EdgeTerrain {
         return new Span(top - thickness, top);
     }
 
-    static BlockState block(Column column, int y) {
+    static BlockState block(Column column, int y, Layout layout) {
         if (y == MIN_Y) return Blocks.BEDROCK.defaultBlockState();
         if (!column.opening) {
-            if (y < 0) return wall(y);
+            if (y < 0) return wall(y, layout);
             if (y <= column.upper) {
                 if (y == column.upper && y >= OrthIsland.SEA) return Blocks.GRASS_BLOCK.defaultBlockState();
                 if (y > column.upper - 4) return Blocks.DIRT.defaultBlockState();
-                return wall(y);
+                return wall(y, layout);
             }
             return y < OrthIsland.SEA ? Blocks.WATER.defaultBlockState() : Blocks.AIR.defaultBlockState();
         }
         if (y <= column.bottom) {
-            return y > column.bottom - 3 ? OrthBlocks.ABYSS_MOSS.get().defaultBlockState() : wall(y);
+            return y > column.bottom - 3 ? OrthBlocks.ABYSS_MOSS.get().defaultBlockState() : wall(y, layout);
         }
         for (Span shelf : column.shelves) {
-            if (y >= shelf.bottom && y <= shelf.top) return shelfMaterial(shelf, y);
+            if (y >= shelf.bottom && y <= shelf.top) return shelfMaterial(shelf, y, layout);
             if (y > shelf.top && y <= shelf.water) return Blocks.WATER.defaultBlockState();
         }
         for (Rock rock : column.rocks) {
-            if (y >= rock.bottom && y <= rock.top) return scarpMaterial(rock, y);
+            if (y >= rock.bottom && y <= rock.top) return scarpMaterial(rock, y, layout);
         }
         return Blocks.AIR.defaultBlockState();
     }
 
-    static BlockState shelfMaterial(Span span, int y) {
+    static BlockState shelfMaterial(Span span, int y, Layout layout) {
         if (y == span.top) return switch (span.cover) {
             case MEADOW, FLOWERS -> Blocks.GRASS_BLOCK.defaultBlockState();
-            case WOODLAND -> Blocks.PODZOL.defaultBlockState();
-            case FERN, WETLAND -> Blocks.MOSS_BLOCK.defaultBlockState();
+            case WOODLAND -> layout.mossPit && span.top <= -1218 ? Blocks.MOSS_BLOCK.defaultBlockState()
+                    : Blocks.PODZOL.defaultBlockState();
+            case FERN, WETLAND, PIT_MOSS -> Blocks.MOSS_BLOCK.defaultBlockState();
             case SCREE -> Blocks.COARSE_DIRT.defaultBlockState();
             case TRAIL -> Blocks.GRAVEL.defaultBlockState();
             case POOL -> Blocks.CLAY.defaultBlockState();
         };
+        if (span.cover == EdgeLandscape.Cover.PIT_MOSS && y > span.top - 8) return Blocks.MOSS_BLOCK.defaultBlockState();
         if (y > span.top - 4) return Blocks.ROOTED_DIRT.defaultBlockState();
-        return wall(y);
+        return wall(y, layout);
     }
 
-    static BlockState wall(int y) {
+    static BlockState wall(int y, Layout layout) {
+        if (layout.mossPit) return OrthBlocks.STONE.get().defaultBlockState();
         if (y < -1120 && Math.floorMod(y, 99) > 58) return Blocks.DEEPSLATE.defaultBlockState();
         if (Math.floorMod(y, 103) < 14) return OrthBlocks.CHALK.get().defaultBlockState();
         if (Math.floorMod(y, 149) > 119) return Blocks.ANDESITE.defaultBlockState();
         return OrthBlocks.STONE.get().defaultBlockState();
     }
 
-    static BlockState scarpMaterial(Rock rock, int y) {
-        if (y == rock.top) return Blocks.TUFF.defaultBlockState();
-        return wall(y + rock.skew);
+    static BlockState scarpMaterial(Rock rock, int y, Layout layout) {
+        if (y == rock.top && !layout.mossPit) return Blocks.TUFF.defaultBlockState();
+        return wall(y + rock.skew, layout);
     }
 
     record Shelf(double angle, double halfWidth, int front, int y, int thickness) {}

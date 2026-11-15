@@ -1,0 +1,35 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "stratacubes:i_curse_box",
+          "weight": 15
+        },
+        {
+          "type": "minecraft:item",
+          "name": "stratacubes:i_thousand_pins",
+          "weight": 11
+        },
+        {
+          "type": "minecraft:item",
+          "name": "stratacubes:i_blaze_reap",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "stratacubes:i_unheard_bell",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "stratacubes:i_sparagmos",
+          "weight": 3
+        }
+      ]
+    }
+  ]
+}

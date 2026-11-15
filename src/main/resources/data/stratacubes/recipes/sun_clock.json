@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " G ",
+    "GCG",
+    "SSS"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:gold_nugget"
+    },
+    "C": {
+      "item": "minecraft:daylight_detector"
+    },
+    "S": {
+      "item": "minecraft:cut_copper"
+    }
+  },
+  "result": {
+    "item": "stratacubes:sun_clock",
+    "count": 1
+  }
+}

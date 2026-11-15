@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "WWW",
+    "RRR"
+  ],
+  "key": {
+    "W": {
+      "tag": "minecraft:wool"
+    },
+    "R": {
+      "item": "stratacubes:i_rope"
+    }
+  },
+  "result": {
+    "item": "stratacubes:camp_bedroll",
+    "count": 1
+  }
+}

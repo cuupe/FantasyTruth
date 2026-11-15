@@ -1,0 +1,38 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:stick"
+    },
+    [
+      {
+        "item": "stratacubes:mat_beak_plate"
+      },
+      {
+        "item": "stratacubes:mat_fang"
+      },
+      {
+        "item": "stratacubes:mat_needle"
+      },
+      {
+        "item": "stratacubes:mat_stinger_tip"
+      },
+      {
+        "item": "stratacubes:mat_sickle_horn"
+      }
+    ],
+    [
+      {
+        "item": "stratacubes:mat_feather"
+      },
+      {
+        "item": "minecraft:feather"
+      }
+    ]
+  ],
+  "result": {
+    "item": "minecraft:arrow",
+    "count": 4
+  }
+}

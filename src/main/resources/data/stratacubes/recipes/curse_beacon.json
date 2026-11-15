@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " A ",
+    "RCR",
+    "SSS"
+  ],
+  "key": {
+    "A": {
+      "item": "stratacubes:i_crystal_shard"
+    },
+    "C": {
+      "item": "minecraft:comparator"
+    },
+    "R": {
+      "item": "stratacubes:relic_shard"
+    },
+    "S": {
+      "item": "minecraft:smooth_stone"
+    }
+  },
+  "result": {
+    "item": "stratacubes:curse_beacon",
+    "count": 1
+  }
+}

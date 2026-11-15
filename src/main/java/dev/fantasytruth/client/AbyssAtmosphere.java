@@ -34,6 +34,8 @@ public final class AbyssAtmosphere {
     private static final String SHADER_NAME = "fantasytruth_abyss_air";
     private static ShaderInstance airShader;
 
+    private record Atmosphere(Air air, float weight, float surfaceOnly) {}
+
     private record Color(float r, float g, float b) {
         Color(int rgb) { this((rgb >> 16 & 255) / 255F, (rgb >> 8 & 255) / 255F, (rgb & 255) / 255F); }
         Color mix(Color other, float t) {
@@ -59,6 +61,7 @@ public final class AbyssAtmosphere {
     }
 
     private static final Air MOUTH = new Air(0xbccdd5, 0xa9bab9, 0x91a7ab, 0.62F, 0.27F, 0.30F);
+    private static final Air NIGHT = new Air(0x171e30, 0x111723, 0x0c121a, 0.87F, 0.12F, 0.0F);
     private static final Air[] EDGE = {
             new Air(0xd7e5ee, 0xbbd1df, 0x9bb6c9, 0.87F, 0.34F, 0.39F),
             new Air(0xd6e3d7, 0xb8cccb, 0x96b1b9, 0.86F, 0.32F, 0.34F),
@@ -69,7 +72,9 @@ public final class AbyssAtmosphere {
             new Air(0x9ebcb7, 0x7d9fa3, 0x64878d, 0.78F, 0.30F, 0.09F)
     };
     private static final int[] EDGE_DEPTHS = {0, 220, 420, 600, 820, 1080, 1350};
-    private static final Air FOREST = new Air(0x5c8b72, 0x426c60, 0x294e4b, 0.40F, 0.22F, 0.08F);
+    private static final Air FOREST = new Air(0x8da99b, 0x6c8d7e, 0x38594e, 0.67F, 0.17F, 0.08F);
+    private static final Air LOW_FOREST = new Air(0x819f91, 0x617f73, 0x345347, 0.60F, 0.15F, 0.07F);
+    private static final Air INVERTED_FOREST = new Air(0x45444e, 0x393745, 0x302d42, 0.58F, 0.18F, 0.08F);
     private static final Air FAULT = new Air(0xa6afbc, 0x79889a, 0x515c71, 0.48F, 0.33F, 0.08F);
     private static final Air GOBLETS = new Air(0xa9bcb1, 0x779c92, 0x577f83, 0.50F, 0.31F, 0.12F);
     private static final Air SEA = new Air(0x807b8e, 0x5a627b, 0x353f58, 0.42F, 0.27F, 0.06F);
@@ -95,20 +100,21 @@ public final class AbyssAtmosphere {
     @SubscribeEvent
     public static void fogColor(ViewportEvent.ComputeFogColor event) {
         if (AbyssShaderPacks.active()) return;
-        Air air = air(event.getCamera());
-        if (air == null) return;
-        Color fog = air.towards(event.getCamera().getLookVector().y());
-        event.setRed(fog.r);
-        event.setGreen(fog.g);
-        event.setBlue(fog.b);
+        var atmosphere = atmosphere(event.getCamera(), (float) event.getPartialTick());
+        if (atmosphere == null) return;
+        Color fog = atmosphere.air.towards(event.getCamera().getLookVector().y());
+        event.setRed(Mth.lerp(atmosphere.weight, event.getRed(), fog.r));
+        event.setGreen(Mth.lerp(atmosphere.weight, event.getGreen(), fog.g));
+        event.setBlue(Mth.lerp(atmosphere.weight, event.getBlue(), fog.b));
     }
 
     @SubscribeEvent
     public static void fogDistance(ViewportEvent.RenderFog event) {
         if (event.getMode() != FogRenderer.FogMode.FOG_TERRAIN || AbyssShaderPacks.active()) return;
-        Air air = air(event.getCamera());
-        if (air == null) return;
-        event.setNearPlaneDistance(event.getFarPlaneDistance() * air.clearDistance);
+        var atmosphere = atmosphere(event.getCamera(), (float) event.getPartialTick());
+        if (atmosphere == null) return;
+        event.setNearPlaneDistance(Mth.lerp(atmosphere.weight, event.getNearPlaneDistance(),
+                event.getFarPlaneDistance() * atmosphere.air.clearDistance));
         event.setCanceled(true);
     }
 
@@ -116,12 +122,13 @@ public final class AbyssAtmosphere {
     public static void sky(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_SKY || airShader == null || AbyssShaderPacks.active()) return;
         Camera camera = event.getCamera();
-        Air air = air(camera);
-        if (air == null) return;
+        var atmosphere = atmosphere(camera, event.getPartialTick());
+        if (atmosphere == null) return;
+        Air air = atmosphere.air;
         var projection = event.getProjectionMatrix();
         if (projection.m00() <= 0 || projection.m11() <= 0) return;
         Vec3 pos = camera.getPosition();
-        boolean mouth = air == MOUTH;
+
         Vec3 aperture = new Vec3(AbyssLayer.CENTER_X - pos.x, Math.max(86, 168 - pos.y), AbyssLayer.CENTER_Z - pos.z).normalize();
         var program = airShader;
         program.safeGetUniform("Forward").set(camera.getLookVector());
@@ -135,7 +142,8 @@ public final class AbyssAtmosphere {
         uniform(program, "LowerColor", air.lower);
         program.safeGetUniform("CloudStrength").set(air.cloud);
         program.safeGetUniform("ApertureStrength").set(air.aperture);
-        program.safeGetUniform("SurfaceOnly").set(mouth ? 1F : 0F);
+        program.safeGetUniform("SurfaceOnly").set(atmosphere.surfaceOnly);
+        program.safeGetUniform("AtmosphereWeight").set(atmosphere.weight);
 
         var previous = RenderSystem.getShader();
         RenderSystem.depthMask(false);
@@ -162,8 +170,14 @@ public final class AbyssAtmosphere {
 
     public static boolean replacesHorizon() {
         Minecraft mc = Minecraft.getInstance();
-        return mc.level != null && (AbyssLayer.of(mc.level.dimension()) != null
+        return mc.level != null && !AbyssShaderPacks.active() && (AbyssLayer.of(mc.level.dimension()) != null
                 || mc.player != null && mouth(mc.level, mc.player.position()));
+    }
+
+    public static boolean hidesVanillaClouds(double x, double y, double z) {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null || AbyssShaderPacks.active()) return false;
+        return AbyssLayer.of(level.dimension()) != null || mouth(level, new Vec3(x, y, z));
     }
 
     private static boolean mouth(ClientLevel level, Vec3 pos) {
@@ -171,24 +185,54 @@ public final class AbyssAtmosphere {
                 && pos.y < 330 && OrthIsland.inShaft(pos.x, pos.z);
     }
 
-    private static Air air(Camera camera) {
+    private static Atmosphere atmosphere(Camera camera, float partialTick) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null || camera.getFluidInCamera() != FogType.NONE) return null;
         if (camera.getEntity() instanceof LivingEntity entity
                 && (entity.hasEffect(MobEffects.BLINDNESS) || entity.hasEffect(MobEffects.DARKNESS))) return null;
         var layer = AbyssLayer.of(level.dimension());
         Vec3 pos = camera.getPosition();
-        if (layer == null) return mouth(level, pos) ? MOUTH : null;
-        return switch (layer) {
-            case EDGE -> edge(level.dimensionTypeId().location().equals(AbyssTransit.EDGE_TYPE) ? -pos.y
-                    : (layer.entrance - pos.y) * 1350 / (layer.entrance - layer.exit));
-            case FOREST -> FOREST;
+        boolean surface = level.dimension() == Level.OVERWORLD && level.dimensionTypeId().location().equals(AbyssTransit.EXPEDITION);
+        boolean edge = layer == AbyssLayer.EDGE && level.dimensionTypeId().location().equals(AbyssTransit.EDGE_TYPE);
+        if (surface || edge) {
+            float weight = surface ? surfaceWeight(pos) : 1F;
+            if (weight <= 0F) return null;
+            float daylight = smooth(Mth.clamp((Mth.cos(level.getSunAngle(partialTick)) + 0.15F) / 0.44F, 0F, 1F));
+            daylight *= 1F - 0.42F * level.getRainLevel(partialTick) - 0.18F * level.getThunderLevel(partialTick);
+            float surfaceOnly = smooth(Mth.clamp(((float) pos.y - 16F) / 128F, 0F, 1F));
+            return new Atmosphere(NIGHT.mix(collar(pos.y), daylight), weight, surfaceOnly);
+        }
+        if (layer == null) return null;
+        Air air = switch (layer) {
+            case EDGE -> edge((layer.entrance - pos.y) * 1350 / (layer.entrance - layer.exit));
+            case FOREST -> level.dimensionTypeId().location().getPath().equals("abyss_forest_deep")
+                    ? collar(-1350 - (736 - pos.y)).mix(FOREST, smooth(Mth.clamp((736F - (float) pos.y) / 116F, 0F, 1F)))
+                        .mix(LOW_FOREST, smooth(Mth.clamp((300F - (float) pos.y) / 950F, 0F, 1F)))
+                    : level.dimensionTypeId().location().getPath().equals("abyss_forest")
+                    ? collar(-1350 - (736 - pos.y)).mix(FOREST, smooth(Mth.clamp((736F - (float) pos.y) / 116F, 0F, 1F)))
+                        .mix(INVERTED_FOREST, smooth(Mth.clamp((145F - (float) pos.y) / 490F, 0F, 1F)))
+                    : FOREST;
             case FAULT -> FAULT;
             case GOBLETS -> GOBLETS;
             case SEA -> SEA;
             case CAPITAL -> CAPITAL;
             case MAELSTROM -> MAELSTROM;
         };
+        return new Atmosphere(air, 1F, 0F);
+    }
+
+    private static float surfaceWeight(Vec3 pos) {
+        if (pos.y >= 330 || !AbyssLayer.passage(pos.x, pos.z, 650)) return 0F;
+        float altitude = smooth(Mth.clamp((330F - (float) pos.y) / 110F, 0F, 1F));
+        float setback = (float) OrthIsland.shaftSetback(pos.x, pos.z);
+        return altitude * (1F - smooth(Mth.clamp(setback / 20F, 0F, 1F)));
+    }
+
+    private static Air collar(double y) {
+        if (y >= 144) return MOUTH;
+        if (y <= -75) return edge(-y);
+        float blend = smooth((float) Math.max(0, Math.min(1, (144 - y) / 219)));
+        return MOUTH.mix(edge(-y), blend);
     }
 
     private static Air edge(double depth) {

@@ -1,0 +1,37 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ingredient": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "stratacubes:i_rope"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_ingredient"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "stratacubes:i_whistle_bell",
+      "stratacubes:orth_rope_coil",
+      "stratacubes:ropeladder",
+      "stratacubes:camp_tent",
+      "stratacubes:camp_bedroll",
+      "stratacubes:camp_supply_crate",
+      "stratacubes:delver_pickaxe",
+      "stratacubes:cable",
+      "stratacubes:pier_platform",
+      "stratacubes:mat_whistle_case",
+      "stratacubes:lead_from_rope"
+    ]
+  }
+}

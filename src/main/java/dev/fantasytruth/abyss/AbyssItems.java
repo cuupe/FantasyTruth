@@ -1,6 +1,8 @@
 package dev.fantasytruth.abyss;
 
 import dev.fantasytruth.FantasyTruth;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -26,8 +28,15 @@ public final class AbyssItems {
             DelverPickaxe::new);
     private static final RegistryObject<Item> DEPTH_GAUGE = ITEMS.register("depth_gauge",
             () -> new DepthGaugeItem(new Item.Properties().stacksTo(1)));
+    private static final RegistryObject<Item> COOKED_DEMONFISH = ITEMS.register("cooked_demonfish",
+            () -> AbyssGear.food(new Item.Properties(), 6, 0.65F));
+    private static final List<RegistryObject<Item>> MATERIALS = new ArrayList<>();
+    private static final List<RegistryObject<Item>> RELICS = new ArrayList<>();
+    private static final List<RegistryObject<Item>> EQUIPMENT = new ArrayList<>();
 
     static {
+        AbyssAssetCatalog.items(AbyssItems::catalogItem);
+        catalogItem("forest_egg_relic", "relic", 16);
         TABS.register("abyss_blocks", () -> CreativeModeTab.builder(CreativeModeTab.Row.TOP, 0)
                 .title(Component.translatable("itemGroup.stratacubes.abyss_blocks"))
                 .icon(() -> new ItemStack(OrthBlocks.RELIC_ORE.get()))
@@ -39,6 +48,7 @@ public final class AbyssItems {
                 .displayItems((parameters, output) -> {
                     output.accept(RELIC_SHARD.get());
                     output.accept(SPENT_RELIC.get());
+                    RELICS.forEach(item -> output.accept(item.get()));
                 })
                 .build());
         TABS.register("abyss_equipment", () -> CreativeModeTab.builder(CreativeModeTab.Row.TOP, 2)
@@ -47,8 +57,27 @@ public final class AbyssItems {
                 .displayItems((parameters, output) -> {
                     output.accept(DELVER_PICKAXE.get());
                     output.accept(DEPTH_GAUGE.get());
+                    EQUIPMENT.forEach(item -> output.accept(item.get()));
                 })
                 .build());
+        TABS.register("abyss_materials", () -> CreativeModeTab.builder(CreativeModeTab.Row.TOP, 3)
+                .title(Component.translatable("itemGroup.stratacubes.abyss_materials"))
+                .icon(() -> new ItemStack(MATERIALS.get(0).get()))
+                .displayItems((parameters, output) -> {
+                    output.accept(COOKED_DEMONFISH.get());
+                    MATERIALS.forEach(item -> output.accept(item.get()));
+                    AbyssFluids.buckets().forEach(item -> output.accept(item.get()));
+                })
+                .build());
+    }
+
+    private static void catalogItem(String id, String category, int stackSize) {
+        var item = ITEMS.register(id, () -> AbyssGear.create(id, new Item.Properties().stacksTo(stackSize)));
+        switch (category) {
+            case "relic" -> RELICS.add(item);
+            case "equipment" -> EQUIPMENT.add(item);
+            default -> MATERIALS.add(item);
+        }
     }
 
     public static void register(IEventBus bus) {
@@ -66,11 +95,7 @@ public final class AbyssItems {
         @Override
         public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
             if (!level.isClientSide) {
-                int y = player.getBlockY();
-                Component reading = level.dimensionTypeId().location().equals(AbyssTransit.EDGE_TYPE)
-                        ? Component.translatable("item.stratacubes.depth_gauge.depth", Math.max(0, -y))
-                        : Component.translatable("item.stratacubes.depth_gauge.altitude", y);
-                player.displayClientMessage(reading, true);
+                player.displayClientMessage(AbyssGear.depth(level, player.blockPosition()), true);
             }
             return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide);
         }

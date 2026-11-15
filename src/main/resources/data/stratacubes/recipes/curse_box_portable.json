@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "stratacubes:curse_box_block"
+    }
+  ],
+  "result": {
+    "item": "stratacubes:i_curse_box",
+    "count": 1
+  }
+}

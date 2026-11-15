@@ -4,15 +4,107 @@
     {
       "rolls": 4,
       "entries": [
-        { "type": "minecraft:item", "name": "minecraft:bread", "weight": 7, "functions": [{ "function": "minecraft:set_count", "count": { "min": 1, "max": 3 } }] },
-        { "type": "minecraft:item", "name": "minecraft:torch", "weight": 8, "functions": [{ "function": "minecraft:set_count", "count": { "min": 3, "max": 10 } }] },
-        { "type": "minecraft:item", "name": "minecraft:ladder", "weight": 6, "functions": [{ "function": "minecraft:set_count", "count": { "min": 4, "max": 12 } }] },
-        { "type": "minecraft:item", "name": "minecraft:string", "weight": 4, "functions": [{ "function": "minecraft:set_count", "count": { "min": 1, "max": 5 } }] },
-        { "type": "minecraft:item", "name": "minecraft:leather_boots", "weight": 1 },
-        { "type": "minecraft:item", "name": "minecraft:water_bucket", "weight": 2 },
-        { "type": "minecraft:item", "name": "minecraft:stone_pickaxe", "weight": 2 },
-        { "type": "minecraft:item", "name": "stratacubes:delver_pickaxe", "weight": 1 },
-        { "type": "minecraft:item", "name": "stratacubes:depth_gauge", "weight": 1 }
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:bread",
+          "weight": 7,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "min": 1,
+                "max": 3
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:torch",
+          "weight": 8,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "min": 3,
+                "max": 10
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:ladder",
+          "weight": 6,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "min": 4,
+                "max": 12
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:string",
+          "weight": 4,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "min": 1,
+                "max": 5
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:leather_boots",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:water_bucket",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:stone_pickaxe",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "stratacubes:delver_pickaxe",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "stratacubes:depth_gauge",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "stratacubes:i_rope",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "stratacubes:i_bandage",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "stratacubes:mat_ration",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "stratacubes:i_oil",
+          "weight": 2
+        }
       ]
     }
   ]

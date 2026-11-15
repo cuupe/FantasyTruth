@@ -1,0 +1,562 @@
+{
+  "meta": {
+    "format_version": "5.0",
+    "model_format": "java_block",
+    "box_uv": false
+  },
+  "name": "Fractured petrified stump · 断裂石化树桩",
+  "resolution": {
+    "width": 32,
+    "height": 16
+  },
+  "elements": [
+    {
+      "name": "mineralized base",
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        4,
+        14
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            2,
+            12,
+            14,
+            16
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            2,
+            12,
+            14,
+            16
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            2,
+            12,
+            14,
+            16
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            2,
+            12,
+            14,
+            16
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            2,
+            2,
+            14,
+            14
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            2,
+            2,
+            14,
+            14
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "1cbfa576-21c0-504a-a0d4-92dce15938dc",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    },
+    {
+      "name": "trunk shell",
+      "from": [
+        3,
+        4,
+        3
+      ],
+      "to": [
+        13,
+        10,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3,
+            6,
+            13,
+            12
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            3,
+            6,
+            13,
+            12
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            3,
+            6,
+            13,
+            12
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            3,
+            6,
+            13,
+            12
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            3,
+            3,
+            13,
+            13
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "texture": null
+        }
+      },
+      "uuid": "ebfa200f-bfe9-5563-8790-afcc052c0b44",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    },
+    {
+      "name": "growth rings",
+      "from": [
+        3,
+        10,
+        3
+      ],
+      "to": [
+        13,
+        10.5,
+        13
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            19,
+            5.5,
+            29,
+            6
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            19,
+            5.5,
+            29,
+            6
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            19,
+            5.5,
+            29,
+            6
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            19,
+            5.5,
+            29,
+            6
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            19,
+            3,
+            29,
+            13
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            19,
+            3,
+            29,
+            13
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "aac6386f-f58f-51b9-b661-e73016ccefb4",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    },
+    {
+      "name": "broken high rim",
+      "from": [
+        3,
+        10.51,
+        4
+      ],
+      "to": [
+        6,
+        13,
+        11
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            4,
+            3,
+            11,
+            5.49
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            3,
+            3,
+            6,
+            5.49
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            4,
+            3,
+            11,
+            5.49
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            3,
+            3,
+            6,
+            5.49
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            3,
+            4,
+            6,
+            11
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            3,
+            4,
+            6,
+            11
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "008b4817-da24-5f1f-895e-18263c2fe62c",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    },
+    {
+      "name": "split rim",
+      "from": [
+        10,
+        10.51,
+        9
+      ],
+      "to": [
+        13,
+        12,
+        13
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            9,
+            4,
+            13,
+            5.49
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            10,
+            4,
+            13,
+            5.49
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            9,
+            4,
+            13,
+            5.49
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            10,
+            4,
+            13,
+            5.49
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            10,
+            9,
+            13,
+            13
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            10,
+            9,
+            13,
+            13
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "169b21df-d57f-58a5-afe8-b41e9c52e9e9",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    },
+    {
+      "name": "root toe",
+      "from": [
+        0,
+        0,
+        4
+      ],
+      "to": [
+        5,
+        2,
+        8
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            4,
+            14,
+            8,
+            16
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            0,
+            14,
+            5,
+            16
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            4,
+            14,
+            8,
+            16
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            14,
+            5,
+            16
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            4,
+            5,
+            8
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            4,
+            5,
+            8
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "0eaa724f-0147-50b7-b46c-39000b64898b",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    },
+    {
+      "name": "root spur",
+      "from": [
+        10,
+        0,
+        11
+      ],
+      "to": [
+        15,
+        2,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            11,
+            14,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            10,
+            14,
+            15,
+            16
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            11,
+            14,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            10,
+            14,
+            15,
+            16
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            10,
+            11,
+            15,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            10,
+            11,
+            15,
+            16
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "df715970-4a56-5ce6-81fb-284db80cfac2",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    }
+  ],
+  "outliner": [
+    "1cbfa576-21c0-504a-a0d4-92dce15938dc",
+    "ebfa200f-bfe9-5563-8790-afcc052c0b44",
+    "aac6386f-f58f-51b9-b661-e73016ccefb4",
+    "008b4817-da24-5f1f-895e-18263c2fe62c",
+    "169b21df-d57f-58a5-afe8-b41e9c52e9e9",
+    "0eaa724f-0147-50b7-b46c-39000b64898b",
+    "df715970-4a56-5ce6-81fb-284db80cfac2"
+  ],
+  "textures": [
+    {
+      "name": "fossil_stump_atlas.png",
+      "relative_path": "fossil_stump_atlas.png",
+      "folder": "",
+      "namespace": "stratacubes",
+      "id": "0",
+      "uuid": "30f3f1f2-cdfb-56d4-8913-29cf6730aadf",
+      "internal": true,
+      "saved": true,
+      "width": 32,
+      "height": 16,
+      "uv_width": 32,
+      "uv_height": 16,
+      "visible": true,
+      "particle": true,
+      "use_as_default": true,
+      "file_format": "png",
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAYAAAB3AH1ZAAAFhklEQVR4nFWVzU9b2RnGf3buOQQfrn3NtcEw4ED4yBAygXTIDG2ajDqNImUzUaVKlWbRdtFFs+qif0n/iVl1VakdNWJRVZ2JAhGdMElIypexwR/Y11z7cq/NuSZ04WApR3qlI73Se46e53mfJ/Lnx1+fu40Gda/DXDbJmQ5ooSiUa9y9NcuLtzlSgwmqtRpeO8LNqSE8t0YLRd1r0fBOCMMQpRSO45DJZPB9n7sL4xiRkCdrBZRSaK3xPA/bthFCEIYhjuNgaK0B8H0fpcZo6gClFFDDdd33d7oPNF2klLTbbYRp4TgHJJKDhGGI1hrbtvl8bpjssEkYhuQrHl8uXQUglVT8/ftdAFzXBcC2bSKPf/+r83zJ5WcLV3GOikTVEDv5Iss3Jll/vcNQKknQalEoN/hi6Rptv0Eklmb9x02uZ23eFJsIIfjFYoaUNcDKao4wDEmn0wRBwL3FUS6OlJIXb/L8d+e4h4gRi8XwvAJaa4QQtLQmDEOEEJimiZSSztkZlmUhhKANFApdWE3TJBbr8PN5mysfDfPtd1tcn4gDYFlxwrCffMXDdV1Gh5NsHbZYmrVZWd3Gtm0Mo4+of3LC/Ow4m/lj4sk0Rugynknx494RV4YtavUGiXgcOy5YefqSqOhnMmMyaPbzMlclCAKmJ8ZYWc0xPXoZz/NonGhiMko6aZIreSx9MkVwes7MR/0opfji1hWEEAAYSinCTgcIe1xHUZTzReRYsqcBIQRCiK4G/BZCCBzngDsLWYIgeD/wHUafydTYIDX3hOD0nHQ8ytZegYX5a+wfVvjLN9/1KEkkBogCJOJxLl/SvNiucIbBJX3MeCbF+v8OGUnGKFVqnL97R8aO8XzzgMH0CAkZsjh/DSklvu9TrVZpacgOmxSP6iRUH3NXMyx9MoVSir/96zXffLvB7776lJlsmse/vo3WGqPhBWitSadSVGs1tksnLEwPI/0GMpPi2ascn89PUDoOEIZBxpY83dhjemSAuNBofYYQAqUUQghWVnNMjJgUXZ9Ry+N1rslWvgrAHx4tkq+4H4jSsCyL8zPdG9JudgV46DikxtM9WvyDKv19xvsd7kLu+w3Gx1KEYcjCjE1C9WFEQibGMvz1H+usbbQAeLA8xV6x2Z3jl7k+Ee/5QLR2VEJrTbVWI19ymcsmcY6KtFC83c1z99Ys+xWX+EA/YafDTr7KzakhLtGhheLJWgEhBK7rEoZdHe2XmwD86es7PFieYmTI4vpEnJXVHEopim6U7YKDbdtEM5nMB5BIKQEwTRPHcXrGYVnWB/0L99Nao5Tq1fONImvr2yzMpXFP2owMWbiuy+tck4d3ZkgMSJZmLZ5tVrpb4LouQatF+0wyOdRP22/QQuG1Ozz65TLPX26RHRuh5jjs5Ks8vHeLrTcvMcwMhfx+74Nrr0qEz3Pc/sk0QRAwOmTyYq9JEAQ4jsNvHn7aE2e+4iGlRGtNNGi18NoRFqaHUZcNWih2CyXGk7KXA8VSibITcP+nNygf7pMa/xiv3eHLz+YByFc8wtYpX92/wVa+Tr+EmnfG0qzF/c8m+HgyTfXY4/sf8pTqbf759C2+7wMQvTAEAK11D9KLwIjFYj0f8H0fKSWu6/ZKSsmrN0VOjcts7pZ5eGeG7WIbEe2wc1CneFQnV/JIqD4mRkxifZFulrz3FENKiRARfN/HsizOgggXAaWUIggCLMvCKzeQUtL0G4Do6cH3fVAKwpBnmxWklNxbHOXfPxQBuHltnOD0nM3dMv/ZOCCdTmOaJpZlEYYhkT/+9tF52OlQ9zoszY3R9hs0tKBQrrF8Y5Ji3edd55QLquaySarlA2J2lp18kaghPkjNB7fHqdZPAEgPDvBkrZszF5x7ntfLGCEE/wf1YcEZtGGfHgAAAABJRU5ErkJggg=="
+    }
+  ]
+}

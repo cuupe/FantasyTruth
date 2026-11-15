@@ -7,7 +7,7 @@ import net.minecraft.world.level.Level;
 
 public enum AbyssLayer {
     EDGE("edge", 736, 160, 164),
-    FOREST("forest", 736, -48, 218),
+    FOREST("forest", ForestCoordinates.MOUTH_Y, -48, 218),
     FAULT("fault", 832, -368, 126),
     GOBLETS("goblets", 768, -128, 264),
     SEA("sea", 752, 208, 292),

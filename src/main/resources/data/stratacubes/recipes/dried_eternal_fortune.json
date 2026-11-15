@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "item": "stratacubes:eternal_fortune"
+  },
+  "result": "stratacubes:eternal_fortune_dry",
+  "experience": 0.35,
+  "cookingtime": 140
+}

@@ -4,11 +4,14 @@ import com.mojang.serialization.Codec;
 import dev.fantasytruth.abyss.AbyssChunkGenerator;
 import dev.fantasytruth.abyss.AbyssEdgeGenerator;
 import dev.fantasytruth.abyss.AbyssItems;
+import dev.fantasytruth.abyss.ForestExpedition;
+import dev.fantasytruth.abyss.AbyssEntities;
 import dev.fantasytruth.abyss.AbyssMouth;
 import dev.fantasytruth.abyss.AbyssTransit;
 import dev.fantasytruth.abyss.OrthBiomeSource;
 import dev.fantasytruth.abyss.OrthBlocks;
 import dev.fantasytruth.abyss.OrthDensity;
+import dev.fantasytruth.abyss.OrthResidents;
 import dev.fantasytruth.atlas.AtlasBiomeSource;
 import dev.fantasytruth.atlas.AtlasChunkGenerator;
 import dev.fantasytruth.atlas.AtlasPages;
@@ -36,6 +39,7 @@ public final class FantasyTruth {
         types.register(bus);
         OrthBlocks.register(bus);
         AbyssItems.register(bus);
+        AbyssEntities.register(bus);
         DeferredRegister<Codec<? extends BiomeSource>> biomes = DeferredRegister.create(Registries.BIOME_SOURCE, ID);
         biomes.register("atlas", () -> AtlasBiomeSource.CODEC);
         biomes.register("orth", () -> OrthBiomeSource.CODEC);
@@ -47,5 +51,7 @@ public final class FantasyTruth {
         generators.register(bus);
         MinecraftForge.EVENT_BUS.register(AtlasPages.INSTANCE);
         MinecraftForge.EVENT_BUS.register(new AbyssTransit());
+        MinecraftForge.EVENT_BUS.register(ForestExpedition.class);
+        MinecraftForge.EVENT_BUS.register(OrthResidents.class);
     }
 }

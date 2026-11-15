@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": 3,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:feather",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:bone",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "stratacubes:forest_egg_relic",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "stratacubes:relic_shard",
+          "weight": 2
+        }
+      ]
+    }
+  ]
+}

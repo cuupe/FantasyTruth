@@ -1,0 +1,562 @@
+{
+  "meta": {
+    "format_version": "5.0",
+    "model_format": "java_block",
+    "box_uv": false
+  },
+  "name": "Gilled shelf fungus · 层叠菌盖",
+  "resolution": {
+    "width": 32,
+    "height": 16
+  },
+  "elements": [
+    {
+      "name": "large lower gills",
+      "from": [
+        2,
+        5,
+        8
+      ],
+      "to": [
+        14,
+        6,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            8,
+            10,
+            16,
+            11
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            2,
+            10,
+            14,
+            11
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            10,
+            16,
+            11
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            2,
+            10,
+            14,
+            11
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            2,
+            8,
+            14,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            2,
+            8,
+            14,
+            16
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "c6748397-f259-5f08-88fd-3ed5e18dbc2f",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    },
+    {
+      "name": "large lower cap",
+      "from": [
+        2,
+        6,
+        8
+      ],
+      "to": [
+        14,
+        8,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            24,
+            8,
+            32,
+            10
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            18,
+            8,
+            30,
+            10
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            8,
+            32,
+            10
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            18,
+            8,
+            30,
+            10
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            18,
+            8,
+            30,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            18,
+            8,
+            30,
+            16
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "88fab6b3-bf55-5c0a-b279-4d17115f43f5",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    },
+    {
+      "name": "outer lip",
+      "from": [
+        3,
+        6,
+        6
+      ],
+      "to": [
+        13,
+        7.5,
+        8
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            22,
+            8.5,
+            24,
+            10
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            19,
+            8.5,
+            29,
+            10
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            22,
+            8.5,
+            24,
+            10
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            19,
+            8.5,
+            29,
+            10
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            19,
+            6,
+            29,
+            8
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            19,
+            6,
+            29,
+            8
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "489acf36-efb5-56da-972e-7f95ba77900a",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    },
+    {
+      "name": "upper gills",
+      "from": [
+        5,
+        10,
+        10
+      ],
+      "to": [
+        14,
+        11,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            10,
+            5,
+            16,
+            6
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            5,
+            5,
+            14,
+            6
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            10,
+            5,
+            16,
+            6
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            5,
+            5,
+            14,
+            6
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            5,
+            10,
+            14,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            5,
+            10,
+            14,
+            16
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "aced0bee-c1cc-502c-8db8-b7d2ab5e71c6",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    },
+    {
+      "name": "upper cap",
+      "from": [
+        5,
+        11,
+        9
+      ],
+      "to": [
+        14,
+        13,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            25,
+            3,
+            32,
+            5
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            21,
+            3,
+            30,
+            5
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            25,
+            3,
+            32,
+            5
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            21,
+            3,
+            30,
+            5
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            21,
+            9,
+            30,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            21,
+            9,
+            30,
+            16
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "024e3fbf-c200-5ca9-beee-70e07a964d76",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    },
+    {
+      "name": "small shelf",
+      "from": [
+        2,
+        2,
+        11
+      ],
+      "to": [
+        8,
+        4,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            27,
+            12,
+            32,
+            14
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            18,
+            12,
+            24,
+            14
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            27,
+            12,
+            32,
+            14
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            18,
+            12,
+            24,
+            14
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            18,
+            11,
+            24,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            18,
+            11,
+            24,
+            16
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "f2989a97-14c7-5d00-9325-461b8d1cd4b4",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    },
+    {
+      "name": "small shelf underside",
+      "from": [
+        2,
+        1.5,
+        11
+      ],
+      "to": [
+        8,
+        2,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            11,
+            14,
+            16,
+            14.5
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            2,
+            14,
+            8,
+            14.5
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            11,
+            14,
+            16,
+            14.5
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            2,
+            14,
+            8,
+            14.5
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            2,
+            11,
+            8,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            2,
+            11,
+            8,
+            16
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "505d00b5-78b6-51a7-a3ab-7a3f386044fd",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    }
+  ],
+  "outliner": [
+    "c6748397-f259-5f08-88fd-3ed5e18dbc2f",
+    "88fab6b3-bf55-5c0a-b279-4d17115f43f5",
+    "489acf36-efb5-56da-972e-7f95ba77900a",
+    "aced0bee-c1cc-502c-8db8-b7d2ab5e71c6",
+    "024e3fbf-c200-5ca9-beee-70e07a964d76",
+    "f2989a97-14c7-5d00-9325-461b8d1cd4b4",
+    "505d00b5-78b6-51a7-a3ab-7a3f386044fd"
+  ],
+  "textures": [
+    {
+      "name": "shelf_fungus_atlas.png",
+      "relative_path": "shelf_fungus_atlas.png",
+      "folder": "",
+      "namespace": "stratacubes",
+      "id": "0",
+      "uuid": "bc597be5-ef9a-5532-93c4-c51c55ec3e11",
+      "internal": true,
+      "saved": true,
+      "width": 32,
+      "height": 16,
+      "uv_width": 32,
+      "uv_height": 16,
+      "visible": true,
+      "particle": true,
+      "use_as_default": true,
+      "file_format": "png",
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAYAAAB3AH1ZAAAETElEQVR4nGWV32okRRTGf/2nemq60j09O5kkxA3rhbKweCFhQVh0b2RFBdFn8R18BV/CO2GvXEQEZVFYvVgjcZONMTEbmfRkhp7qnqmaP16EKkZsaA5dVV31na++853gy8+/WL18ecGjh/scHP3JRpZxeHjKZx+9xw8//8KtXs9/f/fjT2zv7HBy8opPP3yXXw/+QCYhAFprhBAkSYIQAmstxhgAkiRBa41SCiEEQgjqugYg7Pf7ftF6tNailPLv5eUlRVGQJAnGGOq6ZjAYYIxBa+3n0jTFWuv3cECEEGitsdZydnbmQYdnZ2cedVmWGGP+A8ItzLIMrTXu0VrT7/dJkoSiKAA8MAAhBABKKZ+MG8uyzO8TSykxZugPcWCMMRhjsNZSVRVVVfnsrbWexoOTAUVRMB6PkVJydHTk/9/d3WW1WiGlRI4b2u02f/1+7IEIIYiLosDaU5IkoaoqsjzHWkuSJP7Avb09pJSUZcmtXg+llM94a2uL8XjMbDYDIAgCrLV0u13iOEZKidaa1WpF0zQYY5hOp0ynU/I8J3T0OGocOnfAuh4cdWma+jVBEBDHMVmWsVwuUUqxublJp9Oh0+nQNA15nhPHMfP5nDRNCYKAKIpI05TQUe1Uun7vToBaay8uIQSj0QillFd3u92mrmuurq7I85yNjQ2iKGKxWLC7u4u1luVy6XW0WCxQShGGIaGjfl0sxhj/7cZc1FqTJAmj0QiA6+trBoMBi8WCTqeDMYbr62uiKCLLMkajkQdjjCHLMlqtFkVREAQBoRCC+/ff4vGTp+xt9xiWJfv793j85CkP7r/N5atX3L69yVdff8u9N15nWJbcvXuHb75/xpt3XuPq6orJZMJ4PMYYw3w+pygKhsOhnxsOh1RVxcXFha+UIAhurs9l5MvjnxKtNVVVMRgM/JU4LVRVxa1ej6IoUErRarWw1pLnOUII5vM5UkparRZN0xBFEcYY4jj2rKVpStM0zGazmytwDuaAAPTW1O7q3I3fVI71m0kpSZIEKSV5nqOUIggCL7iNjQ2qqiLPc3q9Hjs7O/T7/RsRrtum1tq7latlJ7qiKPyYmxdC0G63iaKI+XxOnudEUeRFlyQJYRhijCHPc7rdLnVdM51OPbDY0e2cyinf2ivPihPdelU4BqbTKUopJpMJ0+mUJEl8vLi4YLVaeT+QUhLHMQBRFN2IEPBmsW4wrrkAlGXpK2E0Gv3P65umQQhBq9WiqipGoxHD4ZAoiri8vCQMQ5qmYTweU9c1aZpyfn7OZDIhrKoKABedf/f7fU91r9fz1rzu8643zGYzFouFV3cURdR17fcsy5JWq0WWZcxmM46Pj1kulzcAsizj/PyKTz544Nvt8+dHPHq4z28vTmhJybNnB75dp0pxeHjKx++/w4vTv+l2u2xubrK3t0cYhiilWK1WCCHIsozt7W2yLCOKIqqqQkrJ1taWX/cvH9iPYzPBECMAAAAASUVORK5CYII="
+    }
+  ]
+}

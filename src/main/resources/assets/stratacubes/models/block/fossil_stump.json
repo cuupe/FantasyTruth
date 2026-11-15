@@ -1,0 +1,484 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "stump_bark": "stratacubes:block/fossil_stump_stump_bark",
+    "stump_top": "stratacubes:block/fossil_stump_stump_top",
+    "particle": "stratacubes:block/fossil_stump_stump_bark"
+  },
+  "elements": [
+    {
+      "name": "mineralized base",
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        4,
+        14
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            2,
+            12,
+            14,
+            16
+          ],
+          "texture": "#stump_bark"
+        },
+        "north": {
+          "uv": [
+            2,
+            12,
+            14,
+            16
+          ],
+          "texture": "#stump_bark"
+        },
+        "west": {
+          "uv": [
+            2,
+            12,
+            14,
+            16
+          ],
+          "texture": "#stump_bark"
+        },
+        "south": {
+          "uv": [
+            2,
+            12,
+            14,
+            16
+          ],
+          "texture": "#stump_bark"
+        },
+        "up": {
+          "uv": [
+            2,
+            2,
+            14,
+            14
+          ],
+          "texture": "#stump_bark"
+        },
+        "down": {
+          "uv": [
+            2,
+            2,
+            14,
+            14
+          ],
+          "texture": "#stump_bark"
+        }
+      }
+    },
+    {
+      "name": "trunk shell",
+      "from": [
+        3,
+        4,
+        3
+      ],
+      "to": [
+        13,
+        10,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3,
+            6,
+            13,
+            12
+          ],
+          "texture": "#stump_bark"
+        },
+        "south": {
+          "uv": [
+            3,
+            6,
+            13,
+            12
+          ],
+          "texture": "#stump_bark"
+        },
+        "east": {
+          "uv": [
+            3,
+            6,
+            13,
+            12
+          ],
+          "texture": "#stump_bark"
+        },
+        "west": {
+          "uv": [
+            3,
+            6,
+            13,
+            12
+          ],
+          "texture": "#stump_bark"
+        },
+        "down": {
+          "uv": [
+            3,
+            3,
+            13,
+            13
+          ],
+          "texture": "#stump_bark"
+        }
+      }
+    },
+    {
+      "name": "growth rings",
+      "from": [
+        3,
+        10,
+        3
+      ],
+      "to": [
+        13,
+        10.5,
+        13
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            3,
+            5.5,
+            13,
+            6
+          ],
+          "texture": "#stump_top"
+        },
+        "north": {
+          "uv": [
+            3,
+            5.5,
+            13,
+            6
+          ],
+          "texture": "#stump_top"
+        },
+        "west": {
+          "uv": [
+            3,
+            5.5,
+            13,
+            6
+          ],
+          "texture": "#stump_top"
+        },
+        "south": {
+          "uv": [
+            3,
+            5.5,
+            13,
+            6
+          ],
+          "texture": "#stump_top"
+        },
+        "up": {
+          "uv": [
+            3,
+            3,
+            13,
+            13
+          ],
+          "texture": "#stump_top"
+        },
+        "down": {
+          "uv": [
+            3,
+            3,
+            13,
+            13
+          ],
+          "texture": "#stump_top"
+        }
+      }
+    },
+    {
+      "name": "broken high rim",
+      "from": [
+        3,
+        10.51,
+        4
+      ],
+      "to": [
+        6,
+        13,
+        11
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            4,
+            3,
+            11,
+            5.49
+          ],
+          "texture": "#stump_bark"
+        },
+        "north": {
+          "uv": [
+            3,
+            3,
+            6,
+            5.49
+          ],
+          "texture": "#stump_bark"
+        },
+        "west": {
+          "uv": [
+            4,
+            3,
+            11,
+            5.49
+          ],
+          "texture": "#stump_bark"
+        },
+        "south": {
+          "uv": [
+            3,
+            3,
+            6,
+            5.49
+          ],
+          "texture": "#stump_bark"
+        },
+        "up": {
+          "uv": [
+            3,
+            4,
+            6,
+            11
+          ],
+          "texture": "#stump_bark"
+        },
+        "down": {
+          "uv": [
+            3,
+            4,
+            6,
+            11
+          ],
+          "texture": "#stump_bark"
+        }
+      }
+    },
+    {
+      "name": "split rim",
+      "from": [
+        10,
+        10.51,
+        9
+      ],
+      "to": [
+        13,
+        12,
+        13
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            9,
+            4,
+            13,
+            5.49
+          ],
+          "texture": "#stump_bark"
+        },
+        "north": {
+          "uv": [
+            10,
+            4,
+            13,
+            5.49
+          ],
+          "texture": "#stump_bark"
+        },
+        "west": {
+          "uv": [
+            9,
+            4,
+            13,
+            5.49
+          ],
+          "texture": "#stump_bark"
+        },
+        "south": {
+          "uv": [
+            10,
+            4,
+            13,
+            5.49
+          ],
+          "texture": "#stump_bark"
+        },
+        "up": {
+          "uv": [
+            10,
+            9,
+            13,
+            13
+          ],
+          "texture": "#stump_bark"
+        },
+        "down": {
+          "uv": [
+            10,
+            9,
+            13,
+            13
+          ],
+          "texture": "#stump_bark"
+        }
+      }
+    },
+    {
+      "name": "root toe",
+      "from": [
+        0,
+        0,
+        4
+      ],
+      "to": [
+        5,
+        2,
+        8
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            4,
+            14,
+            8,
+            16
+          ],
+          "texture": "#stump_bark"
+        },
+        "north": {
+          "uv": [
+            0,
+            14,
+            5,
+            16
+          ],
+          "texture": "#stump_bark"
+        },
+        "west": {
+          "uv": [
+            4,
+            14,
+            8,
+            16
+          ],
+          "texture": "#stump_bark"
+        },
+        "south": {
+          "uv": [
+            0,
+            14,
+            5,
+            16
+          ],
+          "texture": "#stump_bark"
+        },
+        "up": {
+          "uv": [
+            0,
+            4,
+            5,
+            8
+          ],
+          "texture": "#stump_bark"
+        },
+        "down": {
+          "uv": [
+            0,
+            4,
+            5,
+            8
+          ],
+          "texture": "#stump_bark"
+        }
+      }
+    },
+    {
+      "name": "root spur",
+      "from": [
+        10,
+        0,
+        11
+      ],
+      "to": [
+        15,
+        2,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            11,
+            14,
+            16,
+            16
+          ],
+          "texture": "#stump_bark"
+        },
+        "north": {
+          "uv": [
+            10,
+            14,
+            15,
+            16
+          ],
+          "texture": "#stump_bark"
+        },
+        "west": {
+          "uv": [
+            11,
+            14,
+            16,
+            16
+          ],
+          "texture": "#stump_bark"
+        },
+        "south": {
+          "uv": [
+            10,
+            14,
+            15,
+            16
+          ],
+          "texture": "#stump_bark"
+        },
+        "up": {
+          "uv": [
+            10,
+            11,
+            15,
+            16
+          ],
+          "texture": "#stump_bark"
+        },
+        "down": {
+          "uv": [
+            10,
+            11,
+            15,
+            16
+          ],
+          "texture": "#stump_bark"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ARA",
+    "BGB",
+    "III"
+  ],
+  "key": {
+    "A": {
+      "item": "stratacubes:i_crystal_shard"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "B": {
+      "item": "stratacubes:curse_beacon"
+    },
+    "G": {
+      "item": "stratacubes:relic_fuel_generator"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "stratacubes:forcefield_generator",
+    "count": 1
+  }
+}

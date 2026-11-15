@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "stratacubes:block/amagiri"
+    },
+    "facing=east": {
+      "model": "stratacubes:block/amagiri",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "stratacubes:block/amagiri",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "stratacubes:block/amagiri",
+      "y": 270
+    }
+  }
+}

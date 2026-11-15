@@ -16,6 +16,7 @@
     { "name": "LowerColor", "type": "float", "count": 3, "values": [1, 1, 1] },
     { "name": "CloudStrength", "type": "float", "count": 1, "values": [0] },
     { "name": "ApertureStrength", "type": "float", "count": 1, "values": [0] },
-    { "name": "SurfaceOnly", "type": "float", "count": 1, "values": [0] }
+    { "name": "SurfaceOnly", "type": "float", "count": 1, "values": [0] },
+    { "name": "AtmosphereWeight", "type": "float", "count": 1, "values": [1] }
   ]
 }

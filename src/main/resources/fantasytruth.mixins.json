@@ -18,7 +18,11 @@
     "WorldCreationUiStateMixin",
     "AtlasReceivingLevelMixin",
     "AbyssRespawnMixin",
-    "AbyssSkyHorizonMixin"
+    "AbyssFrameBlendMixin",
+    "AbyssCloudsMixin",
+    "AbyssSkyHorizonMixin",
+    "AbyssDhColumnDataMixin",
+    "AbyssDhColumnMeshMixin"
   ],
   "injectors": {
     "defaultRequire": 1

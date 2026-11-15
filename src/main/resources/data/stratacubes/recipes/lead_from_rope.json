@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "stratacubes:i_rope"
+    },
+    [
+      {
+        "item": "minecraft:slime_ball"
+      },
+      {
+        "item": "stratacubes:mat_pseudo_sac"
+      },
+      {
+        "item": "stratacubes:mat_silk_gland"
+      }
+    ]
+  ],
+  "result": {
+    "item": "minecraft:lead",
+    "count": 2
+  }
+}

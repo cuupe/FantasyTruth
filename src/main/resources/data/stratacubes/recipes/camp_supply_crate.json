@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PPP",
+    "R R",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "R": {
+      "item": "stratacubes:i_rope"
+    }
+  },
+  "result": {
+    "item": "stratacubes:camp_supply_crate",
+    "count": 1
+  }
+}

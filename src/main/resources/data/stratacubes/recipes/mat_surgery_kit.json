@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:shears"
+    },
+    {
+      "item": "minecraft:glass_bottle"
+    },
+    {
+      "item": "stratacubes:i_bandage"
+    }
+  ],
+  "result": {
+    "item": "stratacubes:mat_surgery_kit",
+    "count": 1
+  }
+}

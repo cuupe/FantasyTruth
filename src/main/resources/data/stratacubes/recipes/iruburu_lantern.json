@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "stratacubes:i_shroom_cap"
+    },
+    {
+      "item": "stratacubes:i_crystal_shard"
+    },
+    {
+      "item": "stratacubes:iruburu_bark"
+    }
+  ],
+  "result": {
+    "item": "stratacubes:iruburu_lantern",
+    "count": 1
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smoking",
+  "category": "food",
+  "ingredient": {
+    "item": "stratacubes:mat_meat"
+  },
+  "result": "minecraft:cooked_beef",
+  "experience": 0.35,
+  "cookingtime": 100
+}

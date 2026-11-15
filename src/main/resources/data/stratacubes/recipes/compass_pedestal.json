@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " C ",
+    "BIB",
+    "BBB"
+  ],
+  "key": {
+    "C": {
+      "item": "stratacubes:i_star_compass"
+    },
+    "I": {
+      "item": "minecraft:copper_ingot"
+    },
+    "B": {
+      "item": "minecraft:stone_bricks"
+    }
+  },
+  "result": {
+    "item": "stratacubes:compass_pedestal",
+    "count": 1
+  }
+}

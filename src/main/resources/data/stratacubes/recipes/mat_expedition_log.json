@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:book"
+    },
+    {
+      "item": "minecraft:feather"
+    },
+    [
+      {
+        "item": "minecraft:ink_sac"
+      },
+      {
+        "item": "stratacubes:mat_ink"
+      }
+    ]
+  ],
+  "result": {
+    "item": "stratacubes:mat_expedition_log",
+    "count": 1
+  }
+}

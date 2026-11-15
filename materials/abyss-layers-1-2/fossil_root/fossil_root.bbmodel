@@ -1,0 +1,452 @@
+{
+  "meta": {
+    "format_version": "5.0",
+    "model_format": "java_block",
+    "box_uv": false
+  },
+  "name": "Petrified roots in rock · 嵌岩根系",
+  "resolution": {
+    "width": 32,
+    "height": 16
+  },
+  "elements": [
+    {
+      "name": "wall matrix",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "ad0b6f71-939a-5a2a-905a-08f6ce6cea86",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    },
+    {
+      "name": "main fossil root",
+      "from": [
+        7,
+        3,
+        -0.6
+      ],
+      "to": [
+        10,
+        16,
+        0.1
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            16,
+            0,
+            16.1,
+            13
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            23,
+            0,
+            26,
+            13
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            16,
+            0,
+            16.1,
+            13
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            23,
+            0,
+            26,
+            13
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            23,
+            0,
+            26,
+            0.1
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            23,
+            0,
+            26,
+            0.1
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "7fa45fa4-15a9-50b4-9676-f699a8bdac25",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0,
+      "origin": [
+        8,
+        9,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        22.5
+      ]
+    },
+    {
+      "name": "split fossil root",
+      "from": [
+        7,
+        2,
+        -0.45
+      ],
+      "to": [
+        9,
+        12,
+        0.1
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            16,
+            4,
+            16.1,
+            14
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            23,
+            4,
+            25,
+            14
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            16,
+            4,
+            16.1,
+            14
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            23,
+            4,
+            25,
+            14
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            23,
+            0,
+            25,
+            0.1
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            23,
+            0,
+            25,
+            0.1
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "7ead47f8-d3cb-58bd-8be1-09f894c453bb",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0,
+      "origin": [
+        8,
+        9,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -22.5
+      ]
+    },
+    {
+      "name": "lower taper",
+      "from": [
+        4,
+        1,
+        -0.25
+      ],
+      "to": [
+        6,
+        6,
+        0.1
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            16,
+            10,
+            16.1,
+            15
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            20,
+            10,
+            22,
+            15
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            16,
+            10,
+            16.1,
+            15
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            20,
+            10,
+            22,
+            15
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            20,
+            0,
+            22,
+            0.1
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            20,
+            0,
+            22,
+            0.1
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "172cc0e8-b623-518e-bc36-f1fe3ebb50cc",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0,
+      "origin": [
+        5,
+        4,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        22.5
+      ]
+    },
+    {
+      "name": "broken side stem",
+      "from": [
+        8,
+        7,
+        -0.35
+      ],
+      "to": [
+        14,
+        9,
+        0.1
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            16,
+            7,
+            16.1,
+            9
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            24,
+            7,
+            30,
+            9
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            16,
+            7,
+            16.1,
+            9
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            7,
+            30,
+            9
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            0,
+            30,
+            0.1
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            0,
+            30,
+            0.1
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "826173d8-32d5-5baa-98ae-46be3a534882",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0,
+      "origin": [
+        9,
+        8,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -22.5
+      ]
+    }
+  ],
+  "outliner": [
+    "ad0b6f71-939a-5a2a-905a-08f6ce6cea86",
+    "7fa45fa4-15a9-50b4-9676-f699a8bdac25",
+    "7ead47f8-d3cb-58bd-8be1-09f894c453bb",
+    "172cc0e8-b623-518e-bc36-f1fe3ebb50cc",
+    "826173d8-32d5-5baa-98ae-46be3a534882"
+  ],
+  "textures": [
+    {
+      "name": "fossil_root_atlas.png",
+      "relative_path": "fossil_root_atlas.png",
+      "folder": "",
+      "namespace": "stratacubes",
+      "id": "0",
+      "uuid": "aaa36f5b-679a-54a5-8977-be07ae35a596",
+      "internal": true,
+      "saved": true,
+      "width": 32,
+      "height": 16,
+      "uv_width": 32,
+      "uv_height": 16,
+      "visible": true,
+      "particle": true,
+      "use_as_default": true,
+      "file_format": "png",
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAYAAAB3AH1ZAAAE/UlEQVR4nFWVy2/j1hWHP5L3UnyID1mSLdf2TJwJnAwSTDuDLNICaRddddVNFwW676ZA/sLu0wJBgUldzEwyzvgR27IkWpSlS1J8diGLQAgckJev87vnfOcc7Zt//L1RSqEbDa7rAqCUoigKfK+HUgqAMAxJkoQ8zwHQjQahGziiIl4suF+WPH/So8oTUlyuxjO+fnnC63fnDHYCprMZy0zjxbNdlvGMFJf7ZYpe1Tm60eBYNquHJes0I/B87I7Fw3JOVedUdc7Dck7HEuhG074vhGwFKaXaDWzPcRz/4l6e55imSZZlSCmJogh9nWY4lo1tOwRBSJpmrFYKISR2x2ot8HzWabbZ9aNz35GUVcU4SvjDl58STW6ozB5vzy746otj3l2MMbSaeLHg7HLK7379MZlaMDj6jJ+ubnl1coBelhW27WA0OZZoGPa69IPN2nFchJAEQchqpdq17wdYouH8OsJxHJbLJXmeI+UmIkVRIKXE8zxM08Q0TcIwREoJwNXVFa7r4nkeuiUaLNEwjTPOryMWSc3bs2tiVaHXayzRtOL0ek0/cMhWc64nD5R5gVqt+PzkiDeXc/zeEFHEHI0G/PfDhKd7IbP7BYHv0/cl//z2FF3aHI88djyb0/MpojZcYlWRqgQdDa0BoRvoaNxMl4+qMwBM0+BmOibLMpqq5vjZMaznFGUJFG2udVzGlzeYh72WASklUsoNAyp9ZOBn9DIvuL2+wbRMun4XXeh07A5lXdKRJqlK6EiTyfiOMi/oSJOmqjl8cohuNAAEvo9l5Lx+f0eFwMjnHI0G/OeHa/Z7Drd3M5q6ZtR3+O7Nz+wM9wnMgt98/im6Zmh07A660VBWazqWwPMd8iKl1++xM9ihrEu6fpeO3aHrd+n1e+hGw+phyWKZEMcxw8EAy8h5f7vC7w0JzIKj0YB//++cTw6HVI2OFIJR3+Hb7z9QIfBljq6SB/IiRehGS7rf9dgb7hLdT9CNBsuWrcDJ9LbtAUEQEoYhpmkipfxFuKNoA+g2Ldt+IqVsIVVKofeCkOOnH7WEp2mGEBIhJIOdPkI3qMuKXhDSVDVdx6WpatbrHKPJmU1uyfOc6WzG5W3M8yc9oskNKS7vfrrk65cnXNzF+F2boiw5u5zy4tkuBiUpLroQkvk8xrMFni0Iu52W+q2QIAjb6635jiRWFaPRiO2xLTkAz/OIoqhtSNtIbZ8XRYHrugjfkYDkZrpsO1V8vfkwdA2GwyFxHNMPXMbjMZZl4bou0zgjVQmVmZOkKVllcrxrk6kFKS7LrOTPf/yK705/5MnhPrMo4uxyyp9+/5If354ivBFXlxdof/vrXxopJZPxHZZltXkC2D/4FUmSEEVR21QA8jzfVIfdgTxmmWl8+fywdf727IJXJwfc3CsCz2lnxW9fHBNNbuiEB1yNZ7w6OUDoaHSkyWB30NbpFpBoOgMgVQmB55OqBKUUYRiyt79HVedkCwVZ2QrL2cC4hc1xNgK2/zRNkziOH81FaIZGWZftkJnHM0ajEZa9EeM4Dr1+j6Io0AwNzdDo+l3SbIXQjUfBWiusSrR2QLmuS5IkhGHIcrzANE0e1AKQLQ96xxJY9mbwCN3g+OlHzCZT6rJCNxqyteJhOSfNVmwn59a5EJKmrvGshjeXc2pNYqPaJvR0L6SsNfL1Gs9qeP3+DssNKJdjjkYD/nX6gf8DRZCKDDmTRs0AAAAASUVORK5CYII="
+    }
+  ]
+}

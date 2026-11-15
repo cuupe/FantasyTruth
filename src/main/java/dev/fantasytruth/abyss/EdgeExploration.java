@@ -10,6 +10,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 
@@ -19,11 +22,12 @@ final class EdgeExploration {
     record Landmark(String name, int depth, int radius, Kind kind) {
         EdgeLandscape.Point point() { return EdgeLandscape.point(depth, radius); }
     }
-    enum Kind { CAMP, BURIAL, ARK, CAVE, MILL }
+    enum Kind { CAMP, BURIAL, ARK, CAVE, MILL, FOSSIL_GROVE }
 
     static final List<Landmark> LANDMARKS = List.of(
             new Landmark("upper_camp", 53, 366, Kind.CAMP),
             new Landmark("root_hollow", 145, 447, Kind.CAVE),
+            new Landmark("fossil_grove", 171, 374, Kind.FOSSIL_GROVE),
             new Landmark("mill", 222, 344, Kind.MILL),
             new Landmark("burial", 300, 347, Kind.BURIAL),
             new Landmark("spring_shelter", 436, 448, Kind.CAVE),
@@ -39,19 +43,45 @@ final class EdgeExploration {
 
     private interface Feature { void place(Painter painter); }
 
-    static void place(ChunkAccess chunk, boolean forested) {
+    static List<Landmark> landmarks(EdgeTerrain.Layout layout) {
+        return layout.mossPit ? LANDMARKS.subList(0, LANDMARKS.size() - 1) : LANDMARKS;
+    }
+
+    static void place(ChunkAccess chunk, EdgeTerrain.Layout layout) {
         if (!AbyssLayer.passage(chunk.getPos().getMiddleBlockX(), chunk.getPos().getMiddleBlockZ(), 626)) return;
-        var painter = new Painter(chunk);
-        EdgeVegetation.understory(painter, forested);
-        var features = forested ? Plan.Forested.FEATURES : Plan.Expanded.FEATURES;
+        int bottom = chunk.getMinBuildHeight() == EdgeTerrain.MIN_Y ? EdgeTerrain.MIN_Y + 1 : OrthTerrain.SHARED_BOTTOM;
+        var painter = new Painter(chunk, 0, bottom, layout);
+        EdgeVegetation.understory(painter, layout);
+        var features = switch (layout) {
+            case MOSS_PIT -> Plan.MossPit.FEATURES;
+            case ERODED -> Plan.Eroded.FEATURES;
+            case FOREST_MOUTH -> Plan.ForestEntrance.FEATURES;
+            case WALL_TERRACES -> Plan.WallTerraces.FEATURES;
+            case WILD_EDGE -> Plan.WildEdge.FEATURES;
+            case FORESTED -> Plan.Forested.FEATURES;
+            default -> Plan.Expanded.FEATURES;
+        };
         for (var feature : features.getOrDefault(chunk.getPos().toLong(), List.of())) feature.place(painter);
+        if (layout.forestMouth()) {
+            if (AbyssLayer.passage(chunk.getPos().getMiddleBlockX(), chunk.getPos().getMiddleBlockZ(), 234)) {
+                ForestMouth.grow(painter);
+            }
+        } else if (layout.mossPit && AbyssLayer.passage(chunk.getPos().getMiddleBlockX(), chunk.getPos().getMiddleBlockZ(), 80)) {
+            EdgeBasin.growEntrance(painter);
+        }
     }
 
     private static final class Plan {
-        private static final class Expanded { static final Map<Long, List<Feature>> FEATURES = build(false); }
-        private static final class Forested { static final Map<Long, List<Feature>> FEATURES = build(true); }
+        private static final class Expanded { static final Map<Long, List<Feature>> FEATURES = build(EdgeTerrain.Layout.EXPANDED); }
+        private static final class Forested { static final Map<Long, List<Feature>> FEATURES = build(EdgeTerrain.Layout.FORESTED); }
+        private static final class MossPit { static final Map<Long, List<Feature>> FEATURES = build(EdgeTerrain.Layout.MOSS_PIT); }
+        private static final class Eroded { static final Map<Long, List<Feature>> FEATURES = build(EdgeTerrain.Layout.ERODED); }
+        private static final class ForestEntrance { static final Map<Long, List<Feature>> FEATURES = build(EdgeTerrain.Layout.FOREST_MOUTH); }
+        private static final class WallTerraces { static final Map<Long, List<Feature>> FEATURES = build(EdgeTerrain.Layout.WALL_TERRACES); }
+        private static final class WildEdge { static final Map<Long, List<Feature>> FEATURES = build(EdgeTerrain.Layout.WILD_EDGE); }
 
-        private static Map<Long, List<Feature>> build(boolean forested) {
+        private static Map<Long, List<Feature>> build(EdgeTerrain.Layout layout) {
+            boolean forested = layout.forested;
             Map<Long, List<Feature>> map = new HashMap<>();
             int limit = forested ? 448 : 400;
             int spacing = forested ? 15 : 17;
@@ -61,10 +91,10 @@ final class EdgeExploration {
                     int bx = AbyssLayer.CENTER_X + x + Math.floorMod(key, 13) - 6;
                     int bz = AbyssLayer.CENTER_Z + z + Math.floorMod(key >>> 8, 13) - 6;
                     if (!AbyssLayer.passage(bx, bz, forested ? 444 : 368)) continue;
-                    for (var span : EdgeTerrain.column(bx, bz, true, forested).shelves()) {
+                    for (var span : EdgeTerrain.column(bx, bz, layout).shelves()) {
                         int roll = hash(bx, span.top(), bz);
                         if (!EdgeVegetation.treeHabitat(span.cover(), roll, forested) || nearLandmark(bx, span.top(), bz)
-                                || (forested && (EdgeBasin.nearRoute(bx, span.top(), bz, 11)
+                                || (forested && ((!layout.mossPit && EdgeBasin.nearRoute(bx, span.top(), bz, 11))
                                 || span.top() > -1215 && !AbyssLayer.passage(bx, bz, 369)))) continue;
                         var site = new Site(bx, span.top() + 1, bz);
                         int kind = EdgeVegetation.treeKind(span.cover(), roll);
@@ -74,55 +104,88 @@ final class EdgeExploration {
             }
             for (int depth : new int[]{145, 515, 700, 988, 1172}) {
                 var point = EdgeLandscape.point(depth, 266);
-                var span = EdgeLandscape.at(point.x(), point.z(), depth, forested);
+                var span = EdgeLandscape.at(point.x(), point.z(), depth, layout);
                 if (span == null) continue;
                 var site = new Site(point.x(), span.top() + 1, point.z());
                 add(map, site, 49, p -> EdgeVegetation.tree(p, site, EdgeVegetation.ELDER, hash(site.x, site.y, site.z)));
             }
-            if (forested) forestDetails(map);
+            if (forested) forestDetails(map, layout);
+            if (layout.wallTerraces()) {
+                EdgeWall.plan((site, extent, feature) -> add(map, site, extent, feature::accept), layout);
+                if (layout.wildEdge()) EdgeRuins.plan((site, extent, feature) -> add(map, site, extent, feature::accept), layout);
+                upperGroves(map, layout);
+            }
             int trailEnd = forested ? EdgeBasin.ENTRY_DEPTH : EdgeLandscape.END;
-            for (int depth = 18; depth < trailEnd; depth += 44) {
+            for (int depth = 18; depth < trailEnd; depth += layout.wildEdge() ? 184 : 44) {
                 var point = EdgeLandscape.point(depth, 422);
-                var span = EdgeLandscape.at(point.x(), point.z(), depth, forested);
+                var span = EdgeLandscape.at(point.x(), point.z(), depth, layout);
                 if (span == null) continue;
                 var site = new Site(point.x(), span.top() + 1, point.z());
                 add(map, site, 2, p -> marker(p, site));
             }
-            for (int depth : new int[]{135, 402, 426, 590, 884, 910, 1248}) waterfall(map, depth, forested);
-            for (var landmark : LANDMARKS) branchPath(map, landmark, forested);
-            for (var landmark : LANDMARKS) {
+            for (int depth : new int[]{135, 402, 426, 590, 884, 910, 1248}) if (!layout.mossPit || depth < 1240) waterfall(map, depth, layout);
+            if (!layout.wildEdge()) for (var landmark : landmarks(layout)) branchPath(map, landmark, layout);
+            for (var landmark : landmarks(layout)) {
                 var point = landmark.point();
                 var ground = landmark.kind == Kind.CAVE ? EdgeLandscape.point(landmark.depth, 413) : point;
-                var span = EdgeLandscape.at(ground.x(), ground.z(), landmark.depth, forested);
+                var span = EdgeLandscape.at(ground.x(), ground.z(), landmark.depth, layout);
                 if (span == null) continue;
                 var site = new Site(point.x(), span.top() + 1, point.z());
-                add(map, site, landmark.kind == Kind.ARK ? 58 : 37, p -> landmark(p, site, landmark));
+                add(map, site, landmark.kind == Kind.ARK ? 58 : 37, p -> landmark(p, site, landmark, layout));
             }
-            var bottom = forested ? EdgeBasin.point(14) : EdgeLandscape.point(EdgeLandscape.END, 14);
-            add(map, new Site(bottom.x(), -1345, bottom.z()), 4, p -> exit(p, bottom));
+            if (!layout.mossPit) {
+                var bottom = forested ? EdgeBasin.point(14) : EdgeLandscape.point(EdgeLandscape.END, 14);
+                add(map, new Site(bottom.x(), -1345, bottom.z()), 4, p -> exit(p, bottom));
+            }
             map.replaceAll((chunk, list) -> List.copyOf(list));
             return Map.copyOf(map);
         }
 
-        private static void forestDetails(Map<Long, List<Feature>> map) {
+        private static void upperGroves(Map<Long, List<Feature>> map, EdgeTerrain.Layout layout) {
+            for (int z = -372; z <= 384; z += 13) {
+                for (int x = -372; x <= 384; x += 13) {
+                    int key = hash(x, 92, z);
+                    int bx = AbyssLayer.CENTER_X + x + Math.floorMod(key, 11) - 5;
+                    int bz = AbyssLayer.CENTER_Z + z + Math.floorMod(key >>> 10, 11) - 5;
+                    if (!AbyssLayer.passage(bx, bz, 367)) continue;
+                    for (var span : EdgeTerrain.column(bx, bz, layout).shelves()) {
+                        int y = span.top() + 1;
+                        int roll = hash(bx, y ^ 0x5319, bz);
+                        if (y < OrthTerrain.SHARED_BOTTOM - 40 || span.water() > span.top()
+                                || !EdgeVegetation.treeHabitat(span.cover(), roll, true) || nearLandmark(bx, y, bz)) continue;
+                        var site = new Site(bx, y, bz);
+                        int kind = EdgeVegetation.treeKind(span.cover(), roll);
+                        add(map, site, 27, p -> EdgeVegetation.tree(p, site, kind, roll));
+                    }
+                }
+            }
+        }
+
+        private static void forestDetails(Map<Long, List<Feature>> map, EdgeTerrain.Layout layout) {
             for (int depth : new int[]{170, 250, 480, 681, 826, 969, 1125}) {
-                var point = EdgeLandscape.point(depth, 284);
-                var span = EdgeLandscape.at(point.x(), point.z(), depth, true);
+                int radius = switch (depth) {
+                    case 480 -> 312;
+                    case 1125 -> 349;
+                    default -> 284;
+                };
+                var point = EdgeLandscape.point(depth, radius);
+                var span = EdgeLandscape.at(point.x(), point.z(), depth, layout);
                 if (span == null || span.water() > span.top() || nearLandmark(point.x(), span.top(), point.z())) continue;
                 var site = new Site(point.x(), span.top() + 1, point.z());
-                add(map, site, 42, p -> EdgeVegetation.fallenTree(p, site, depth));
+                add(map, site, 42, p -> EdgeVegetation.fallenTree(p, site, depth, layout));
             }
             for (int i = 0; i < 10; i++) {
                 double angle = 0.48 + i * Math.PI / 5;
                 int radius = i % 2 == 0 ? 260 : 322;
                 int x = AbyssLayer.CENTER_X + (int) Math.round(radius * Math.cos(angle));
                 int z = AbyssLayer.CENTER_Z + (int) Math.round(radius * Math.sin(angle));
-                var span = EdgeLandscape.at(x, z, EdgeBasin.ENTRY_DEPTH, true);
-                if (span == null || EdgeBasin.nearRoute(x, span.top(), z, 40)) continue;
+                var span = EdgeLandscape.at(x, z, EdgeBasin.ENTRY_DEPTH, layout);
+                if (span == null || !layout.mossPit && EdgeBasin.nearRoute(x, span.top(), z, 40)) continue;
                 var site = new Site(x, span.top() + 1, z);
-                if (i % 3 == 0) add(map, site, 42, p -> EdgeVegetation.fallenTree(p, site, EdgeBasin.ENTRY_DEPTH));
+                if (i % 3 == 0) add(map, site, 42, p -> EdgeVegetation.fallenTree(p, site, EdgeBasin.ENTRY_DEPTH, layout));
                 else add(map, site, 49, p -> EdgeVegetation.tree(p, site, EdgeVegetation.ELDER, hash(x, site.y, z)));
             }
+            if (layout.mossPit) return;
             for (int radius : new int[]{345, 281, 212, 153, 109, 68, 29}) {
                 var point = EdgeBasin.point(radius);
                 var next = EdgeBasin.point(radius + 6);
@@ -130,15 +193,15 @@ final class EdgeExploration {
                 double scale = 8 / Math.max(1, Math.hypot(dx, dz));
                 int x = point.x() - (int) Math.round(dz * scale);
                 int z = point.z() + (int) Math.round(dx * scale);
-                var span = EdgeLandscape.at(x, z, 1240 + Math.max(0, 171 - radius) * 2 / 3, true);
+                var span = EdgeLandscape.at(x, z, 1240 + Math.max(0, 171 - radius) * 2 / 3, layout);
                 if (span == null) continue;
                 var site = new Site(x, span.top() + 1, z);
                 add(map, site, 2, p -> marker(p, site));
             }
         }
 
-        private static void branchPath(Map<Long, List<Feature>> map, Landmark landmark, boolean forested) {
-            if (landmark.kind == Kind.CAVE) return;
+        private static void branchPath(Map<Long, List<Feature>> map, Landmark landmark, EdgeTerrain.Layout layout) {
+            if (landmark.kind == Kind.CAVE || landmark.kind == Kind.FOSSIL_GROVE) return;
             for (int radius = landmark.radius + 4; radius < 405; radius += 3) {
                 var point = EdgeLandscape.point(landmark.depth, radius);
                 var site = new Site(point.x(), -landmark.depth, point.z());
@@ -148,7 +211,7 @@ final class EdgeExploration {
                             if (dx * dx + dz * dz > 5) continue;
                             int x = site.x + dx, z = site.z + dz;
                             if (x < p.x0 || x > p.x0 + 15 || z < p.z0 || z > p.z0 + 15) continue;
-                            var surface = EdgeLandscape.at(x, z, landmark.depth, forested);
+                            var surface = EdgeLandscape.at(x, z, landmark.depth, layout);
                             if (surface == null || surface.water() > surface.top()) continue;
                             int y = surface.top();
                             p.set(x, y, z, Blocks.COARSE_DIRT.defaultBlockState());
@@ -159,17 +222,17 @@ final class EdgeExploration {
             }
         }
 
-        private static void waterfall(Map<Long, List<Feature>> map, int depth, boolean forested) {
+        private static void waterfall(Map<Long, List<Feature>> map, int depth, EdgeTerrain.Layout layout) {
             BlockState falling = Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 8);
             for (int offset = -1; offset <= 1; offset++) {
                 int level = depth + offset;
                 for (int r = 380; r >= 150; r--) {
                     var lip = EdgeLandscape.point(level, r);
-                    var bank = EdgeLandscape.at(lip.x(), lip.z(), level, forested);
+                    var bank = EdgeLandscape.at(lip.x(), lip.z(), level, layout);
                     if (bank == null) continue;
                     var point = EdgeLandscape.point(level, r - 2);
-                    if (EdgeLandscape.at(point.x(), point.z(), level, forested) != null) continue;
-                    var column = EdgeTerrain.column(point.x(), point.z(), true, forested);
+                    if (EdgeLandscape.at(point.x(), point.z(), level, layout) != null) continue;
+                    var column = EdgeTerrain.column(point.x(), point.z(), layout);
                     int base = column.bottom();
                     for (var span : column.shelves()) if (span.top() < bank.top()) base = Math.max(base, span.water());
                     int foot = base + 1;
@@ -203,13 +266,60 @@ final class EdgeExploration {
         return false;
     }
 
-    private static void landmark(Painter p, Site s, Landmark landmark) {
+    private static void landmark(Painter p, Site s, Landmark landmark, EdgeTerrain.Layout layout) {
         switch (landmark.kind) {
             case CAMP -> camp(p, s, landmark.depth);
             case BURIAL -> burial(p, s);
             case ARK -> ark(p, s, landmark);
             case CAVE -> cave(p, s, landmark.depth);
             case MILL -> mill(p, s);
+            case FOSSIL_GROVE -> fossilGrove(p, s, landmark, layout);
+        }
+    }
+
+    private static void fossilGrove(Painter p, Site s, Landmark landmark, EdgeTerrain.Layout layout) {
+        var wall = Direction.getNearest(s.x - AbyssLayer.CENTER_X, 0, s.z - AbyssLayer.CENTER_Z);
+        var tangential = wall.getClockWise();
+        var chalk = OrthBlocks.CHALK.get().defaultBlockState();
+        var stone = Blocks.TUFF.defaultBlockState();
+        var fossil = OrthBlocks.FOSSIL_OUTCROP.get().defaultBlockState()
+                .setValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING, wall.getOpposite());
+        var root = OrthBlocks.FOSSIL_ROOT.get().defaultBlockState()
+                .setValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING, wall.getOpposite());
+        var bole = ForestGrowth.Palette.block("petrified_log");
+        for (int along = -23; along <= 23; along++) {
+            for (int inset = -16; inset <= 20; inset++) {
+                int x = s.x + tangential.getStepX() * along + wall.getStepX() * inset;
+                int z = s.z + tangential.getStepZ() * along + wall.getStepZ() * inset;
+                if (x < p.x0 || x > p.x0 + 15 || z < p.z0 || z > p.z0 + 15) continue;
+                double radial = Math.hypot(along * 0.78, inset) + (hash(x, s.y, z) & 3) * 0.65;
+                if (radial > 20) continue;
+                var ground = EdgeLandscape.at(x, z, landmark.depth, layout);
+                if (ground == null || ground.water() > ground.top() || !p.inside(x, ground.top() + 1, z)) continue;
+                int y = ground.top();
+                if (!p.get(x, y, z).blocksMotion()) continue;
+                int roll = hash(x, y, z) & 63;
+                int lip = 10 + (int) (2.0 * Math.sin(along * 0.4 + 0.5));
+                if (inset >= lip && inset <= lip + 3) {
+                    int rise = Math.max(2, 8 - Math.abs(along) / 4 + roll % 4 - (inset - lip));
+                    for (int dy = 0; dy <= rise; dy++) {
+                        var rock = (dy + along + roll % 4) % 6 == 0 ? chalk : stone;
+                        if (inset == lip && dy > 1 && (along + dy * 3) % 7 == 0)
+                            rock = (roll & 4) == 0 ? fossil : root;
+                        p.wood(x, y + dy, z, rock);
+                    }
+                    continue;
+                }
+                if ((roll & 7) < 3) p.set(x, y, z, roll % 3 == 0 ? chalk : Blocks.COARSE_DIRT.defaultBlockState());
+                if (roll == 4 && inset < lip) p.wood(x, y + 1, z, OrthBlocks.FOSSIL_STUMP.get().defaultBlockState());
+                if ((Math.abs(along + 12) < 2 && Math.abs(inset + 5) < 2)
+                        || (Math.abs(along - 11) < 2 && Math.abs(inset - 4) < 2)
+                        || (Math.abs(along - 3) < 2 && Math.abs(inset + 12) < 2)) {
+                    int height = 4 + Math.floorMod(along / 4 + inset / 3, 6) - (roll & 1);
+                    for (int dy = 1; dy <= height; dy++) p.wood(x, y + dy, z, bole);
+                    p.wood(x, y + height + 1, z, OrthBlocks.FOSSIL_STUMP.get().defaultBlockState());
+                }
+            }
         }
     }
 
@@ -219,44 +329,152 @@ final class EdgeExploration {
     }
 
     private static void camp(Painter p, Site s, int depth) {
-        p.box(s.x, s.y - 4, s.z, 8, 3, 6, Blocks.COBBLESTONE.defaultBlockState());
-        p.box(s.x, s.y - 1, s.z, 8, 1, 6, Blocks.SPRUCE_PLANKS.defaultBlockState());
-        p.box(s.x, s.y, s.z, 8, 5, 6, Blocks.AIR.defaultBlockState());
-        for (int x : new int[]{-6, 6}) {
-            for (int z : new int[]{-4, 4}) {
-                p.column(s.x + x, s.z + z, s.y, s.y + 4, Blocks.STRIPPED_SPRUCE_LOG.defaultBlockState());
+        int x = s.x, y = s.y, z = s.z;
+        p.box(x, y - 2, z, 10, 2, 7, Blocks.SPRUCE_PLANKS.defaultBlockState());
+        p.box(x, y, z, 10, 9, 7, Blocks.AIR.defaultBlockState());
+        BlockState timber = Blocks.STRIPPED_SPRUCE_WOOD.defaultBlockState();
+        BlockState plank = Blocks.SPRUCE_PLANKS.defaultBlockState();
+        BlockState infill = (depth < 650 ? Blocks.PACKED_MUD : Blocks.MOSSY_COBBLESTONE).defaultBlockState();
+        for (int dx : new int[]{-9, -2, 8}) {
+            for (int dz : new int[]{-6, 5}) {
+                pierFoot(p, x + dx, y - 2, z + dz, 14);
+                p.column(x + dx, z + dz, y, y + 5, timber);
             }
         }
-        for (int x = -7; x <= 7; x++) {
-            var cloth = (x + depth / 40) % 3 == 0 ? Blocks.WHITE_WOOL : Blocks.BROWN_WOOL;
-            for (int z = -5; z <= 4; z++) p.set(s.x + x, s.y + 5 - Math.abs(x) / 3, s.z + z, cloth.defaultBlockState());
+        for (int dx = -9; dx <= -2; dx++) {
+            for (int dz = -6; dz <= 5; dz++) {
+                if (dx == -9 || dx == -2 || dz == -6 || dz == 5) {
+                    p.column(x + dx, z + dz, y, y + 4, dz % 4 == 0 ? timber : infill);
+                }
+                p.set(x + dx, y + 5, z + dz, timber);
+            }
         }
-        p.set(s.x - 4, s.y, s.z - 3, Blocks.CRAFTING_TABLE.defaultBlockState());
-        p.set(s.x - 2, s.y, s.z - 3, Blocks.FURNACE.defaultBlockState());
-        p.set(s.x, s.y, s.z + 5, Blocks.LANTERN.defaultBlockState());
-        p.barrel(s.x + 4, s.y, s.z - 3, "edge_supplies");
+        BlockState door = Blocks.SPRUCE_DOOR.defaultBlockState().setValue(DoorBlock.FACING, Direction.EAST);
+        p.set(x - 2, y, z + 1, door);
+        p.set(x - 2, y + 1, z + 1, door.setValue(DoorBlock.HALF, DoubleBlockHalf.UPPER));
+        p.set(x - 6, y + 2, z + 5, Blocks.BROWN_STAINED_GLASS.defaultBlockState());
+        for (int dz = -7; dz <= 6; dz++) {
+            int roof = y + 6 + (7 - Math.abs(dz)) / 2;
+            BlockState tile = Blocks.DARK_OAK_STAIRS.defaultBlockState().setValue(StairBlock.FACING,
+                    dz < 0 ? Direction.SOUTH : Direction.NORTH);
+            for (int dx = -10; dx <= -1; dx++) {
+                p.set(x + dx, roof - 1, z + dz, plank);
+                p.set(x + dx, roof, z + dz, dz == 0 ? Blocks.DARK_OAK_SLAB.defaultBlockState() : tile);
+            }
+            for (int dx = 0; dx <= 9; dx++) {
+                int lean = y + 5 + (9 - dx) / 4;
+                BlockState cloth = ((depth / 40 + dz) & 3) == 0 ? Blocks.WHITE_WOOL.defaultBlockState()
+                        : (depth < 650 ? Blocks.BROWN_WOOL : Blocks.GREEN_WOOL).defaultBlockState();
+                p.set(x + dx, lean, z + dz, cloth);
+            }
+        }
+        for (int dx = -1; dx <= 8; dx++) {
+            for (int side : new int[]{-6, 5}) p.set(x + dx, y + 5, z + side, timber);
+        }
+        p.set(x - 7, y, z - 3, ForestGrowth.Palette.block("camp_bedroll"));
+        p.set(x - 5, y, z - 3, ForestGrowth.Palette.block("camp_bedroll"));
+        p.set(x + 4, y, z - 4, Blocks.CRAFTING_TABLE.defaultBlockState());
+        p.set(x + 5, y, z - 4, Blocks.SMOKER.defaultBlockState());
+        p.set(x + 6, y, z - 4, Blocks.STONECUTTER.defaultBlockState());
+        p.set(x + 3, y, z + 5, Blocks.LANTERN.defaultBlockState());
+        p.barrel(x + 7, y, z - 3, "edge_supplies");
+        p.barrel(x - 7, y, z + 2, "edge_supplies");
+    }
+
+    private static void pierFoot(Painter p, int x, int y, int z, int search) {
+        if (!p.inside(x, y, z)) return;
+        int ground = p.shelfBelow(x, y, z, y - search);
+        p.column(x, z, ground == EdgeTerrain.NO_SHELF ? y - search : Math.min(ground, y - 1), y,
+                Blocks.MOSSY_COBBLESTONE.defaultBlockState());
     }
 
     private static void burial(Painter p, Site s) {
-        p.box(s.x, s.y - 5, s.z, 13, 5, 11, Blocks.TUFF.defaultBlockState());
-        p.box(s.x, s.y, s.z, 11, 7, 10, Blocks.AIR.defaultBlockState());
-        for (int y = 0; y < 21; y++) {
-            int width = 10 - y / 8;
-            p.ring(s.x, s.y + y, s.z, width, width - 2, Blocks.STONE_BRICKS.defaultBlockState(),
-                    Blocks.CRACKED_STONE_BRICKS.defaultBlockState(), 5);
+        int x = s.x, y = s.y, z = s.z;
+        BlockState air = Blocks.AIR.defaultBlockState();
+        BlockState brick = Blocks.STONE_BRICKS.defaultBlockState();
+        BlockState worn = Blocks.MOSSY_STONE_BRICKS.defaultBlockState();
+        p.box(x, y - 9, z, 15, 9, 13, Blocks.TUFF.defaultBlockState());
+        p.box(x, y - 5, z, 10, 16, 9, air);
+        for (int dy = -6; dy <= 12; dy++) {
+            int radius = dy <= 1 ? 13 : Math.max(6, 13 - dy / 2);
+            p.ring(x, y + dy, z, radius, radius - 3, brick, worn, 4);
         }
-        for (int y = 0; y < 5; y++) p.box(s.x, s.y + y, s.z - 8, 2, 1, 4, Blocks.AIR.defaultBlockState());
-        p.disc(s.x, s.y + 21, s.z, 8, Blocks.MOSSY_STONE_BRICKS.defaultBlockState());
-        p.disc(s.x, s.y + 22, s.z, 6, Blocks.TUFF.defaultBlockState());
-        for (int x = -5; x <= 5; x += 5) {
-            for (int z : new int[]{-3, 3}) {
-                p.set(s.x + x, s.y, s.z + z, Blocks.CHISELED_STONE_BRICKS.defaultBlockState());
-                p.set(s.x + x, s.y + 1, s.z + z, Blocks.BONE_BLOCK.defaultBlockState());
-                p.set(s.x + x, s.y + 2, s.z + z, Blocks.SKELETON_SKULL.defaultBlockState());
+        for (int dx : new int[]{-7, 7}) for (int dz : new int[]{-9, 9}) {
+            pierFoot(p, x + dx, y - 9, z + dz, 22);
+            p.column(x + dx, z + dz, y - 8, y - 2, worn);
+        }
+        p.disc(x, y - 6, z, 12, brick);
+        p.disc(x, y + 12, z, 7, worn);
+        p.box(x, y - 5, z, 7, 11, 6, air);
+        for (int side : new int[]{-1, 1}) {
+            for (int run = 0; run <= 13; run++) {
+                int bx = x + side * (run + 5);
+                int floor = y - 6 + Math.min(5, run / 2);
+                for (int dz = -2; dz <= 2; dz++) {
+                    p.column(bx, z + dz, floor - 2, floor, worn);
+                    p.column(bx, z + dz, floor + 1, floor + 4, air);
+                }
+                if (run == 8) {
+                    p.column(bx, z - 3, floor, floor + 6, brick);
+                    p.column(bx, z + 3, floor, floor + 6, brick);
+                    for (int dz = -3; dz <= 3; dz++) p.set(bx, floor + 6, z + dz, brick);
+                }
+            }
+            for (int dx : new int[]{-5, 0, 5}) {
+                int bz = z + side * 5;
+                p.set(x + dx, y - 5, bz, Blocks.CHISELED_STONE_BRICKS.defaultBlockState());
+                p.set(x + dx, y - 4, bz, ForestGrowth.Palette.block("praying_skeleton"));
+                p.column(x + dx + 1, bz + side * 2, y - 5, y + 4, worn);
+                p.set(x + dx + 1, y - 4, bz + side, Blocks.LANTERN.defaultBlockState());
+                p.set(x + dx + 1, y - 5, bz + side, brick);
             }
         }
-        p.set(s.x, s.y, s.z - 5, Blocks.LANTERN.defaultBlockState());
-        p.barrel(s.x + 3, s.y, s.z + 5, "edge_relics");
+        p.barrel(x, y - 5, z + 8, "edge_relics");
+        p.set(x, y - 5, z, Blocks.CHISELED_STONE_BRICKS.defaultBlockState());
+    }
+
+    private static void arkStation(Painter p, Site s) {
+        int x = s.x, y = s.y + 2, z = s.z;
+        BlockState deck = Blocks.SPRUCE_PLANKS.defaultBlockState();
+        BlockState beam = Blocks.STRIPPED_SPRUCE_WOOD.defaultBlockState();
+        p.box(x + 3, y - 1, z + 1, 9, 2, 5, deck);
+        p.box(x + 3, y + 1, z + 1, 9, 3, 5, Blocks.AIR.defaultBlockState());
+        for (int dx : new int[]{-6, 12}) {
+            for (int dz : new int[]{-4, 6}) {
+                p.column(x + dx, z + dz, y - 5, y + 4, beam);
+                p.set(x + dx, y + 5, z + dz, Blocks.LANTERN.defaultBlockState());
+            }
+        }
+        for (int dx = -7; dx <= 12; dx++) {
+            for (int dz = -9; dz <= -3; dz++) {
+                int top = y + 5 + (4 - Math.abs(dz + 6)) / 2;
+                p.set(x + dx, top, z + dz, ((dx & 3) == 0 ? Blocks.WHITE_WOOL : Blocks.BROWN_WOOL).defaultBlockState());
+            }
+            p.set(x + dx, y + 4, z - 4, beam);
+        }
+        for (int dx : new int[]{-6, -1, 6, 12}) p.column(x + dx, z - 8, y - 4, y + 5, beam);
+        for (int dx = -5; dx <= 12; dx++) p.set(x + dx, y + 1, z + 6, Blocks.SPRUCE_FENCE.defaultBlockState());
+        p.barrel(x - 4, y + 1, z - 2, "edge_relics");
+        p.set(x, y + 1, z - 3, Blocks.CARTOGRAPHY_TABLE.defaultBlockState());
+        p.set(x + 10, y + 1, z - 3, Blocks.GRINDSTONE.defaultBlockState());
+        if (p.layout.mossPit) {
+            BlockPos bell = OrthDescent.arkBell();
+            int end = bell.getX() - 3;
+            int height = bell.getY() - 1 - y;
+            for (int step = 0; step <= height; step++) {
+                int bx = end - height + step;
+                for (int dz = -1; dz <= 1; dz++) {
+                    int bz = bell.getZ() + dz;
+                    p.column(bx, bz, y - 1, y + step, deck);
+                    p.column(bx, bz, y + step + 1, y + step + 3, Blocks.AIR.defaultBlockState());
+                }
+            }
+            // Cribwork below the bell deck connects the landing to the rock.
+            for (int dx = -2; dx <= 2; dx++) for (int dz = -2; dz <= 2; dz++) {
+                int bx = bell.getX() + dx, bz = bell.getZ() + dz;
+                if (Math.abs(dx) == 2 || Math.abs(dz) == 2) p.column(bx, bz, y - 2, bell.getY() - 2, beam);
+            }
+        }
     }
 
     private static void ark(Painter p, Site s, Landmark landmark) {
@@ -292,7 +510,7 @@ final class EdgeExploration {
                 }
             }
         }
-        p.barrel(s.x, arkTop(s, 0, 0, s.x, s.z) + 1, s.z, "edge_relics");
+        arkStation(p, s);
         var tip = EdgeLandscape.point(landmark.depth, landmark.radius - 32);
         double dx = tip.x() - s.x, dz = tip.z() - s.z;
         marker(p, new Site(tip.x(), arkTop(s, dx * ax + dz * az, dz * ax - dx * az, tip.x(), tip.z()) + 1, tip.z()));
@@ -321,9 +539,15 @@ final class EdgeExploration {
             case 145 -> {
                 var root = OrthBlocks.PETRIFIED_LOG.get().defaultBlockState();
                 for (int i = -6; i <= 4; i++) {
-                    p.column(s.x - 8 + i / 3, s.z + i, floor + 1 + Math.abs(i) / 3, floor + 7, root);
+                    int x = s.x - 8 + i / 3, z = s.z + i;
+                    if (!p.inside(x, floor + 1, z)) continue;
+                    int ceiling = floor + 7;
+                    while (ceiling < floor + 15 && p.get(x, ceiling, z).isAir()) ceiling++;
+                    if (p.get(x, ceiling, z).blocksMotion()) {
+                        p.column(x, z, floor + 1 + Math.abs(i) / 3, ceiling - 1, root);
+                    }
                 }
-                p.set(s.x + 3, floor + 9, s.z + 2, Blocks.SPORE_BLOSSOM.defaultBlockState());
+                p.hang(s.x + 3, floor + 9, s.z + 2, Blocks.SPORE_BLOSSOM.defaultBlockState());
             }
             case 436, 906 -> {
                 p.disc(s.x - 5, floor - 2, s.z + 1, 4, Blocks.CLAY.defaultBlockState());
@@ -356,7 +580,11 @@ final class EdgeExploration {
     }
 
     private static void mill(Painter p, Site s) {
-        p.box(s.x, s.y - 5, s.z, 8, 5, 8, Blocks.MOSSY_COBBLESTONE.defaultBlockState());
+        p.box(s.x, s.y - 4, s.z, 8, 4, 8, Blocks.MOSSY_COBBLESTONE.defaultBlockState());
+        for (int x : new int[]{-5, 5}) for (int z : new int[]{-5, 5}) {
+            pierFoot(p, s.x + x, s.y - 4, s.z + z, 14);
+            p.column(s.x + x, s.z + z, s.y - 1, s.y + 4, Blocks.STONE_BRICKS.defaultBlockState());
+        }
         p.box(s.x, s.y, s.z, 8, 6, 8, Blocks.AIR.defaultBlockState());
         for (int y = 0; y <= 22; y++) {
             int r = 7 - y / 9;
@@ -364,7 +592,15 @@ final class EdgeExploration {
                     Blocks.STONE_BRICKS.defaultBlockState(), 4);
         }
         p.box(s.x, s.y, s.z - 6, 1, 3, 2, Blocks.AIR.defaultBlockState());
-        for (int y = 0; y < 7; y++) p.disc(s.x, s.y + 23 + y, s.z, 7 - y, Blocks.DARK_OAK_PLANKS.defaultBlockState());
+        for (int h = 0; h < 8; h++) p.disc(s.x, s.y + 23 + h, s.z, 7 - h / 2,
+                (h < 2 ? Blocks.DARK_OAK_PLANKS : Blocks.WEATHERED_CUT_COPPER).defaultBlockState());
+        for (int h = 7; h <= 20; h++) {
+            if (h % 8 > 2) continue;
+            p.set(s.x + 5, s.y + h, s.z, Blocks.BROWN_STAINED_GLASS.defaultBlockState());
+            p.set(s.x - 5, s.y + h, s.z, Blocks.BROWN_STAINED_GLASS.defaultBlockState());
+        }
+        p.set(s.x + 1, s.y, s.z - 2, Blocks.GRINDSTONE.defaultBlockState());
+        p.set(s.x - 3, s.y, s.z - 2, Blocks.STONECUTTER.defaultBlockState());
         for (int arm : new int[]{-1, 1}) {
             for (int d = 0; d <= 13; d++) {
                 p.set(s.x + d * arm, s.y + 17 + d * arm, s.z - 8, Blocks.STRIPPED_SPRUCE_WOOD.defaultBlockState());
@@ -400,26 +636,63 @@ final class EdgeExploration {
     static final class Painter {
         final int x0, z0;
         private final ChunkAccess chunk;
+        private final int yOffset;
+        private final int bottom;
+        private final EdgeTerrain.Layout layout;
         private final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 
         Painter(ChunkAccess chunk) {
+            this(chunk, 0);
+        }
+
+        Painter(ChunkAccess chunk, int yOffset) {
+            this(chunk, yOffset, EdgeTerrain.MIN_Y + 1);
+        }
+
+        Painter(ChunkAccess chunk, int yOffset, int bottom) {
+            this(chunk, yOffset, bottom, EdgeTerrain.Layout.WILD_EDGE);
+        }
+
+        Painter(ChunkAccess chunk, int yOffset, int bottom, EdgeTerrain.Layout layout) {
             this.chunk = chunk;
+            this.yOffset = yOffset;
+            this.bottom = bottom;
+            this.layout = layout;
             x0 = chunk.getPos().getMinBlockX();
             z0 = chunk.getPos().getMinBlockZ();
         }
 
-        private boolean inside(int x, int y, int z) {
-            return x >= x0 && x <= x0 + 15 && z >= z0 && z <= z0 + 15 && y > EdgeTerrain.MIN_Y && y < 0;
+        boolean inside(int x, int y, int z) {
+            return x >= x0 && x <= x0 + 15 && z >= z0 && z <= z0 + 15 && y >= bottom && y < 0 && !chunk.isOutsideBuildHeight(y + yOffset);
         }
 
-        BlockState get(int x, int y, int z) { return chunk.getBlockState(pos.set(x, y, z)); }
+        BlockState get(int x, int y, int z) { return chunk.getBlockState(pos.set(x, y + yOffset, z)); }
 
         void set(int x, int y, int z, BlockState state) {
-            if (inside(x, y, z)) chunk.setBlockState(pos.set(x, y, z), state, false);
+            if (inside(x, y, z)) chunk.setBlockState(pos.set(x, y + yOffset, z), state, false);
         }
 
         void grow(int x, int y, int z, BlockState state) {
             if (inside(x, y, z) && get(x, y, z).isAir()) set(x, y, z, state);
+        }
+
+        void hang(int x, int y, int z, BlockState state) {
+            if (inside(x, y, z) && hasOverheadSupport(x, y, z)) grow(x, y, z, state);
+        }
+
+        boolean hasOverheadSupport(int x, int y, int z) {
+            var anchor = get(x, y + 1, z);
+            return anchor.blocksMotion() || anchor.is(net.minecraft.tags.BlockTags.LEAVES);
+        }
+
+        int shelfBelow(int x, int top, int z, int low) {
+            var column = EdgeTerrain.column(x, z, layout);
+            if (!column.opening()) return top;
+            for (int y = top; y >= low; y--) {
+                var rock = EdgeTerrain.block(column, y, layout);
+                if (rock.blocksMotion()) return y;
+            }
+            return EdgeTerrain.NO_SHELF;
         }
 
         void wood(int x, int y, int z, BlockState state) {
@@ -432,7 +705,7 @@ final class EdgeExploration {
 
         void column(int x, int z, int lo, int hi, BlockState state) {
             if (x < x0 || x > x0 + 15 || z < z0 || z > z0 + 15) return;
-            for (int y = lo; y <= hi; y++) set(x, y, z, state);
+            for (int y = Math.max(lo, bottom); y <= hi; y++) set(x, y, z, state);
         }
 
         void box(int x, int y, int z, int rx, int h, int rz, BlockState state) {
@@ -473,6 +746,8 @@ final class EdgeExploration {
         void barrel(int x, int y, int z, String loot) {
             if (!inside(x, y, z)) return;
             set(x, y, z, Blocks.BARREL.defaultBlockState());
+            // The Overworld preview shows the barrel but the Edge owns its generated loot.
+            if (bottom == OrthTerrain.SHARED_BOTTOM) return;
             var tag = new CompoundTag();
             tag.putString("id", "minecraft:barrel");
             tag.putInt("x", x);

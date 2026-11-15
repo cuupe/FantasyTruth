@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "stratacubes:mat_surgery_kit"
+    },
+    {
+      "item": "stratacubes:mat_fur"
+    }
+  ],
+  "result": {
+    "item": "stratacubes:i_bandage",
+    "count": 3
+  }
+}

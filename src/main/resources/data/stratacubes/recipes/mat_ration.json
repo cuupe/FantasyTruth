@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "food",
+  "ingredients": [
+    {
+      "item": "minecraft:bread"
+    },
+    [
+      {
+        "item": "stratacubes:i_shroom_cap"
+      },
+      {
+        "item": "stratacubes:cooked_demonfish"
+      },
+      {
+        "item": "minecraft:dried_kelp"
+      }
+    ],
+    {
+      "item": "minecraft:baked_potato"
+    }
+  ],
+  "result": {
+    "item": "stratacubes:mat_ration",
+    "count": 2
+  }
+}

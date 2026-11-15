@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "stratacubes:item/depth_gauge"
+    "layer0": "stratacubes:item/i_depth_gauge"
   }
 }

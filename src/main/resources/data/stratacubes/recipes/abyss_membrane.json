@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    [
+      {
+        "item": "stratacubes:mat_tenmaku_film"
+      },
+      {
+        "item": "stratacubes:mat_wing_membrane"
+      }
+    ]
+  ],
+  "result": {
+    "item": "minecraft:phantom_membrane",
+    "count": 1
+  }
+}

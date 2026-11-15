@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "stratacubes:i_bone"
+    },
+    {
+      "item": "stratacubes:i_bone"
+    },
+    {
+      "item": "stratacubes:i_bone"
+    },
+    {
+      "item": "stratacubes:i_bone"
+    }
+  ],
+  "result": {
+    "item": "stratacubes:l5_bone_block",
+    "count": 1
+  }
+}

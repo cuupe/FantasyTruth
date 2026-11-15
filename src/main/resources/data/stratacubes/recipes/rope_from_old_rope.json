@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "stratacubes:mat_rope"
+    }
+  ],
+  "result": {
+    "item": "stratacubes:i_rope",
+    "count": 1
+  }
+}

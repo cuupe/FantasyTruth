@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "stratacubes:mat_gorilla_pelt"
+    }
+  ],
+  "result": {
+    "item": "minecraft:leather",
+    "count": 2
+  }
+}

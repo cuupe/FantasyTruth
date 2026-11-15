@@ -11,3 +11,7 @@ threadRunTimeRatio = "0.70"
 [client.advanced.graphics.quality]
 lodChunkRenderDistanceRadius = 384
 maxHorizontalResolution = "BLOCK"
+verticalQuality = "MEDIUM"
+
+[client.advanced.graphics.culling]
+enableCaveCulling = true

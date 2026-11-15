@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "stratacubes:block/fossil_root"
+    },
+    "facing=east": {
+      "model": "stratacubes:block/fossil_root",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "stratacubes:block/fossil_root",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "stratacubes:block/fossil_root",
+      "y": 270
+    }
+  }
+}

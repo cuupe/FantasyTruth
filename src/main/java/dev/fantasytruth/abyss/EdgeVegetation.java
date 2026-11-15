@@ -1,12 +1,15 @@
 package dev.fantasytruth.abyss;
 
+import dev.fantasytruth.FantasyTruth;
 import dev.fantasytruth.abyss.EdgeExploration.Painter;
 import dev.fantasytruth.abyss.EdgeExploration.Site;
 import dev.fantasytruth.terrain.TerrainField;
 import java.util.SplittableRandom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.data.worldgen.features.TreeFeatures;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -30,7 +33,8 @@ final class EdgeVegetation {
     static void placeVanillaTrees(WorldGenLevel level, ChunkAccess chunk, AbyssEdgeGenerator generator) {
         var registry = level.registryAccess().registryOrThrow(Registries.CONFIGURED_FEATURE);
         int x0 = chunk.getPos().getMinBlockX(), z0 = chunk.getPos().getMinBlockZ();
-        boolean forested = generator.forested();
+        var layout = generator.layout();
+        boolean forested = layout.forested;
         int step = forested ? 5 : 8;
         for (int dz = 0; dz + step <= 16; dz += step) {
             for (int dx = 0; dx + step <= 16; dx += step) {
@@ -38,9 +42,11 @@ final class EdgeVegetation {
                 int x = x0 + dx + (forested ? Math.floorMod(salt, step) : salt & 7);
                 int z = z0 + dz + (forested ? Math.floorMod(salt >>> 7, step) : salt >>> 7 & 7);
                 if (!AbyssLayer.passage(x, z, forested ? 456 : 367)) continue;
-                for (var span : EdgeTerrain.column(x, z, true, forested).shelves()) {
+                for (var span : EdgeTerrain.column(x, z, layout).shelves()) {
                     int y = span.top() + 1;
-                    if (forested && (EdgeBasin.nearRoute(x, y, z, 10)
+                    // Vanilla features can cross chunk bounds. The overlap uses only chunk-clipped trees.
+                    if (layout.wallTerraces() && y >= OrthTerrain.SHARED_BOTTOM - 40) continue;
+                    if (forested && ((!layout.mossPit && EdgeBasin.nearRoute(x, y, z, 10))
                             || y > -1215 && !AbyssLayer.passage(x, z, 369))) continue;
                     int roll = EdgeExploration.hash(x, y, z);
                     double patch = FIELD.noise(x, z, 57, Math.floorDiv(y, 64));
@@ -75,16 +81,22 @@ final class EdgeVegetation {
         }
     }
 
-    static void understory(Painter p, boolean forested) {
+    static void understory(Painter p, EdgeTerrain.Layout layout) {
+        boolean forested = layout.forested;
+        boolean eroded = layout.eroded();
+        var flora = eroded ? EdgeFlora.INSTANCE : null;
         for (int x = p.x0; x < p.x0 + 16; x++) {
             for (int z = p.z0; z < p.z0 + 16; z++) {
-                if (!AbyssLayer.passage(x, z, forested ? 477 : 398)) continue;
-                for (var span : EdgeTerrain.column(x, z, true, forested).shelves()) {
+                if (!AbyssLayer.passage(x, z, layout.wallTerraces() ? 566 : forested ? 477 : 398)) continue;
+                var column = EdgeTerrain.column(x, z, layout);
+                if (layout.wallTerraces()) EdgeWall.growScarps(p, x, z, column);
+                for (var span : column.shelves()) {
                     int y = span.top() + 1;
                     int hash = EdgeExploration.hash(x, y, z);
                     int chance = Math.floorMod(hash, 100);
-                    if (span.cover() == EdgeLandscape.Cover.TRAIL) continue;
+                    if (span.cover() == EdgeLandscape.Cover.TRAIL || chance > 92) continue;
                     double patch = FIELD.noise(x, z, 15, Math.floorDiv(y, 80));
+                    if (flora != null && growEdgeFlora(p, span, flora, x, y, z, chance, patch)) continue;
                     switch (span.cover()) {
                         case MEADOW -> {
                             if (patch > 0.16 && chance < 11) plant(p, x, y, z, FIELD_FLOWERS[Math.floorMod(hash >>> 8, FIELD_FLOWERS.length)]);
@@ -108,6 +120,11 @@ final class EdgeVegetation {
                             else if (chance < 43) plant(p, x, y, z, Blocks.MOSS_CARPET);
                             else if (chance == 60 && patch > 0.22) plant(p, x, y, z, Blocks.FLOWERING_AZALEA);
                         }
+                        case PIT_MOSS -> {
+                            if (chance < 49 + 18 * patch) plant(p, x, y, z, Blocks.MOSS_CARPET);
+                            else if (chance < 65) plant(p, x, y, z, Blocks.FERN);
+                            else if (chance < 68 && patch > 0.1) tall(p, x, y, z, Blocks.LARGE_FERN);
+                        }
                         case WETLAND -> {
                             if (chance < 28) plant(p, x, y, z, Blocks.FERN);
                             else if (chance < 39 && patch > 0) plant(p, x, y, z, Blocks.MOSS_CARPET);
@@ -130,10 +147,76 @@ final class EdgeVegetation {
                         case TRAIL -> {}
                     }
                     if (patch > 0.12 && chance < 12) {
-                        plant(p, x, span.bottom() - 1, z, chance == 0 ? Blocks.SPORE_BLOSSOM : Blocks.HANGING_ROOTS);
+                        p.hang(x, span.bottom() - 1, z, (chance == 0 ? Blocks.SPORE_BLOSSOM : Blocks.HANGING_ROOTS).defaultBlockState());
                     }
                 }
             }
+        }
+    }
+
+    private static boolean growEdgeFlora(Painter p, EdgeTerrain.Span span, EdgeFlora flora, int x, int y, int z,
+                                         int chance, double patch) {
+        switch (span.cover()) {
+            case MEADOW, FLOWERS -> {
+                if (patch > -0.08 && chance < 13) {
+                    plant(p, x, y, z, flora.grass);
+                    return true;
+                }
+            }
+            case WOODLAND, FERN -> {
+                if (patch > 0.18 && chance < 12) {
+                    plant(p, x, y, z, flora.mushroom);
+                    return true;
+                }
+                if (patch < -0.25 && chance < 8) {
+                    p.set(x, y - 1, z, OrthBlocks.GLOW_MOSS.get().defaultBlockState());
+                    plant(p, x, y, z, Blocks.MOSS_CARPET);
+                    return true;
+                }
+            }
+            case WETLAND, POOL -> {
+                if (chance < 13 && (span.cover() == EdgeLandscape.Cover.POOL
+                        ? span.water() == y : patch > 0.08)) {
+                    plant(p, x, span.water() + 1, z, flora.reeds);
+                    return true;
+                }
+            }
+            default -> {}
+        }
+        if (patch > 0.22 && chance < 9 && p.get(x, span.bottom(), z).is(OrthBlocks.STONE.get())) {
+            p.hang(x, span.bottom() - 1, z, flora.roots.defaultBlockState());
+        }
+        return false;
+    }
+
+    static void trimUnsupportedRoots(ChunkAccess chunk) {
+        var painter = new Painter(chunk, 0,
+                chunk.getMinBuildHeight() == EdgeTerrain.MIN_Y ? EdgeTerrain.MIN_Y + 1 : OrthTerrain.SHARED_BOTTOM);
+        var roots = EdgeFlora.INSTANCE.roots;
+        for (int i = 0; i < chunk.getSectionsCount(); i++) {
+            int bottom = chunk.getMinBuildHeight() + 16 * i;
+            if (bottom >= 0) break;
+            if (!chunk.getSection(i).maybeHas(state -> state.is(roots) || state.is(Blocks.HANGING_ROOTS)
+                    || state.is(Blocks.SPORE_BLOSSOM))) continue;
+            for (int y = bottom + 15; y >= bottom; y--) {
+                for (int z = painter.z0; z < painter.z0 + 16; z++) {
+                    for (int x = painter.x0; x < painter.x0 + 16; x++) {
+                        if (!painter.inside(x, y, z)) continue;
+                        var plant = painter.get(x, y, z);
+                        if (!plant.is(roots) && !plant.is(Blocks.HANGING_ROOTS) && !plant.is(Blocks.SPORE_BLOSSOM)) continue;
+                        if (!painter.hasOverheadSupport(x, y, z)) painter.set(x, y, z, Blocks.AIR.defaultBlockState());
+                    }
+                }
+            }
+        }
+    }
+
+    private record EdgeFlora(Block grass, Block mushroom, Block reeds, Block roots) {
+        private static final EdgeFlora INSTANCE = new EdgeFlora(block("abyss_grass_tuft"), block("glow_shroom"),
+                block("abyss_reeds"), block("hanging_roots"));
+
+        private static Block block(String name) {
+            return BuiltInRegistries.BLOCK.get(new ResourceLocation(FantasyTruth.ID, name));
         }
     }
 
@@ -154,11 +237,11 @@ final class EdgeVegetation {
             case MEADOW -> 12;
             case FLOWERS -> 8;
             case SCREE -> 9;
-            case TRAIL, POOL -> 0;
+            case TRAIL, POOL, PIT_MOSS -> 0;
         };
     }
 
-    static void fallenTree(Painter p, Site s, int depth) {
+    static void fallenTree(Painter p, Site s, int depth, EdgeTerrain.Layout layout) {
         int seed = EdgeExploration.hash(s.x(), s.y(), s.z());
         double radial = Math.atan2(OrthIsland.localZ(s.z()), OrthIsland.localX(s.x()));
         double heading = radial + ((seed & 1) == 0 ? 1 : -1) * (1.3 + (seed >>> 3 & 7) * 0.065);
@@ -170,14 +253,13 @@ final class EdgeVegetation {
                 Math.abs(dx) >= Math.abs(dz) ? Direction.Axis.X : Direction.Axis.Z);
         limb(p, new Site(s.x(), s.y() - 2, s.z()), new Site(s.x() - 2, s.y() + stumpHeight, s.z() + 1), 4, 2, upright);
         for (int arm = 0; arm < 5; arm++) {
-            Site root = offset(s, heading + arm * Math.PI * 2 / 5, 5 + (seed >>> arm & 3), -2);
-            limb(p, new Site(s.x(), s.y() + 2, s.z()), root, 2, 0, fallen);
+            root(p, s, heading + arm * Math.PI * 2 / 5, 5 + (seed >>> arm & 3), -2, 3, fallen);
         }
         int center = s.y() + 2;
         for (int i = 4; i <= length; i++) {
             int x = s.x() + (int) Math.round(i * dx + Math.sin(i * 0.19) * dz * 2);
             int z = s.z() + (int) Math.round(i * dz - Math.sin(i * 0.19) * dx * 2);
-            var ground = EdgeLandscape.at(x, z, depth, true);
+            var ground = EdgeLandscape.at(x, z, depth, layout);
             if (ground == null || ground.water() > ground.top() || ground.cover() == EdgeLandscape.Cover.TRAIL) break;
             int r = i < 15 ? 3 : i < 28 ? 2 : 1;
             center = Mth.clamp(ground.top() + r, center - 1, center + 1);
@@ -185,7 +267,8 @@ final class EdgeVegetation {
                 int bx = x - (int) Math.round(side * dz), bz = z + (int) Math.round(side * dx);
                 int cap = (int) Math.sqrt(r * r - side * side);
                 for (int y = -cap; y <= cap; y++) p.wood(bx, center + y, bz, fallen);
-                if ((EdgeExploration.hash(bx, center, bz) & 7) < 5) {
+                if ((EdgeExploration.hash(bx, center, bz) & 7) < 5 && p.inside(bx, center + cap, bz)
+                        && p.get(bx, center + cap, bz).is(fallen.getBlock())) {
                     p.grow(bx, center + cap + 1, bz, Blocks.MOSS_CARPET.defaultBlockState());
                 }
             }
@@ -245,9 +328,8 @@ final class EdgeVegetation {
         for (int i = 0; i < roots; i++) {
             double angle = start + i * Math.PI * 2 / roots + rng.nextDouble(-0.27, 0.27);
             int length = width + rng.nextInt(3, elder ? 13 : 7);
-            Site end = offset(s, angle, length, -2 - rng.nextInt(3));
-            limb(p, new Site(s.x(), s.y() + width, s.z()), end, Math.max(0, width - 2), 0, bark);
-            if ((i & 1) == 0) p.grow(end.x(), s.y(), end.z(), Blocks.MOSS_CARPET.defaultBlockState());
+            int drop = -2 - rng.nextInt(3);
+            root(p, s, angle, length, drop, width, bark);
         }
         int branches = elder ? 9 : 4 + (hash >>> 4 & 3);
         for (int i = 0; i < branches; i++) {
@@ -266,7 +348,7 @@ final class EdgeVegetation {
             limb(p, elbow, twig, 0, 0, bark);
             canopy(p, twig, Math.max(2, radius - 2), 2, foliage, hash - i * 21);
             if ((i & 3) == 1) {
-                p.grow(tip.x(), tip.y() - 1, tip.z(), Blocks.HANGING_ROOTS.defaultBlockState());
+                p.hang(tip.x(), tip.y() - 1, tip.z(), Blocks.HANGING_ROOTS.defaultBlockState());
             }
         }
         if (kind != 2) canopy(p, crown, elder ? 9 : 4 + width, elder ? 4 : 3, foliage, hash);
@@ -286,16 +368,31 @@ final class EdgeVegetation {
                 (int) Math.round(Mth.lerp(t, from.y(), to.y())), (int) Math.round(Mth.lerp(t, from.z(), to.z())));
     }
 
+    private static void root(Painter p, Site base, double angle, int length, int drop, int width, BlockState bark) {
+        Site end = null;
+        for (int reach = length; reach >= 3 && end == null; reach -= 2) {
+            Site target = offset(base, angle, reach, drop);
+            int ground = p.shelfBelow(target.x(), target.y() + 7, target.z(), base.y() - 9);
+            if (ground != EdgeTerrain.NO_SHELF) end = new Site(target.x(), ground, target.z());
+        }
+        if (end != null) limb(p, new Site(base.x(), base.y() + Math.min(2, width - 1), base.z()),
+                end, Math.max(0, width - 2), 0, bark);
+    }
+
     private static void limb(Painter p, Site from, Site to, int start, int end, BlockState bark) {
         int dx = Math.abs(from.x() - to.x()), dy = Math.abs(from.y() - to.y()), dz = Math.abs(from.z() - to.z());
         int steps = Math.max(1, Math.max(dx, Math.max(dy, dz)) * 2);
         Direction.Axis axis = dy >= dx && dy >= dz ? Direction.Axis.Y : dx >= dz ? Direction.Axis.X : Direction.Axis.Z;
         BlockState state = bark.setValue(RotatedPillarBlock.AXIS, axis);
+        Site previous = from;
         for (int j = 0; j <= steps; j++) {
             double t = j / (double) steps;
             Site s = mix(from, to, t);
             int r = (int) Math.round(Mth.lerp(t, start, end));
+            p.wood(s.x(), previous.y(), previous.z(), state);
+            p.wood(s.x(), s.y(), previous.z(), state);
             p.wood(s.x(), s.y(), s.z(), state);
+            previous = s;
             for (int x = -r; x <= r; x++) {
                 for (int z = -r; z <= r; z++) {
                     if (x * x + z * z <= r * r + 1) {

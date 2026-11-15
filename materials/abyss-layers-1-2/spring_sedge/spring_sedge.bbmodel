@@ -1,0 +1,207 @@
+{
+  "meta": {
+    "format_version": "5.0",
+    "model_format": "java_block",
+    "box_uv": false
+  },
+  "name": "Spring sedge · 泉边莎草",
+  "resolution": {
+    "width": 16,
+    "height": 16
+  },
+  "elements": [
+    {
+      "name": "diagonal tuft A",
+      "from": [
+        0,
+        0,
+        8
+      ],
+      "to": [
+        16,
+        16,
+        8
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "texture": null
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "texture": null
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "texture": null
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "texture": null
+        }
+      },
+      "uuid": "fba5cb20-30dd-5e14-af81-1844bdc5a037",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0,
+      "origin": [
+        8,
+        8,
+        8
+      ],
+      "rotation": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "name": "diagonal tuft B",
+      "from": [
+        0,
+        0,
+        8
+      ],
+      "to": [
+        16,
+        16,
+        8
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "texture": null
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "texture": null
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "texture": null
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "texture": null
+        }
+      },
+      "uuid": "ab935eae-c443-5e98-a559-36d09673114f",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0,
+      "origin": [
+        8,
+        8,
+        8
+      ],
+      "rotation": [
+        0,
+        -45,
+        0
+      ]
+    }
+  ],
+  "outliner": [
+    "fba5cb20-30dd-5e14-af81-1844bdc5a037",
+    "ab935eae-c443-5e98-a559-36d09673114f"
+  ],
+  "textures": [
+    {
+      "name": "spring_sedge_atlas.png",
+      "relative_path": "spring_sedge_atlas.png",
+      "folder": "",
+      "namespace": "stratacubes",
+      "id": "0",
+      "uuid": "006586e4-18ec-5f6f-b3d8-ccf8e70b0abb",
+      "internal": true,
+      "saved": true,
+      "width": 16,
+      "height": 16,
+      "uv_width": 16,
+      "uv_height": 16,
+      "visible": true,
+      "particle": true,
+      "use_as_default": true,
+      "file_format": "png",
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABJ0lEQVR4nN2RMUvEQBSEJ8IuR9IspM4fsUpjIRZpxOawyAkSEZGA+A8sBOG4QmMhiogc2NloYWNl5/+IpLF5S9hXrEW4cEsS0rvVsvP43swO8P/P/HLHLh8P7JC+MQaIogjMPKiPApgZRDQOyIrUbh5vd6x+/Na4+f5x3rbOd+3+1Z51ALdHD97QljAM23tWpJaI8HT24vVGOLk7dFwopfA5f23hQghIKbsRAODr+t0jIqxHqaqq1eM8sczsADsO7k+fvdWGOE+sEAIAMFtMre/7nai9LRhjMFtMLQAEQQCgaUNr3ZntBUgpwcwwxqAsS8R5Yuu67hvtBxARgiCAUgqTyQSA28QoAGhq1VpDKYVVdmPMOGC9RiICEeHtYukBzT9kRerU/Aecf3bNA9X+2AAAAABJRU5ErkJggg=="
+    }
+  ]
+}

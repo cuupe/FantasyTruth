@@ -1,0 +1,612 @@
+{
+  "meta": {
+    "format_version": "5.0",
+    "model_format": "java_block",
+    "box_uv": false
+  },
+  "name": "Fossil-bearing rock · 化石露头",
+  "resolution": {
+    "width": 32,
+    "height": 16
+  },
+  "elements": [
+    {
+      "name": "sedimentary slab",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "122e4521-82d5-58b7-bb7b-184d2c0c3a08",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    },
+    {
+      "name": "fossil spine",
+      "from": [
+        2,
+        7,
+        -0.7
+      ],
+      "to": [
+        13,
+        9,
+        0.1
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "c4dc0333-ae2a-5b03-b941-65a0e24babf8",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0,
+      "origin": [
+        7,
+        8,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        22.5
+      ]
+    },
+    {
+      "name": "rib 1",
+      "from": [
+        4,
+        4.0,
+        -0.45
+      ],
+      "to": [
+        5,
+        10.0,
+        0.1
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "b7dc05ad-6e19-5de6-b395-70d6e46020cb",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0,
+      "origin": [
+        4,
+        8.0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -22.5
+      ]
+    },
+    {
+      "name": "rib 2",
+      "from": [
+        6,
+        4.76,
+        -0.45
+      ],
+      "to": [
+        7,
+        10.7,
+        0.1
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "e9ed0fc5-da7a-5c0c-9c5e-4ccd811a1686",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0,
+      "origin": [
+        6,
+        8.76,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -22.5
+      ]
+    },
+    {
+      "name": "rib 3",
+      "from": [
+        8,
+        5.52,
+        -0.45
+      ],
+      "to": [
+        9,
+        11.4,
+        0.1
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "26d299c3-41c6-58e8-a14d-00800ffaeda9",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0,
+      "origin": [
+        8,
+        9.52,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -22.5
+      ]
+    },
+    {
+      "name": "rib 4",
+      "from": [
+        10,
+        6.28,
+        -0.45
+      ],
+      "to": [
+        11,
+        12.1,
+        0.1
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "1638b789-8c8e-55a1-aa63-bd995c33c822",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0,
+      "origin": [
+        10,
+        10.280000000000001,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        -22.5
+      ]
+    },
+    {
+      "name": "embedded fragment",
+      "from": [
+        11,
+        10,
+        -0.55
+      ],
+      "to": [
+        14,
+        13,
+        0.1
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            16,
+            0,
+            32,
+            16
+          ],
+          "texture": 0
+        }
+      },
+      "uuid": "6a0defed-7211-5ef5-ab34-bcf27de52972",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    }
+  ],
+  "outliner": [
+    "122e4521-82d5-58b7-bb7b-184d2c0c3a08",
+    "c4dc0333-ae2a-5b03-b941-65a0e24babf8",
+    "b7dc05ad-6e19-5de6-b395-70d6e46020cb",
+    "e9ed0fc5-da7a-5c0c-9c5e-4ccd811a1686",
+    "26d299c3-41c6-58e8-a14d-00800ffaeda9",
+    "1638b789-8c8e-55a1-aa63-bd995c33c822",
+    "6a0defed-7211-5ef5-ab34-bcf27de52972"
+  ],
+  "textures": [
+    {
+      "name": "fossil_outcrop_atlas.png",
+      "relative_path": "fossil_outcrop_atlas.png",
+      "folder": "",
+      "namespace": "stratacubes",
+      "id": "0",
+      "uuid": "d0c3d6e5-a725-58e5-a148-b667c19c8bde",
+      "internal": true,
+      "saved": true,
+      "width": 32,
+      "height": 16,
+      "uv_width": 32,
+      "uv_height": 16,
+      "visible": true,
+      "particle": true,
+      "use_as_default": true,
+      "file_format": "png",
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAYAAAB3AH1ZAAAEbUlEQVR4nFWV3ZKjyBGFvyrqBygJ0LS0M7OxsfbEXvk1/A5+Bd84ws+8jpnu1UiNhLopEBSifKFudifv6ofKk+Q5J8V///Pv6L1HJhHnHADee0IIFOsN3nsAqqqi6zrGcQRAJhElE/71z38AEEJgt9txPB5xzjGOI8YYvPdorQkhUFUVTdNwvV55eHggz3PUbR6RSSRPM9qXV7TWlOsC7z0vr2fe4+X1jHOO6TYAkKcZ8xxRSi0PK6XIsgylFPM8k2UZRVEsZ23b8vnz56WQtm1RQ3/FOUeW5SilqeuaGEFrTcaf4ZzDe4+SCcYYlNKk6g7gfD7jvSfGyDiODMOAc45hGGjbFoBxHJe9JEkYhoGqqpDTdCPLcpI4kqrIbrPiobyv89yhlKYsK9rWL+uiKElV5PfHGiEEQgg2mw1d1yGEwFqLMQYhBMYYTqcTq9WKaZro+57L5YK1lsvlgkpVJFWRp+MV7z3OOeqvj6zXa3Z6IFUs4OQ88FA6fHvm2FyZxoAQYuHAZrNZ+t11HQDGGIqiWMD89Y8651Bz4mj8jd53SAQigpIJEsHT8c4JuL49lvB03HO9Xom3mS+/feFyuaC1Xiq+XC5UVcX3799J05RpmhBC0HUdxhi01kgpEULw9etX5DQG/nh8wqSGVbFCKonNLNM8YbWh9x1WGw7770xjwGpDvM388usvyCRirV2S9H1P3/c8Pz+z3W4RQiCl5Hw+M00Tl8vlh7tlWaJEIrCZRSaR6XYnj0xy6rpm9/Ov2MwyjiOrYoXNLFprRCKQSaR9eaVtW9brNdM0Ya1dWmKtRUoJQFmWC4lXq9WiAmst0ncvjKFHyYRyXTD0V4rVmo+7n6hPB2QSSTO9ADwc/1g8oCwrPnz4QFmWxBgZhoEY46KGtm1RSv0gz3EcUUrdq1cKtSkrqqpiHANKafr+ynarUUqz/fBACIFxHNmUFSEEVrkj3maGYcQmcXn0ncDjOBJCoK5rAGK8G1zTNMtenuccDoc3OSvN+dzwaVuiteK6sgvrb8IQI2RZ/qbzP32hyDWNv9G2LcYYsixjnmfyPH8j7l0ZwKL5eZ4XwH3f352wyDWgeTq+LvbZPN6RVi5ht9vRNA0PpWO/35OmKc45js2V3ndst1uOxyNVVf2Q0BjDPM8455jnmRjjQjzv/dIa9ftjjdaaw/4uG2CpoKp+5n9PJ+q6Zr2+YoyjC9AcXu7qyCzfvn1Da83pdMIYsxSRJAkxRtq2XVxSCMEwDDw/PwNwOp1QEoHVhu1P20XPWmu899TH+8Xed5Trgt53eO+pqoqPnz9ym0c2m83SlhAC1lrquiaEsAygEALOucWgiqJYvlEiEUzzhEwiMomcm2c+ffpEmt3B5HnO5mFDCAGRCEQiWBUr+muLkgld1y1J3sG/hxDiTtw3G/6rE767pLSpIs00mU1RMuHL3/7O8+HIPN2QSeQ63Kdif215n5zvyZW6g2yaBoD9fk/TNHewb9b7DsJ7v8yKrus4nU6EEPg/+AWR2KAhYJsAAAAASUVORK5CYII="
+    }
+  ]
+}

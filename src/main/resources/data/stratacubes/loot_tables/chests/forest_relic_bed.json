@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "stratacubes:forest_egg_relic",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:loot_table",
+          "name": "stratacubes:chests/edge_relics",
+          "weight": 6
+        }
+      ]
+    }
+  ]
+}

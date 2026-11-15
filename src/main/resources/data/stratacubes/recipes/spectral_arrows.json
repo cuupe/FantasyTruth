@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:arrow"
+    },
+    {
+      "item": "minecraft:arrow"
+    },
+    [
+      {
+        "item": "stratacubes:mat_glow_loot"
+      },
+      {
+        "item": "stratacubes:mat_prism_eye"
+      },
+      {
+        "item": "stratacubes:mat_sun_crystal"
+      }
+    ]
+  ],
+  "result": {
+    "item": "minecraft:spectral_arrow",
+    "count": 2
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ingredient": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "stratacubes:i_demonfish_raw",
+              "stratacubes:i_demonfish_raw_b",
+              "stratacubes:i_demonfish_raw_c"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_ingredient"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "stratacubes:cooked_demonfish_from_smelting",
+      "stratacubes:cooked_demonfish_from_smoking",
+      "stratacubes:cooked_demonfish_from_campfire"
+    ]
+  }
+}

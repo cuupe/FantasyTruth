@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "stratacubes:glow_shroom"
+    }
+  ],
+  "result": {
+    "item": "stratacubes:i_shroom_cap",
+    "count": 1
+  }
+}

@@ -7,7 +7,7 @@ import net.minecraft.util.Mth;
 
 /** First-layer shelves extend inward from a continuous descent along the rock face. */
 final class EdgeLandscape {
-    enum Cover { MEADOW, FLOWERS, WOODLAND, FERN, WETLAND, SCREE, TRAIL, POOL }
+    enum Cover { MEADOW, FLOWERS, WOODLAND, FERN, WETLAND, SCREE, TRAIL, POOL, PIT_MOSS }
 
     record Shelf(int depth, int reach, int halfDepth, Cover cover) {}
     record Point(int x, int z) {}
@@ -52,9 +52,12 @@ final class EdgeLandscape {
         return 403 + 10 * Math.sin(a * 2.2 + 0.3) + 7 * Math.sin(a * 5.8 - 0.75);
     }
 
-    static List<EdgeTerrain.Span> shelves(int x, int z, double radius, boolean forested) {
-        if (radius < 145) {
-            var exit = forested ? EdgeBasin.column(x, z, radius) : exit(x, z);
+    static List<EdgeTerrain.Span> shelves(int x, int z, double radius, EdgeTerrain.Layout layout) {
+        boolean forested = layout.forested;
+        boolean forestMouth = layout.forestMouth();
+        if (forestMouth && radius < 105) return ForestMouth.shelves(x, z, radius);
+        if (radius < (layout.eroded() ? 105 : 145)) {
+            var exit = forested ? EdgeBasin.column(x, z, radius, layout.mossPit) : exit(x, z);
             return exit == null ? List.of() : List.of(exit);
         }
         double angle = Math.atan2(z, x) - ENTRY_ANGLE;
@@ -65,24 +68,53 @@ final class EdgeLandscape {
         double detail = FIELD.noise(x, z, 27, 2);
         int end = forested ? EdgeBasin.ENTRY_DEPTH : END;
         for (; depth <= end + 1; depth += TURN_DROP) {
-            var span = shelf(x, z, radius, depth, broad, detail, forested);
+            var span = shelf(x, z, radius, depth, broad, detail, layout);
             if (span != null) spans.add(span);
         }
-        var exit = forested ? EdgeBasin.column(x, z, radius) : exit(x, z);
-        if (exit != null) {
-            if (!spans.isEmpty() && spans.get(spans.size() - 1).bottom() <= exit.top()) {
-                var last = spans.remove(spans.size() - 1);
-                var upper = last.top() > exit.top() ? last : exit;
-                spans.add(new EdgeTerrain.Span(Math.min(last.bottom(), exit.bottom()), upper.top(),
-                        forested ? upper.cover() : Cover.TRAIL, Math.max(last.water(), exit.water())));
-            } else {
-                spans.add(exit);
-            }
+        if (layout.wildEdge() && radius > 245 && radius < 490) {
+            addHangingBenches(spans, x, z, radius, broad, detail);
+        }
+        if (forestMouth && radius < ForestMouth.RADIUS) {
+            for (var lip : ForestMouth.shelves(x, z, radius)) append(spans, lip, true);
+        } else {
+            var exit = forested ? EdgeBasin.column(x, z, radius, layout.mossPit) : exit(x, z);
+            if (exit != null) append(spans, exit, forested);
         }
         return spans;
     }
 
-    private static EdgeTerrain.Span shelf(int x, int z, double radius, double depth, double broad, double detail, boolean forested) {
+    private static void append(List<EdgeTerrain.Span> spans, EdgeTerrain.Span next, boolean forested) {
+        if (!spans.isEmpty() && spans.get(spans.size() - 1).bottom() <= next.top()) {
+            var last = spans.remove(spans.size() - 1);
+            var upper = last.top() > next.top() ? last : next;
+            spans.add(new EdgeTerrain.Span(Math.min(last.bottom(), next.bottom()), upper.top(),
+                    forested ? upper.cover() : Cover.TRAIL, Math.max(last.water(), next.water())));
+        } else {
+            spans.add(next);
+        }
+    }
+
+    private static void addHangingBenches(List<EdgeTerrain.Span> spans, int x, int z, double radius,
+                                          double broad, double detail) {
+        // Separate uplands link some of the larger shelves without repeating their spiral grade.
+        double fold = FIELD.noise(x, z, 82, 270);
+        double taper = Mth.clamp((radius - 245) / 42, 0, 1) * Mth.clamp((490 - radius) / 27, 0, 1);
+        if (fold * taper < 0.24) return;
+        double angle = Math.atan2(z, x);
+        int top = -172 - (int) (147 * (1 + Math.sin(angle + broad * 0.28))) + (int) (24 * detail);
+        for (int band = 0; band < 2; band++, top -= 634) {
+            int bottom = top - 9 - (int) (36 * (fold * taper - 0.24));
+            int index = 0;
+            while (index < spans.size() && spans.get(index).top() > top) index++;
+            if (index > 0 && spans.get(index - 1).bottom() < top + 12
+                    || index < spans.size() && spans.get(index).water() > bottom - 10) continue;
+            spans.add(index, new EdgeTerrain.Span(bottom, top, detail < -0.12 ? Cover.FERN : Cover.WOODLAND, top));
+        }
+    }
+
+    private static EdgeTerrain.Span shelf(int x, int z, double radius, double depth, double broad, double detail,
+                                          EdgeTerrain.Layout layout) {
+        boolean forested = layout.forested;
         Shelf chosen = null;
         double reach = 0;
         for (Shelf shelf : SHELVES) {
@@ -97,9 +129,26 @@ final class EdgeLandscape {
         }
         double trail = trailRadius(depth);
         double front = trail - 14 - reach + (24 * broad + 11 * detail) * Math.min(1, reach / 38);
+        double erosion = 0, fold = 0, valley = 0, ridge = 0;
+        if (layout.eroded() && chosen != null && depth > 286 && depth < 1200 && radius < 393) {
+            double inset = smooth(Mth.clamp((393 - radius) / 35, 0, 1));
+            erosion = inset * smooth(Mth.clamp(Math.min(depth - 286, 1200 - depth) / 32, 0, 1));
+            double across = (depth - chosen.depth) / chosen.halfDepth;
+            fold = FIELD.noise(x, z, 63, 247);
+            ridge = smooth(Mth.clamp((1 - Math.abs(across + 0.16 + 0.3 * fold)) * 1.35, 0, 1));
+            valley = 1 - smooth(Mth.clamp(Math.abs(FIELD.noise(x, z, 50, 251) + 0.19) * 4.5, 0, 1));
+            front -= erosion * (ridge * (69 + 31 * broad) + 27 * fold - 24 * valley);
+        }
+        boolean wild = layout.wildEdge();
+        double bypass = layout.eroded() && !wild ? bypassRadius(depth, trail) : trail;
+        if (wild) {
+            double shoulder = smooth(Mth.clamp((trail + 32 - radius) / 110, 0, 1));
+            front += shoulder * (33 * FIELD.noise(x, z, 49, 264) + 11 * detail);
+        }
+        if (bypass < trail) front = Math.min(front, bypass - 14);
         if (radius < front) return null;
         int trailY = -(int) Math.floor(Math.min(depth, END));
-        boolean path = Math.abs(radius - trail) <= 8;
+        boolean path = !wild && Math.abs(radius - trail) <= 8;
         double interior = smooth(Mth.clamp((trail - 8 - radius) / 71, 0, 1));
         double outer = Mth.clamp((radius - trail - 8) / 62, 0, 1);
         double relief = (13 * broad + 5 * detail - 5) * interior + (13 + 9 * broad) * outer;
@@ -122,14 +171,55 @@ final class EdgeLandscape {
                 };
             }
         }
+        if (erosion > 0) {
+            double shape = smooth(Mth.clamp((Math.abs(depth - chosen.depth) - 3) / 15, 0, 1));
+            double bench = smooth(Mth.clamp((radius + 28 * fold - 246) / 34, 0, 1));
+            relief += erosion * shape * (27 * bench - 20 * (1 - bench) + 20 * fold - 17 * valley);
+        }
+        if (layout.wallTerraces() && depth > 25 && depth < 1210 && radius < trail - 9 && radius > 350) {
+            relief += EdgeWall.innerRelief(x, z, radius, trail);
+        }
+        if (bypass < trail) relief *= smooth(Mth.clamp((Math.abs(radius - bypass) - 3) / 12, 0, 1));
+        if (wild) {
+            double startSlope = smooth(Mth.clamp((87 - depth) / 78, 0, 1));
+            double upland = FIELD.noise(x + 22 * detail, z, 61, 258);
+            double gullies = 1 - smooth(Mth.clamp(Math.abs(FIELD.noise(x, z - 30 * broad, 39, 259) - 0.13) * 5, 0, 1));
+            relief += 15 * upland + 9 * detail - 13 * gullies;
+            relief -= startSlope * (22 + 11 * Math.abs(broad));
+        }
         int top = Math.min(-2, trailY + (int) Math.round(relief));
-        boolean gravel = Math.abs(radius - trail) <= 3.3 + 1.8 * detail;
+        double lane = radius - trail;
+        boolean gravel = wild ? Math.abs(lane - 7 * broad) < 1.25 + detail * 0.4
+                && FIELD.noise(x, z, 31, 262) > 0.66
+                : Math.abs(lane) <= 3.3 + 1.8 * detail || (bypass < trail && Math.abs(radius - bypass) <= 2.8);
         Cover cover = gravel ? Cover.TRAIL : chosen == null ? Cover.SCREE : chosen.cover;
         if (!path && chosen != null && radius < 396 && cover == Cover.WOODLAND && detail > 0.38) cover = Cover.FERN;
         if (!path && chosen != null && radius < 396 && cover == Cover.MEADOW && broad > 0.34) cover = Cover.FLOWERS;
         if (!path && cover == Cover.SCREE && broad + 0.5 * detail > -0.12) cover = Cover.MEADOW;
         if (forested && chosen != null && !path && interior > 0.25 && (cover == Cover.MEADOW || cover == Cover.FLOWERS)
                 && FIELD.noise(x, z, 62, chosen.depth + 318) > 0.12) cover = Cover.WOODLAND;
+        if (erosion > 0.4 && cover != Cover.TRAIL) {
+            if (valley > 0.82 && fold < 0.25) cover = Cover.FERN;
+            else if (fold + detail * 0.45 > 0.42) cover = Cover.SCREE;
+            else if ((cover == Cover.MEADOW || cover == Cover.FLOWERS) && fold < -0.28) cover = Cover.WOODLAND;
+        }
+        if (!wild && erosion > 0 && switch (chosen.depth) {
+            case 300, 515, 700, 794, 988, 1172 -> true;
+            default -> false;
+        }) {
+            double side = (depth - chosen.depth) * TURN * radius / TURN_DROP;
+            double bend = 11 * Math.sin((393 - radius) / 22);
+            if (radius > front + 5 && Math.abs(side - bend) < 2.8 && radius < trail - 8) cover = Cover.TRAIL;
+        }
+        if (wild && !gravel) {
+            double habitat = broad + 0.6 * detail;
+            if (depth < 91 && radius > trail - 28 || cover == Cover.SCREE && habitat > -0.23) {
+                cover = habitat > 0.19 ? Cover.WOODLAND : habitat < -0.27 ? Cover.FLOWERS : Cover.FERN;
+            } else if (cover == Cover.WOODLAND && habitat < -0.29) cover = Cover.FERN;
+        }
+        if (layout.wallTerraces() && radius > trail + 9 && (wild || depth > 19)) {
+            return EdgeWall.slope(x, z, radius - trail, detail, top, wild);
+        }
         int water = top;
         if (chosen != null && chosen.cover == Cover.WETLAND && radius < 391) {
             Point center = point(chosen.depth, 329);
@@ -151,7 +241,17 @@ final class EdgeLandscape {
             }
         }
         int thickness = 12 + (int) (29 * Math.sqrt(Mth.clamp((radius - front) / 116, 0, 1)));
+        thickness += (int) (erosion * ridge * (12 + 22 * Math.max(0, fold + broad)));
         return new EdgeTerrain.Span(top - thickness, top, cover, water);
+    }
+
+    // The first and last blocks of a bypass meet the main trail at the same height.
+    private static double bypassRadius(double depth, double trail) {
+        int start = depth < 385 ? 330 : depth < 580 ? 533 : depth < 773 ? 725 : 1007;
+        double progress = (depth - start) / 45;
+        if (progress <= 0 || progress >= 1) return trail;
+        double turn = Math.sin(Math.PI * progress);
+        return trail - 63 * turn * turn;
     }
 
     private static EdgeTerrain.Span exit(int x, int z) {
@@ -164,30 +264,30 @@ final class EdgeLandscape {
         return new EdgeTerrain.Span(top - thickness, top, Cover.TRAIL, top);
     }
 
-    static List<EdgeTerrain.Rock> scarps(int x, int z, double radius) {
-        if (radius < 432) return List.of();
-        double setback = OrthIsland.SHAFT_RADIUS - OrthRelief.pitDistance(x, z);
-        if (setback > 70) return List.of();
+    static List<EdgeTerrain.Rock> scarps(int x, int z, double radius, double setback, EdgeTerrain.Layout layout) {
+        boolean terraces = layout.wallTerraces();
+        if (radius < 432 || setback > (terraces ? 84 : 70)) return List.of();
         var rock = new ArrayList<EdgeTerrain.Rock>(5);
         double ridge = FIELD.noise(x, z, 103, 211);
         double grain = FIELD.noise(x, z, 29, 212);
         int skew = (int) (38 * ridge + 14 * grain);
-        for (int i = 0; i < 8; i++) {
+        int bands = terraces ? 12 : 8;
+        for (int i = 0; i < bands; i++) {
             double spur = FIELD.noise(x, z, 73 + i * 4, 220 + i);
-            double reach = 21 + 24 * ridge + 31 * spur;
+            double reach = terraces ? 32 + 22 * ridge + 29 * spur + 12 * grain : 21 + 24 * ridge + 31 * spur;
             if (setback >= reach) continue;
             double weight = smooth(1 - setback / reach);
-            int center = -92 - i * 168 + skew + (int) (24 * spur);
-            int height = 8 + (int) (60 * weight);
+            int center = -92 - i * (terraces ? 111 : 168) + skew + (int) (24 * spur);
+            int height = 8 + (int) ((terraces ? 51 : 60) * weight);
             rock.add(new EdgeTerrain.Rock(center - height, Math.min(-24, center + height / 2), skew));
         }
         return rock;
     }
 
-    static EdgeTerrain.Span at(int x, int z, int depth, boolean forested) {
+    static EdgeTerrain.Span at(int x, int z, int depth, EdgeTerrain.Layout layout) {
         EdgeTerrain.Span nearest = null;
         int distance = 60;
-        for (var span : EdgeTerrain.column(x, z, true, forested).shelves()) {
+        for (var span : EdgeTerrain.column(x, z, layout).shelves()) {
             int difference = Math.abs(span.top() + depth);
             if (difference < distance) {
                 nearest = span;

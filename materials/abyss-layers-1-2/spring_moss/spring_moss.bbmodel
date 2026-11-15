@@ -1,0 +1,187 @@
+{
+  "meta": {
+    "format_version": "5.0",
+    "model_format": "java_block",
+    "box_uv": false
+  },
+  "name": "Spring moss mat · 附生水苔",
+  "resolution": {
+    "width": 16,
+    "height": 16
+  },
+  "elements": [
+    {
+      "name": "raised moss pad",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        0.35,
+        16
+      ],
+      "faces": {
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            0,
+            15.65,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            15.65,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            15.65,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            15.65,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "texture": null
+        }
+      },
+      "uuid": "2001a05c-3e76-5f82-82ed-ea1e09373b3c",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    },
+    {
+      "name": "heaped center",
+      "from": [
+        2,
+        0.37,
+        3
+      ],
+      "to": [
+        12,
+        0.62,
+        14
+      ],
+      "faces": {
+        "up": {
+          "uv": [
+            2,
+            3,
+            12,
+            14
+          ],
+          "texture": 0
+        },
+        "north": {
+          "uv": [
+            2,
+            15.38,
+            12,
+            15.63
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            3,
+            15.38,
+            14,
+            15.63
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            3,
+            15.38,
+            14,
+            15.63
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            2,
+            15.38,
+            12,
+            15.63
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "texture": null
+        }
+      },
+      "uuid": "49dd909d-962c-5e57-b8d1-6217089fbd7c",
+      "type": "cube",
+      "export": true,
+      "box_uv": false,
+      "autouv": 0
+    }
+  ],
+  "outliner": [
+    "2001a05c-3e76-5f82-82ed-ea1e09373b3c",
+    "49dd909d-962c-5e57-b8d1-6217089fbd7c"
+  ],
+  "textures": [
+    {
+      "name": "spring_moss_atlas.png",
+      "relative_path": "spring_moss_atlas.png",
+      "folder": "",
+      "namespace": "stratacubes",
+      "id": "0",
+      "uuid": "46ead1de-21d8-578d-a291-1ca898ee0c8f",
+      "internal": true,
+      "saved": true,
+      "width": 16,
+      "height": 16,
+      "uv_width": 16,
+      "uv_height": 16,
+      "visible": true,
+      "particle": true,
+      "use_as_default": true,
+      "file_format": "png",
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACWUlEQVR4nG2SP0gbURzHP+/wvUJO4YISCDURMUsczGCWDLWLXbqYRQqZSkC6uLRLKXQqAelily6lUByKIC51cVEotYUsyZAM3nKlJNj6Z8nBeW94B16HkqMxvunx3u/75fvnJ1Y21uJiQRGGIbZtc3FxwdnlPYIgYGpqisKcoH8uAWjuHApuHQFQb1Rj1zMAGGNQSgGwVLRpdQbYtk12RuP1Ytq7xwlJvVGNBcBybTUuzAn2to5GPludAfOzN/w6syiX0oRhiOM4SCnRWuN6BlF5+jiWUnLy8WBM3nJtNQZQSlEsKFqdAQC2bWOMoVxKYxljyGcjNrdr8W0CpRTlUppUKoXXi+nufxNLRZswDFFK0WxdYVXKGVzPoLW+jWc4nJ3RicLPbw7FSuU+mXQAgOX7PlEUYYwZI2h1Bvzs/wP9//7+xa7I5XJUyhks1zMsFW1czySeVzbW4nqjGiul7iQG6LohUkqsKIpwPYPjOBTmBMO96P2ZQEpJEAQ8efVoLJ98NkJrjSWlTHrf2zoSURTx9UcfrTXFgmJ6ehop5Qh4uDepVApRb1TjT6+/jHhcWn8YV8qZRKaUEt/3KS1OJpaUUnROrxnrHuDZ2/W41RlQWpwEYJiT7/vJPYoiHMfBWnv+YMyf14uplDN0Tq9xPUNz51B8eLkv+ueS+dmbZMb3fSbOLu+NKdBa0+7qkb0HyKQDcrkc7a6PUgopwSoWVFLfMKCFPCzkx60dvPsumq2rJAfXM0zYtk0UhWxu1+KT5m+klHROrwmC4K54KC1OEoYhXs/Q3j0WfwHy7RlVQrUV5AAAAABJRU5ErkJggg=="
+    }
+  ]
+}

@@ -11,10 +11,14 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -42,15 +46,33 @@ public final class OrthCity {
         generateSurface(chunk, terraced, vertical, false, false);
     }
 
-    public static void generateSurface(ChunkAccess chunk, boolean terraced, boolean vertical, boolean expandedEdge, boolean forested) {
-        Painter p = new Painter(chunk, terraced, vertical, expandedEdge, forested, 0, 0, Direction.NORTH);
+    public static void generateSurface(ChunkAccess chunk, boolean terraced, boolean vertical, boolean forested, boolean abyssRock) {
+        generateSurface(chunk, terraced, vertical, forested, abyssRock, false, false);
+    }
+
+    public static void generateSurface(ChunkAccess chunk, boolean terraced, boolean vertical, boolean forested,
+                                       boolean abyssRock, boolean wallTerraces, boolean wildEdge) {
+        generateSurface(chunk, terraced, vertical, forested, abyssRock,
+                wildEdge ? EdgeTerrain.Layout.WILD_EDGE
+                        : wallTerraces ? EdgeTerrain.Layout.WALL_TERRACES : EdgeTerrain.Layout.LEGACY);
+    }
+
+    static void generateSurface(ChunkAccess chunk, boolean terraced, boolean vertical, boolean forested, boolean abyssRock,
+                                EdgeTerrain.Layout edgeLayout) {
+        Painter p = new Painter(chunk, terraced, vertical, forested, abyssRock, edgeLayout, 0, 0, Direction.NORTH);
         if (Math.abs(p.x0) > 1740 || Math.abs(p.z0) > 1740) return;
         if (terraced) {
             if (OrthIsland.distance(p.x0 + 8, p.z0 + 8) > 1740) return;
             sculpt(p);
             plantTrees(p);
+            if (vertical && abyssRock && chunk.getMinBuildHeight() != EdgeTerrain.MIN_Y && !edgeLayout.wallTerraces()) {
+                plantShaftShelves(p);
+            }
             for (Piece piece : TerracePlan.pieces(vertical).getOrDefault(chunk.getPos().toLong(), List.of())) {
                 if (piece.surface != null) piece.surface.build(p);
+            }
+            if (vertical && abyssRock && chunk.getMinBuildHeight() != EdgeTerrain.MIN_Y && !edgeLayout.wallTerraces()) {
+                OrthDescent.build(chunk, false, edgeLayout);
             }
             return;
         }
@@ -88,6 +110,33 @@ public final class OrthCity {
         }
     }
 
+    private static void plantShaftShelves(Painter p) {
+        if (Math.hypot(p.x0 + 8, p.z0 + 8) > 575) return;
+        for (int z = p.z0 - 6; z <= p.z1 + 6; z++) {
+            for (int x = p.x0 - 6; x <= p.x1 + 6; x++) {
+                int seed = hash(x, z);
+                boolean tree = (seed & 63) == 0;
+                boolean local = x >= p.x0 && x <= p.x1 && z >= p.z0 && z <= p.z1;
+                if ((!tree && !local) || !OrthIsland.shaftColumn(x, z)) continue;
+                int wx = x + AbyssLayer.CENTER_X, wz = z + AbyssLayer.CENTER_Z;
+                for (var span : EdgeTerrain.column(wx, wz, EdgeTerrain.Layout.MOSS_PIT).shelves()) {
+                    int y = span.top();
+                    if (y >= -7 || y < -205 || span.water() > y) continue;
+                    boolean green = switch (span.cover()) {
+                        case MEADOW, FLOWERS, FERN, WOODLAND, WETLAND -> true;
+                        default -> false;
+                    };
+                    if (!green) continue;
+                    if (tree && OrthIsland.woodland(x, z) > -0.25) {
+                        p.canopyTree(x, y + 1, z);
+                    } else if (local && (seed & 3) == 1 && p.block(x, y + 1, z).isAir()) {
+                        p.set(x, y + 1, z, (seed & 31) == 1 ? Blocks.OXEYE_DAISY : Blocks.FERN);
+                    }
+                }
+            }
+        }
+    }
+
     public static void generateDetails(ChunkAccess chunk, boolean terraced, boolean vertical) {
         List<Piece> pieces = (terraced ? TerracePlan.pieces(vertical) : Plan.Legacy.PIECES).get(chunk.getPos().toLong());
         if (pieces == null) return;
@@ -112,6 +161,15 @@ public final class OrthCity {
                 int low = Math.min(Math.min(heights[i - 1], heights[i + 1]),
                         Math.min(heights[i - 18], heights[i + 18]));
                 boolean shaft = OrthRelief.pitDistance(x, z) < (p.vertical ? 535 : 512);
+                if (p.abyssRock && y > -505 && (shaft || y - low >= 7 && y >= OrthIsland.SEA)) {
+                    int bottom = Math.max(y - 47, Math.min(y - 3, low));
+                    p.column(x, z, bottom, y, OrthBlocks.STONE.get());
+                    if (y > OrthIsland.SEA + 6 && y - low < 11 && OrthIsland.woodland(x, z) > 0.24) {
+                        p.set(x, y, z, Blocks.MOSS_BLOCK);
+                        plantGroundCover(p, x, y, z, OrthIsland.distance(x, z));
+                    }
+                    continue;
+                }
                 if (p.vertical && !shaft && y >= OrthIsland.SEA + 6) {
                     // Keep a turf cap and a vegetated soil face on the island's exterior slopes.
                     if (y - low >= 3) {
@@ -252,7 +310,48 @@ public final class OrthCity {
     }
 
     private interface Design { void build(Painter p); }
-    private record Piece(int x0, int z0, int x1, int z1, Design surface, Design details) {}
+    private record Piece(int x0, int z0, int x1, int z1, Design surface, Design details, Residence residence) {}
+
+    record Residence(int x, int y, int z, int width, int depth, int floors, int style, Direction facing, boolean stilts) {
+        BlockPos at(int dx, int dy, int dz) {
+            int cos = -facing.getStepZ(), sin = facing.getStepX();
+            return new BlockPos(AbyssLayer.CENTER_X + x + cos * dx - sin * dz, y + dy,
+                    AbyssLayer.CENTER_Z + z + sin * dx + cos * dz);
+        }
+
+        void build(Painter painter) {
+            Painter p = painter.rotated(x, z, facing);
+            if (!stilts) {
+                int front = z - depth - 1;
+                p.terrace(x - 3, y, front, x + 3, front, OrthBlocks.COBBLE.get());
+                if (Math.floorMod(hash(x, z), 19) == 0) {
+                    // A small bell court opens off the approach at street level.
+                    p.terrace(x - 4, y, front - 1, x + 1, front, OrthBlocks.COBBLE.get());
+                    p.set(x - 3, y + 1, front - 1, Blocks.BELL);
+                }
+            }
+            residence(p, x, y, z, width, depth, floors, style, stilts);
+        }
+    }
+
+    private static Map<Long, List<Piece>> plan(boolean terraced, boolean vertical) {
+        return terraced ? TerracePlan.pieces(vertical) : Plan.Legacy.PIECES;
+    }
+
+    static boolean developed(ChunkPos chunk, boolean terraced, boolean vertical) {
+        return plan(terraced, vertical).containsKey(chunk.toLong());
+    }
+
+    static List<Residence> residences(ChunkPos chunk, boolean terraced, boolean vertical) {
+        var pieces = plan(terraced, vertical).get(chunk.toLong());
+        if (pieces == null) return List.of();
+        var homes = new ArrayList<Residence>();
+        for (Piece piece : pieces) {
+            var home = piece.residence();
+            if (home != null && chunk.equals(new ChunkPos(home.at(0, 1, 3)))) homes.add(home);
+        }
+        return homes;
+    }
 
     private static final class Plan {
         private static final class Legacy {
@@ -284,9 +383,10 @@ public final class OrthCity {
                         int localGround = OrthIsland.elevation(cx, frontZ);
                         int rise = Math.min(4, Math.max(-3, localGround - frontage));
                         int y = frontage + rise;
+                        var home = new Residence(cx, y, cz, width, depth, floors, style, Direction.NORTH, false);
                         add(pieces, cx, cz, width + 3, depth + 3,
                                 p -> houseOutline(p, cx, y, cz, width, depth, floors, style),
-                                p -> house(p, cx, y, cz, width, depth, floors, style, false));
+                                home::build, home);
                         add(pieces, cx, (streetZ + frontZ - 1) / 2, 1, LOT / 2, null,
                                 p -> approach(p, cx, streetZ, frontZ - 1, frontage, y));
                     }
@@ -297,10 +397,29 @@ public final class OrthCity {
             add(pieces, ORPHANAGE_X, ORPHANAGE_Z, 52, 49, OrthCity::orphanage);
             add(pieces, GUILD_X, GUILD_Z, 94, 50, OrthCity::guild);
             add(pieces, -507, PIER_Z, 123, 29, OrthCity::pier);
-            add(pieces, 0, 505, 174, 98, OrthCity::wharf);
+            addWharf(pieces, false, false);
             add(pieces, 0, 1315, 66, 285, OrthCity::harbor);
             pieces.replaceAll((key, list) -> List.copyOf(list));
             return Map.copyOf(pieces);
+        }
+
+        private static void addWharf(Map<Long, List<Piece>> pieces, boolean terraced, boolean vertical) {
+            for (int x = -156; x <= 156; x += 26) {
+                int lip = 510 - x * x / 1000;
+                int crest = OrthIsland.elevation(x, lip + 42, terraced);
+                for (int tier = 0; tier < 3; tier++) {
+                    int y = crest - (terraced ? 28 + tier * 49 : 12 + tier * 17);
+                    int z = lip - tier * 32;
+                    if (terraced) {
+                        int wall = 599;
+                        double radius = vertical ? OrthIsland.SHAFT_RADIUS : OrthRelief.pitRadius(y);
+                        while (wall > 352 && OrthRelief.pitDistance(x, wall) >= radius) wall--;
+                        z = wall - 8 - tier * 7;
+                    }
+                    var home = new Residence(x, y, z, 8, 9, tier == 0 ? 2 : 1, (x / 26 + 8) % 4, Direction.NORTH, true);
+                    add(pieces, x, z + 10, 13, 24, p -> wharf(p, home), null, home);
+                }
+            }
         }
 
         private static void add(Map<Long, List<Piece>> pieces, int x, int z, int dx, int dz, Design surface) {
@@ -309,7 +428,12 @@ public final class OrthCity {
 
         private static void add(Map<Long, List<Piece>> pieces, int x, int z, int dx, int dz,
                                 Design surface, Design details) {
-            Piece piece = new Piece(x - dx, z - dz, x + dx, z + dz, surface, details);
+            add(pieces, x, z, dx, dz, surface, details, null);
+        }
+
+        private static void add(Map<Long, List<Piece>> pieces, int x, int z, int dx, int dz,
+                                Design surface, Design details, Residence home) {
+            Piece piece = new Piece(x - dx, z - dz, x + dx, z + dz, surface, details, home);
             for (int cx = (piece.x0 + AbyssLayer.CENTER_X) >> 4; cx <= (piece.x1 + AbyssLayer.CENTER_X) >> 4; cx++) {
                 for (int cz = (piece.z0 + AbyssLayer.CENTER_Z) >> 4; cz <= (piece.z1 + AbyssLayer.CENTER_Z) >> 4; cz++) {
                     pieces.computeIfAbsent(ChunkPos.asLong(cx, cz), ignored -> new ArrayList<>()).add(piece);
@@ -340,11 +464,11 @@ public final class OrthCity {
                 if (lot.mill()) {
                     Plan.add(pieces, x, z, 14, 14, p -> mill(p.rotated(x, z, lot.facing()), x, y, z));
                 } else {
+                    var home = new Residence(x, y, z, lot.width(), lot.depth(), lot.floors(), lot.style(), lot.facing(), false);
                     Plan.add(pieces, x, z, lot.extentX() + 1, lot.extentZ() + 1,
                             p -> houseOutline(p.rotated(x, z, lot.facing()), x, y, z,
                                     lot.width(), lot.depth(), lot.floors(), lot.style()),
-                            p -> house(p.rotated(x, z, lot.facing()), x, y, z,
-                                    lot.width(), lot.depth(), lot.floors(), lot.style(), false));
+                            home::build, home);
                 }
             }
             int spawn = OrthTownLayout.SPAWN_Z;
@@ -353,7 +477,7 @@ public final class OrthCity {
             Plan.add(pieces, OrthTownLayout.ORPHANAGE.x(), OrthTownLayout.ORPHANAGE.z(), 54, 51, OrthCity::orphanage);
             Plan.add(pieces, OrthTownLayout.GUILD.x(), OrthTownLayout.GUILD.z(), 96, 53, OrthCity::guild);
             Plan.add(pieces, -526, OrthTownLayout.PIER_Z, 158, 32, OrthCity::pier);
-            Plan.add(pieces, 0, 474, 173, 161, OrthCity::wharf);
+            Plan.addWharf(pieces, true, vertical);
             Plan.add(pieces, 0, OrthTownLayout.southShore() + 48, 68, 123, OrthCity::harbor);
             for (double turn : OrthTownLayout.FALLS) {
                 for (int lane = -1; lane <= 1; lane++) {
@@ -381,12 +505,15 @@ public final class OrthCity {
                 int floor = OrthTerrain.floor(at.x(), at.z(), top, true, vertical);
                 if (top - floor < 92) continue;
                 Plan.add(pieces, at.x(), at.z(), 0, 0, p -> {
+                    boolean edge = p.chunk.getMinBuildHeight() == EdgeTerrain.MIN_Y;
                     int start = vertical ? 0 : floor + 1;
-                    if (vertical && p.chunk.getMinBuildHeight() == EdgeTerrain.MIN_Y) {
+                    if (vertical && (edge || p.edgeLayout.wallTerraces())) {
                         start = EdgeTerrain.column(at.x() + AbyssLayer.CENTER_X, at.z() + AbyssLayer.CENTER_Z,
-                                p.expandedEdge, p.forested).top() + 1;
+                                p.edgeLayout).top() + 1;
+                        if (!edge) start = Math.max(start, OrthTerrain.SHARED_BOTTOM);
                     }
-                    p.column(at.x(), at.z(), start, top - 2, Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 8));
+                    p.column(at.x(), at.z(), start, top - 2,
+                            Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 8));
                 });
                 return;
             }
@@ -438,6 +565,15 @@ public final class OrthCity {
     }
 
     private static void house(Painter p, int x, int y, int z, int w, int d, int floors, int style, boolean stilts) {
+        house(p, x, y, z, w, d, floors, style, stilts, false);
+    }
+
+    private static void residence(Painter p, int x, int y, int z, int w, int d, int floors, int style, boolean stilts) {
+        house(p, x, y, z, w, d, floors, style, stilts, true);
+    }
+
+    private static void house(Painter p, int x, int y, int z, int w, int d, int floors, int style,
+                              boolean stilts, boolean residential) {
         int roof = y + floors * 5 + 1;
         boolean transverseRoof = style == 1 || style == 3;
         int slopeWidth = transverseRoof ? d : w;
@@ -476,46 +612,96 @@ public final class OrthCity {
                 }
                 p.column(x, z + d, base + 2, base + 3, Blocks.GLASS);
             }
+            if (residential) continue;
             if (floor + 1 < floors) {
                 p.column(x - w + 1, z + d - 2, base + 1, base + 4, Blocks.LADDER.defaultBlockState()
                         .setValue(LadderBlock.FACING, Direction.EAST));
             }
             if (floor > 0) p.column(x - w + 1, z + d - 2, base, base, Blocks.LADDER.defaultBlockState()
                     .setValue(LadderBlock.FACING, Direction.EAST));
-            p.set(x + w - 2, base + 1, z + d - 2, floor == 0 ? OrthBlocks.CRATE.get() : Blocks.BOOKSHELF);
+            furnishHouse(p, x, base, z, w, d, floor, style);
             p.set(x, base + 1, z + d - 1, Blocks.LANTERN);
         }
+        if (residential) OrthResidence.furnish(p, x, y, z, w, d, floors, style);
         p.door(x, y + 1, z - d, Direction.NORTH);
         p.set(x - 2, y + 1, z - d - 1, OrthBlocks.CRATE.get());
         p.set(x + 2, y + 1, z - d - 1, Blocks.COBBLESTONE_WALL);
         p.set(x + 2, y + 2, z - d - 1, Blocks.LANTERN);
-        if (!stilts && floors >= 2 && w <= 7 && style != 0) {
+        p.fill(x - 1, y + 3, z - d, x + 1, y + 3, z - d, frame);
+        for (int side : new int[]{-1, 1}) {
+            p.column(x + side, z - d, y + 1, y + 2, style == 0 ? Blocks.STONE_BRICKS : frame);
+        }
+        if (!stilts && floors >= 2 && w >= 6 && w <= 8 && style != 0) {
             int bayX = x + (style == 1 ? -w + 2 : w - 2);
             p.bayWindow(bayX, y + 5, z - d, wall, frame);
         }
         roof(p, x, roof, z, w, d, style, wall);
-        if (transverseRoof) p.set(x - w, roof + 1, z, Blocks.GLASS);
-        else p.set(x, roof + 1, z - d, Blocks.GLASS);
-        p.column(x + w - 2, z + d - 1, roof - 2, roof + 5, Blocks.BRICKS);
+        if (transverseRoof) p.set(x - w, roof + 1, z, Blocks.BROWN_STAINED_GLASS);
+        else p.set(x, roof + 1, z - d, Blocks.BROWN_STAINED_GLASS);
+        int chimneyAlong = transverseRoof ? d - 1 : w - 2;
+        int chimneyY = roof + roofRise(slopeWidth, chimneyAlong, style);
+        p.column(x + w - 2, z + d - 1, roof - 1, chimneyY + 3, Blocks.BRICKS);
+        p.set(x + w - 2, chimneyY + 4, z + d - 1, Blocks.BRICK_SLAB);
+    }
+
+    private static void furnishHouse(Painter p, int x, int y, int z, int w, int d, int floor, int style) {
+        int right = x + w - 2, rear = z + d - 1;
+        if (floor == 0) {
+            p.set(right, y + 1, rear, style == 2 ? Blocks.SMOKER : Blocks.CRAFTING_TABLE);
+            p.set(right - 1, y + 1, rear, OrthBlocks.CRATE.get());
+            p.set(right, y + 2, rear, style == 1 ? Blocks.FLOWER_POT : Blocks.LANTERN);
+            p.set(x - w + 1, y + 1, z - d + 2, style == 3 ? Blocks.LOOM : Blocks.BARREL);
+            p.set(x - w + 1, y + 1, z - d + 3, Blocks.SPRUCE_STAIRS);
+        } else {
+            p.column(right, rear, y + 1, y + 2, Blocks.BOOKSHELF);
+            p.set(right - 1, y + 1, rear, Blocks.LECTERN);
+            p.set(x - w + 1, y + 1, z - d + 2, Blocks.SPRUCE_STAIRS);
+            p.set(x - w + 1, y + 1, z - d + 3, Blocks.SPRUCE_SLAB);
+            p.fill(x - 1, y + 1, z, x + 1, y + 1, z, style == 1 ? Blocks.RED_CARPET : Blocks.BROWN_CARPET);
+        }
+    }
+
+    private static int roofRise(int span, int offset, int style) {
+        int half = span + 1;
+        if (style == 3) return (offset + half) / 2;
+        int run = half - Math.abs(offset);
+        return style == 2 ? run - run / 3 : style == 1 ? run + Math.max(0, 3 - Math.abs(offset)) / 2 : run;
     }
 
     private static void roof(Painter p, int x, int roof, int z, int w, int d, int style, Block wall) {
-        boolean transverseRoof = style == 1 || style == 3;
-        int slopeWidth = transverseRoof ? d : w;
-        Block roofCover = roofCover(style);
-        for (int offset = -slopeWidth - 1; offset <= slopeWidth + 1; offset++) {
-            int top = roof + (slopeWidth + 1 - Math.abs(offset)) / (style == 3 ? 2 : 1);
-            if (transverseRoof) {
-                p.fill(x - w - 1, top, z + offset, x + w + 1, top, z + offset, roofCover);
-                if (Math.abs(offset) <= d) {
-                    p.column(x - w, z + offset, roof, top - 1, wall);
-                    p.column(x + w, z + offset, roof, top - 1, wall);
+        boolean transverse = style == 1 || style == 3;
+        int span = transverse ? d : w;
+        Block stairs = switch (style) {
+            case 0 -> Blocks.DEEPSLATE_TILE_STAIRS;
+            case 1 -> Blocks.BRICK_STAIRS;
+            case 2 -> Blocks.MUD_BRICK_STAIRS;
+            default -> Blocks.DARK_OAK_STAIRS;
+        };
+        Block slab = switch (style) {
+            case 0 -> Blocks.DEEPSLATE_TILE_SLAB;
+            case 1 -> Blocks.BRICK_SLAB;
+            case 2 -> Blocks.MUD_BRICK_SLAB;
+            default -> Blocks.DARK_OAK_SLAB;
+        };
+        for (int offset = -span - 1; offset <= span + 1; offset++) {
+            int top = roof + roofRise(span, offset, style);
+            Direction uphill = transverse ? (offset < 0 || style == 3 ? Direction.SOUTH : Direction.NORTH)
+                    : offset < 0 ? Direction.EAST : Direction.WEST;
+            int next = offset + (offset < 0 || style == 3 ? 1 : -1);
+            boolean incline = next <= span + 1 && (offset != 0 || style == 3)
+                    && roofRise(span, next, style) > top - roof;
+            BlockState tile = incline ? stairs.defaultBlockState().setValue(StairBlock.FACING, uphill)
+                    : slab.defaultBlockState().setValue(SlabBlock.TYPE, SlabType.TOP);
+            int length = transverse ? w : d;
+            for (int along = -length - 1; along <= length + 1; along++) {
+                int bx = x + (transverse ? along : offset), bz = z + (transverse ? offset : along);
+                p.column(bx, bz, top, top, tile);
+                if (incline && Math.abs(along) <= length && Math.abs(offset) <= span) {
+                    p.column(bx, bz, top - 1, top - 1, roofCover(style));
                 }
-            } else {
-                p.fill(x + offset, top, z - d - 1, x + offset, top, z + d + 1, roofCover);
-                if (Math.abs(offset) <= w) {
-                    p.column(x + offset, z - d, roof, top - 1, wall);
-                    p.column(x + offset, z + d, roof, top - 1, wall);
+                if (Math.abs(along) == length && Math.abs(offset) <= span) {
+                    p.column(bx, bz, roof, top - (incline ? 2 : 1), (offset & 3) == 0
+                            ? Blocks.STRIPPED_SPRUCE_WOOD : wall);
                 }
             }
         }
@@ -527,17 +713,43 @@ public final class OrthCity {
         int y = p.elevation(0, spawn);
         p.terrace(-20, y, spawn - 12, 20, spawn + 13, OrthBlocks.COBBLE.get());
         int gateY = p.elevation(0, gate);
-        for (int z = p.terraced ? gate - 7 : spawn + 14; z <= gate + (p.terraced ? 23 : 32); z++) {
-            int grade = z <= gate ? p.elevation(0, z) : gateY - (z - gate) / 2;
+        for (int z = p.terraced ? gate - 15 : spawn + 14; z <= gate + (p.terraced ? 23 : 32); z++) {
+            int grade = z < gate - 11 ? p.elevation(0, z) : gateY - Math.max(0, z - gate) / 2;
             p.terrace(-4, grade, z, 4, z, OrthBlocks.COBBLE.get());
         }
-        for (int dx = -20; dx <= 20; dx++) {
-            int top = gateY + 25 + (int) (10 * Math.sqrt(1 - dx * dx / 441.0));
-            int bottom = Math.abs(dx) > 12 ? gateY : gateY + 15 + (int) Math.sqrt(169 - dx * dx);
-            p.fill(dx, bottom, gate - 5, dx, top, gate + 5, OrthBlocks.COBBLE.get());
-            if (dx % 4 == 0) p.column(dx, gate - 6, top - 5, top + 1, Blocks.MOSS_BLOCK);
-            if (Math.abs(dx) <= 12) p.fill(dx, gateY + 1, gate - 5, dx, bottom - 1, gate + 5, Blocks.AIR);
+        // The gate is a rock-cut passage with dressed stones around the two mouths.
+        for (int dz = -11; dz <= 10; dz++) {
+            for (int dx = -25; dx <= 25; dx++) {
+                int grain = Math.floorMod(hash(dx + gate, dz), 7);
+                int top = gateY + 14 + (int) (16 * Math.sqrt(1 - dx * dx / 676.0))
+                        + grain - Math.abs(dz) / 3;
+                int width = dz < -7 || dz > 6 ? 10 : 8;
+                int drop = Math.max(0, dz) / 2;
+                int spring = gateY + 12 - drop;
+                int bottom = Math.abs(dx) > width ? gateY - drop
+                        : spring + (int) Math.sqrt((width + 1) * (width + 1) - dx * dx);
+                p.column(dx, gate + dz, bottom, top, grain < 2 ? Blocks.TUFF : OrthBlocks.COBBLE.get());
+                if (Math.abs(dx) <= width) p.column(dx, gate + dz, gateY + 1 - drop, bottom - 1, Blocks.AIR);
+                if (Math.abs(dz) >= 9 && Math.abs(dx) <= width + 2) {
+                    int base = Math.abs(dx) <= width ? bottom : gateY + 1 - drop;
+                    p.column(dx, gate + dz, base, Math.min(base + (Math.abs(dx) <= width ? 2 : 19), top),
+                            grain < 3 ? Blocks.MOSSY_STONE_BRICKS : Blocks.STONE_BRICKS);
+                }
+                if (grain == 3) p.set(dx, top + 1, gate + dz, Blocks.MOSS_BLOCK);
+            }
         }
+        for (int side : new int[]{-1, 1}) {
+            int bx = side * 14;
+            p.fill(bx - 1, gateY, gate - 15, bx + 1, gateY + 10, gate - 9, Blocks.STONE_BRICKS);
+            p.fill(bx - 2, gateY + 10, gate - 16, bx + 2, gateY + 10, gate - 12, Blocks.STONE_BRICK_SLAB);
+            p.set(bx, gateY + 11, gate - 14, Blocks.LANTERN);
+            for (int dz : new int[]{-7, 0, 7}) {
+                int floor = gateY - Math.max(0, dz) / 2;
+                p.set(side * 4, floor + 1, gate + dz, Blocks.STONE_BRICK_WALL);
+                p.set(side * 4, floor + 2, gate + dz, Blocks.LANTERN);
+            }
+        }
+
         int station = p.terraced ? gate - 28 : -578;
         house(p, -29, p.elevation(-29, station), station, 12, 11, 3, 1, false);
         house(p, 29, p.elevation(29, station), station, 12, 11, 2, 0, false);
@@ -547,29 +759,96 @@ public final class OrthCity {
         int x = p.terraced ? OrthTownLayout.ORPHANAGE.x() : ORPHANAGE_X;
         int z = p.terraced ? OrthTownLayout.ORPHANAGE.z() : ORPHANAGE_Z;
         int y = p.elevation(x, z - 17);
-        p.terrace(x - 48, y, z - 29, x + 39, z + 24, OrthBlocks.COBBLE.get());
+        p.terrace(x - 47, y, z - 29, x + 34, z + 24, OrthBlocks.COBBLE.get());
         house(p, x, y, z, 25, 16, 4, 2, false);
-        // A broad, bowed roof with deep moss bands and a separate bell tower.
-        p.fill(x - 26, y + 21, z - 17, x + 26, y + 48, z + 17, Blocks.AIR);
+        p.fill(x - 26, y + 21, z - 17, x + 26, y + 49, z + 17, Blocks.AIR);
         for (int dz = -17; dz <= 17; dz++) {
-            int rise = (int) (15 * Math.sqrt(1 - dz * dz / 324.0));
-            p.fill(x - 26, y + 20 + rise, z + dz, x + 26, y + 21 + rise, z + dz,
-                    Math.abs(dz) > 11 ? Blocks.MOSS_BLOCK : Blocks.OXIDIZED_CUT_COPPER);
-            for (int edge : new int[]{-25, 25}) {
-                p.column(x + edge, z + dz, y + 21, y + 19 + rise,
-                        dz % 7 == 0 ? OrthBlocks.TIMBER.get() : OrthBlocks.PLASTER.get());
-                if (rise > 8 && dz % 7 == 0) p.column(x + edge, z + dz, y + 23, y + 25, Blocks.GLASS);
+            int rise = (int) (14 * Math.sqrt(1 - dz * dz / 324.0));
+            for (int bx = Math.max(x - 26, p.x0); bx <= Math.min(x + 26, p.x1); bx++) {
+                int moss = hash(bx / 4, (z + dz) / 3) & 7;
+                Block cover = Math.abs(dz) + moss > 13 ? Blocks.MOSS_BLOCK
+                        : moss == 1 ? Blocks.WEATHERED_CUT_COPPER : Blocks.OXIDIZED_CUT_COPPER;
+                p.column(bx, z + dz, y + 20 + rise, y + 21 + rise, cover);
+            }
+            for (int end : new int[]{-25, 25}) {
+                p.column(x + end, z + dz, y + 21, y + 19 + rise, OrthBlocks.PLASTER.get());
+                if (rise > 8 && dz % 7 == 0) p.column(x + end, z + dz, y + 23, y + 26, Blocks.BROWN_STAINED_GLASS);
             }
         }
-        tower(p, x - 36, y, z - 6, 8, 38, true);
-        p.fill(x - 30, y + 1, z - 9, x - 25, y + 4, z - 3, Blocks.AIR);
-        p.fill(x - 30, y, z - 9, x - 25, y, z - 3, OrthBlocks.PLANK.get());
-        for (int i = -20; i <= 20; i += 5) {
-            p.column(x + i, z + 17, y + 3, y + 9 + (i & 7), Blocks.MOSS_BLOCK);
+        int spring = y + 20 + (int) (14 * Math.sqrt(1 - 16 * 16 / 324.0));
+        for (int side : new int[]{-1, 1}) {
+            p.fill(x - 25, y + 21, z + side * 16, x + 25, spring - 1, z + side * 16, OrthBlocks.PLASTER.get());
+            for (int dx : new int[]{-16, 0, 16}) {
+                p.fill(x + dx - 2, y + 22, z + side * 16, x + dx + 2, y + 23, z + side * 16,
+                        Blocks.BROWN_STAINED_GLASS);
+                p.fill(x + dx - 1, y + 24, z + side * 16, x + dx + 1, y + 24, z + side * 16,
+                        Blocks.BROWN_STAINED_GLASS);
+                for (int bx = -5; bx <= 5; bx++) {
+                    int top = y + 23 + (int) (4 * Math.sqrt(1 - bx * bx / 36.0));
+                    p.fill(x + dx + bx, top - 1, z + side * 18 - 1, x + dx + bx, top, z + side * 18 + 1,
+                            Math.abs(bx) == 5 ? Blocks.OXIDIZED_CUT_COPPER : Blocks.MOSS_BLOCK);
+                }
+            }
         }
-        for (int i = -36; i <= 36; i += 12) {
-            p.tree(x + i, y + 1, z + 22);
+        p.fill(x - 27, y + 1, z - 9, x - 24, y + 5, z - 3, Blocks.AIR);
+        tower(p, x - 36, y, z - 6, 8, 45, true);
+        p.fill(x - 30, y, z - 8, x - 25, y, z - 4, OrthBlocks.PLANK.get());
+        p.fill(x - 30, y + 1, z - 8, x - 25, y + 4, z - 4, Blocks.AIR);
+        p.fill(x - 6, y, z - 29, x + 6, y, z - 16, Blocks.STONE_BRICKS);
+        for (int side : new int[]{-1, 1}) {
+            for (int distance : new int[]{11, 18, 25, 32}) {
+                int bx = x + side * distance;
+                p.fill(bx - 2, y, z - 26, bx + 2, y, z - 22, Blocks.MOSS_BLOCK);
+                if (distance != 18) p.shrub(bx, y + 1, z - 24);
+                p.set(bx, y + 1, z - 28, Blocks.STONE_BRICK_WALL);
+            }
         }
+        p.fill(x - 3, y + 1, z - 16, x + 3, y + 4, z - 16, Blocks.AIR);
+        p.fill(x - 4, y + 5, z - 17, x + 4, y + 5, z - 16, Blocks.SMOOTH_SANDSTONE);
+        for (int side : new int[]{-1, 1}) {
+            for (int dx : new int[]{5, 13, 21}) {
+                int bx = x + side * dx;
+                p.column(bx, z - 17, y + 1, y + 21, dx == 5 ? Blocks.STRIPPED_SPRUCE_WOOD : OrthBlocks.CHALK.get());
+                for (int story = 0; story < 4; story++) {
+                    int floor = y + story * 5;
+                    p.fill(bx + side, floor + 2, z - 16, bx + side, floor + 3, z - 16, Blocks.BROWN_STAINED_GLASS);
+                }
+            }
+            for (int dx : new int[]{10, 22, 34}) p.tree(x + side * dx, y + 1, z + 21);
+        }
+        for (int story = 0; story < 3; story++) {
+            int floor = y + 5 * story;
+            interiorStairs(p, x - 17 - 2 * (story % 2), floor, z - 4);
+            p.fill(x + 8, floor + 1, z - 15, x + 8, floor + 4, z + 15, Blocks.SPRUCE_PLANKS);
+            p.fill(x + 8, floor + 1, z - 2, x + 8, floor + 3, z + 2, Blocks.AIR);
+        }
+        for (int dx = -8; dx <= 4; dx += 4) {
+            for (int dz = 5; dz <= 11; dz += 3) {
+                roomTable(p, x + dx, y, z + dz);
+                p.set(x + dx, y + 6, z + dz, Blocks.SPRUCE_STAIRS);
+            }
+        }
+        for (int dx = 11; dx <= 21; dx += 3) {
+            p.column(x + dx, z - 11, y + 6, y + 8, Blocks.BOOKSHELF);
+            p.set(x + dx, y + 11, z + 12, ForestGrowth.Palette.block("camp_bedroll").getBlock());
+        }
+    }
+
+    private static void interiorStairs(Painter p, int x, int y, int z) {
+        BlockState stairs = Blocks.SPRUCE_STAIRS.defaultBlockState().setValue(StairBlock.FACING, Direction.SOUTH);
+        for (int run = 0; run < 5; run++) {
+            for (int side = 0; side < 2; side++) {
+                p.column(x + side, z + run, y + run, y + run, stairs);
+                p.column(x + side, z + run, y + run + 1, y + run + 3, Blocks.AIR);
+            }
+        }
+    }
+
+    private static void roomTable(Painter p, int x, int y, int z) {
+        p.set(x, y + 1, z, Blocks.SPRUCE_FENCE);
+        p.column(x, z, y + 2, y + 2, Blocks.SPRUCE_SLAB.defaultBlockState().setValue(SlabBlock.TYPE, SlabType.BOTTOM));
+        p.set(x - 1, y + 1, z, Blocks.SPRUCE_STAIRS);
+        p.column(x + 1, z, y + 1, y + 1, Blocks.SPRUCE_STAIRS.defaultBlockState().setValue(StairBlock.FACING, Direction.WEST));
     }
 
     private static void guild(Painter p) {
@@ -577,20 +856,43 @@ public final class OrthCity {
         int z = p.terraced ? OrthTownLayout.GUILD.z() : GUILD_Z;
         int y = p.elevation(x, z);
         p.terrace(x - 51, y, z - 33, x + 47, z + 30, OrthBlocks.COBBLE.get());
-        house(p, x + 1, y, z, 18, 19, 4, 0, false);
-        tower(p, x - 29, y, z + 8, 11, 47, true);
-        tower(p, x + 29, y, z + 8, 12, 56, false);
-        tower(p, x - 27, y, z - 17, 9, 62, false);
-        tower(p, x + 29, y, z - 19, 9, 39, false);
-        for (int dz : new int[]{-17, 8}) {
-            p.fill(x - 29, y + 15, z + dz - 2, x + 29, y + 15, z + dz + 2, OrthBlocks.CHALK.get());
-            for (int edge : new int[]{-2, 2}) p.fill(x - 24, y + 16, z + dz + edge,
-                    x + 24, y + 16, z + dz + edge, Blocks.COBBLESTONE_WALL);
+        house(p, x + 1, y, z, 17, 18, 4, 0, false);
+        tower(p, x - 29, y, z + 9, 10, 43, true);
+        tower(p, x + 30, y, z + 8, 12, 56, false);
+        tower(p, x - 28, y, z - 18, 9, 57, false);
+        tower(p, x + 29, y, z - 19, 9, 38, false);
+        p.fill(x - 9, y + 1, z - 17, x + 9, y + 9, z + 6, Blocks.AIR);
+        p.fill(x - 5, y + 1, z - 18, x + 5, y + 6, z - 18, Blocks.AIR);
+        p.fill(x - 6, y + 7, z - 19, x + 6, y + 7, z - 18, Blocks.POLISHED_ANDESITE);
+        p.fill(x - 2, y + 8, z - 18, x + 2, y + 13, z - 18, Blocks.YELLOW_STAINED_GLASS);
+        for (int side : new int[]{-1, 1}) {
+            for (int i = -24; i <= -12; i += 6) {
+                p.column(x + 1 + side * 8, z + i, y + 1, y + 9, OrthBlocks.CHALK.get());
+                p.set(x + 1 + side * 7, y + 2, z + i + 1, Blocks.LANTERN);
+            }
+            p.fill(x + side * 5 - 2, y + 1, z + 2, x + side * 5 + 2, y + 1, z + 4, OrthBlocks.TIMBER.get());
+            p.set(x + side * 5, y + 2, z + 3, Blocks.LECTERN);
+        }
+        for (int story = 0; story < 3; story++) interiorStairs(p, x + ((story & 1) == 0 ? 11 : 14), y + 5 * story, z - 5);
+        // High bridges connect occupied floors in the two rear towers to the registry.
+        int bridge = y + 20;
+        p.fill(x - 29, bridge, z + 7, x + 30, bridge, z + 11, OrthBlocks.PLANK.get());
+        p.fill(x - 28, bridge + 1, z + 7, x + 29, bridge + 3, z + 11, Blocks.AIR);
+        for (int side : new int[]{7, 11}) {
+            p.fill(x - 26, bridge + 1, z + side, x - 17, bridge + 1, z + side, Blocks.SPRUCE_FENCE);
+            p.fill(x + 18, bridge + 1, z + side, x + 27, bridge + 1, z + side, Blocks.SPRUCE_FENCE);
+        }
+        // Keep the internal tower climbing shafts continuous through the bridge deck.
+        for (int[] tower : new int[][]{{x - 29, z + 9}, {x + 30, z + 8}}) {
+            p.column(tower[0], tower[1] + 2, bridge, bridge + 3, Blocks.SPRUCE_LOG);
+            p.column(tower[0], tower[1] + 1, bridge, bridge + 3,
+                    Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING, Direction.NORTH));
         }
         for (int bx = x + 48; bx <= x + 86; bx++) {
             int grade = y + (p.elevation(x + 86, z) - y) * (bx - x - 48) / 38;
             p.fill(bx, grade - 1, z - 3, bx, grade, z + 3, OrthBlocks.CHALK.get());
             if ((bx - x) % 12 == 0) p.fill(bx - 1, grade - 23, z - 2, bx + 1, grade - 2, z + 2, OrthBlocks.CHALK.get());
+            for (int dz : new int[]{-3, 3}) p.set(bx, grade + 1, z + dz, Blocks.STONE_BRICK_WALL);
         }
     }
 
@@ -617,6 +919,9 @@ public final class OrthCity {
                 p.column(x + side * (topRadius - 1), z, y + h + 2, y + h + 8, Blocks.SPRUCE_LOG);
                 p.column(x, z + side * (topRadius - 1), y + h + 2, y + h + 8, Blocks.SPRUCE_LOG);
             }
+            p.column(x, z + 2, y + h + 1, y + h + 2, Blocks.SPRUCE_LOG);
+            p.column(x, z + 1, y + h + 1, y + h + 2, Blocks.LADDER.defaultBlockState()
+                    .setValue(LadderBlock.FACING, Direction.NORTH));
             p.set(x, y + h + 2, z, Blocks.BELL);
         }
         int cap = y + h + (bell ? 9 : 1);
@@ -653,45 +958,84 @@ public final class OrthCity {
         int y = p.elevation(anchor, z);
         int start = anchor + 23;
         p.terrace(anchor - 25, y, z - 12, anchor + 27, z + 12, OrthBlocks.COBBLE.get());
-        for (int x = start; x <= hub; x++) {
+        for (int side : new int[]{-1, 1}) {
+            int bz = z + side * 8;
+            p.fill(start - 18, y, bz - 3, start - 2, y, bz + 3, Blocks.SPRUCE_PLANKS);
+            p.shell(start - 17, y + 1, bz - 3, start - 3, y + 5, bz + 3, OrthBlocks.PLASTER.get());
+            p.fill(start - 18, y + 6, bz - 4, start - 2, y + 6, bz + 4, Blocks.DARK_OAK_SLAB);
+            p.fill(start - 18, y + 7, bz - 2, start - 2, y + 7, bz + 2, Blocks.DEEPSLATE_TILES);
+            p.door(start - 17, y + 1, bz, Direction.WEST);
+            p.set(start - 8, y + 2, bz - side * 3, Blocks.BROWN_STAINED_GLASS);
+            p.set(start - 11, y + 1, bz, Blocks.LECTERN);
+            p.set(start - 7, y + 1, bz, Blocks.BARREL);
+        }
+        for (int x = start; x <= hub - 8; x++) {
             int grade = y - (x - start) / 8;
+            int bay = (x - start) % 18;
             p.fill(x, grade, z - 4, x, grade, z + 4, OrthBlocks.PIER.get());
-            p.fill(x, grade + 1, z - 2, x, grade + 1, z + 2, Blocks.RED_CARPET);
-            for (int edge : new int[]{-4, 4}) {
-                p.set(x, grade + 1, z + edge, Blocks.IRON_BARS);
-                if ((x - start) % 13 == 0) p.column(x, z + edge, grade - 12, grade, OrthBlocks.BOLT.get());
+            p.fill(x, grade, z - 1, x, grade, z + 1, (x & 31) == 0 ? Blocks.TERRACOTTA : Blocks.RED_TERRACOTTA);
+            for (int dz : new int[]{-4, 4}) {
+                p.set(x, grade + 1, z + dz, Blocks.IRON_BARS);
+                p.set(x, grade - 1 - Math.min(bay, 18 - bay), z + dz, Blocks.DEEPSLATE_TILES);
+                p.set(x, grade - 2 - Math.min(bay, 18 - bay), z + dz, Blocks.DEEPSLATE_TILES);
+                if (bay == 0) {
+                    p.column(x, z + dz, grade - 9, grade + 5, OrthBlocks.BOLT.get());
+                    p.set(x, grade + 6, z + dz, Blocks.LANTERN);
+                }
             }
         }
         y -= (hub - start) / 8;
-        for (int j : new int[]{-20, 0, 15}) p.disc(hub, y + j, z, j == 0 ? 18 : 13, 0, OrthBlocks.PIER.get());
-        for (int dx : new int[]{-9, 9}) for (int dz : new int[]{-9, 9}) {
-            p.column(hub + dx, z + dz, y - 46, y + 16, OrthBlocks.BOLT.get());
-        }
-        for (int step = 0; step < 8; step++) p.disc(hub, y + 16 + step, z, 18 - step * 2, 0, Blocks.CUT_COPPER);
-        p.column(hub + 1, z, y - 112, y + 15, OrthBlocks.CABLE.get());
-        p.fill(hub - 3, y - 32, z - 3, hub + 3, y - 25, z + 3, OrthBlocks.PIER.get());
-        p.fill(hub - 2, y - 31, z - 3, hub + 2, y - 26, z + 3, Blocks.GLASS);
-    }
-
-    private static void wharf(Painter p) {
-        for (int x = -156; x <= 156; x += 26) {
-            int lip = 510 - x * x / 1000;
-            int crest = p.elevation(x, lip + 42);
-            for (int tier = 0; tier < 3; tier++) {
-                int y = crest - (p.terraced ? 28 + tier * 49 : 12 + tier * 17);
-                int z = lip - tier * 32;
-                if (p.terraced) {
-                    int wall = 599;
-                    double radius = p.vertical ? OrthIsland.SHAFT_RADIUS : OrthRelief.pitRadius(y);
-                    while (wall > 352 && OrthRelief.pitDistance(x, wall) >= radius) wall--;
-                    z = wall - 8 - tier * 7;
-                }
-                house(p, x, y, z, 8, 9, tier == 0 ? 2 : 1, (x / 26 + 8) % 4, true);
-                p.fill(x - 13, y, z - 13, x + 13, y, z - 9, OrthBlocks.PLANK.get());
-                p.fill(x - 13, y + 1, z - 13, x + 13, y + 1, z - 13, Blocks.SPRUCE_FENCE);
-                p.fill(x - 2, y, z + 10, x + 2, y, z + 34, OrthBlocks.PLANK.get());
+        p.disc(hub, y, z, 18, 0, OrthBlocks.PIER.get());
+        p.disc(hub, y - 1, z, 18, 13, Blocks.DEEPSLATE_TILES);
+        p.disc(hub, y + 1, z, 18, 17, Blocks.IRON_BARS);
+        p.fill(hub - 18, y + 1, z - 3, hub - 15, y + 3, z + 3, Blocks.AIR);
+        p.fill(hub - 17, y, z - 4, hub - 14, y, z + 4, OrthBlocks.PIER.get());
+        p.disc(hub, y + 18, z, 12, 0, OrthBlocks.PIER.get());
+        for (int h = 0; h < 18; h++) {
+            int radius = h < 7 ? 4 : 4 + (h - 7) / 3;
+            p.disc(hub + 2, y + h, z, radius, h == 0 ? 0 : radius - 2, h < 3 || h == 7 || h == 17
+                    ? Blocks.CUT_COPPER : h < 8 ? Blocks.STRIPPED_SPRUCE_WOOD : Blocks.POLISHED_DEEPSLATE);
+            if (h >= 3 && h <= 6) {
+                p.fill(hub + 2 - radius, y + h, z - 1, hub + 2, y + h, z + 1, Blocks.AIR);
+                p.fill(hub + 2, y + h, z - radius, hub + 3, y + h, z - 2, Blocks.BROWN_STAINED_GLASS);
+            }
+            if (h == 1 || h == 2) {
+                p.fill(hub + 2 - radius, y + h, z - 1, hub, y + h, z + 1, Blocks.AIR);
             }
         }
+        p.set(hub + 2, y + 1, z + 2, Blocks.LANTERN);
+        for (int dx : new int[]{-8, 8}) {
+            for (int dz : new int[]{-8, 8}) {
+                p.column(hub + dx, z + dz, y - 24, y + 21, OrthBlocks.BOLT.get());
+                p.set(hub + dx, y + 5, z + dz, Blocks.COPPER_BLOCK);
+                for (int h = 0; h < 8; h++) {
+                    p.set(hub + dx - Integer.signum(dx) * h, y + 18 - h, z + dz, Blocks.DEEPSLATE_TILES);
+                    p.set(hub + dx, y - h, z + dz - Integer.signum(dz) * h, Blocks.DEEPSLATE_TILES);
+                }
+            }
+        }
+        for (int h = 0; h < 8; h++) {
+            int radius = 13 - h * h / 7;
+            p.disc(hub, y + 19 + h, z, radius, Math.max(0, radius - 2),
+                    h == 0 ? Blocks.CUT_COPPER : Blocks.WEATHERED_CUT_COPPER);
+        }
+        p.disc(hub, y + 27, z, 5, 0, Blocks.OXIDIZED_CUT_COPPER);
+        p.column(hub + 1, z, y - 24, y + 18, OrthBlocks.CABLE.get());
+        p.fill(hub - 4, y - 31, z - 3, hub + 4, y - 31, z + 3, OrthBlocks.PLANK.get());
+        p.fill(hub - 4, y - 24, z - 3, hub + 4, y - 24, z + 3, Blocks.CUT_COPPER);
+        p.shell(hub - 4, y - 30, z - 3, hub + 4, y - 25, z + 3, Blocks.IRON_BARS);
+        p.fill(hub - 4, y - 30, z - 1, hub - 4, y - 27, z + 1, Blocks.AIR);
+        p.set(hub + 2, y - 30, z, Blocks.LANTERN);
+        p.set(hub + 10, y + 1, z + 4, Blocks.BARREL);
+        p.set(hub + 11, y + 1, z + 4, Blocks.GRINDSTONE);
+    }
+
+    private static void wharf(Painter p, Residence home) {
+        int x = home.x(), y = home.y(), z = home.z();
+        home.build(p);
+        p.fill(x - 13, y, z - 13, x + 13, y, z - 9, OrthBlocks.PLANK.get());
+        p.fill(x - 13, y + 1, z - 13, x + 13, y + 1, z - 13, Blocks.SPRUCE_FENCE);
+        p.fill(x - 2, y, z + 10, x + 2, y, z + 34, OrthBlocks.PLANK.get());
     }
 
     private static void harbor(Painter p) {
@@ -723,25 +1067,27 @@ public final class OrthCity {
         }
     }
 
-    private static final class Painter {
+    static final class Painter {
         final ChunkAccess chunk;
-        final boolean terraced, vertical, expandedEdge, forested;
+        final boolean terraced, vertical, forested, abyssRock;
+        final EdgeTerrain.Layout edgeLayout;
         final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         final int x0, x1, z0, z1;
         private final int pivotX, pivotZ, cos, sin;
         private final Rotation rotation;
 
         Painter(ChunkAccess chunk, boolean terraced, boolean vertical) {
-            this(chunk, terraced, vertical, false, false, 0, 0, Direction.NORTH);
+            this(chunk, terraced, vertical, false, false, EdgeTerrain.Layout.LEGACY, 0, 0, Direction.NORTH);
         }
 
-        private Painter(ChunkAccess chunk, boolean terraced, boolean vertical, boolean expandedEdge, boolean forested,
-                        int pivotX, int pivotZ, Direction facing) {
+        private Painter(ChunkAccess chunk, boolean terraced, boolean vertical, boolean forested, boolean abyssRock,
+                        EdgeTerrain.Layout edgeLayout, int pivotX, int pivotZ, Direction facing) {
             this.chunk = chunk;
             this.terraced = terraced;
             this.vertical = vertical;
-            this.expandedEdge = expandedEdge;
             this.forested = forested;
+            this.abyssRock = abyssRock;
+            this.edgeLayout = edgeLayout;
             this.pivotX = pivotX;
             this.pivotZ = pivotZ;
             cos = -facing.getStepZ();
@@ -763,7 +1109,7 @@ public final class OrthCity {
         }
 
         Painter rotated(int x, int z, Direction facing) {
-            return facing == Direction.NORTH ? this : new Painter(chunk, terraced, vertical, expandedEdge, forested, x, z, facing);
+            return facing == Direction.NORTH ? this : new Painter(chunk, terraced, vertical, forested, abyssRock, edgeLayout, x, z, facing);
         }
 
         private int worldX(int x, int z) {
@@ -784,6 +1130,21 @@ public final class OrthCity {
         }
 
         void set(int x, int y, int z, Block block) { column(x, z, y, y, block); }
+
+        void furnish(int x, int y, int z, Block block) {
+            furnish(x, y, z, block.defaultBlockState());
+        }
+
+        void furnish(int x, int y, int z, BlockState state) {
+            if (x < x0 || x > x1 || z < z0 || z > z1 || chunk.isOutsideBuildHeight(y)) return;
+            column(x, z, y, y, state);
+            if (state.getBlock() instanceof EntityBlock factory) {
+                BlockPos placed = pos.immutable();
+                var entity = factory.newBlockEntity(placed, chunk.getBlockState(placed));
+                if (entity != null) chunk.setBlockEntityNbt(entity.saveWithFullMetadata());
+            }
+        }
+
         void column(int x, int z, int low, int high, Block block) {
             column(x, z, low, high, block.defaultBlockState());
         }

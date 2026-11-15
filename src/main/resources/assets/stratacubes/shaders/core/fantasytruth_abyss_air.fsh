@@ -12,6 +12,7 @@ uniform vec3 LowerColor;
 uniform float CloudStrength;
 uniform float ApertureStrength;
 uniform float SurfaceOnly;
+uniform float AtmosphereWeight;
 
 in vec2 ScreenPosition;
 out vec4 fragColor;
@@ -46,5 +47,5 @@ void main() {
     float light = opening * (0.28 + 0.72 * density) * ApertureStrength;
     color = mix(color, UpperColor, light);
     float opacity = mix(1.0, smoothstep(0.0, 0.54, down), SurfaceOnly);
-    fragColor = vec4(color, opacity);
+    fragColor = vec4(color, opacity * AtmosphereWeight);
 }

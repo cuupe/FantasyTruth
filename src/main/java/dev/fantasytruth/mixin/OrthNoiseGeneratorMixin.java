@@ -7,6 +7,7 @@ import dev.fantasytruth.abyss.OrthTerrain;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import net.minecraft.Util;
+import dev.fantasytruth.abyss.OrthSeam;
 import net.minecraft.core.Registry;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.StructureManager;
@@ -31,9 +32,13 @@ abstract class OrthNoiseGeneratorMixin {
                                        StructureManager structures, ChunkAccess chunk,
                                        CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir) {
         if (OrthIsland.enabled((NoiseBasedChunkGenerator) (Object) this) && OrthTerrain.supports(chunk)) {
-            boolean terraced = OrthIsland.terraced((NoiseBasedChunkGenerator) (Object) this);
-            boolean vertical = OrthIsland.vertical((NoiseBasedChunkGenerator) (Object) this);
-            cir.setReturnValue(CompletableFuture.supplyAsync(() -> OrthTerrain.fill(chunk, terraced, vertical), Util.backgroundExecutor()));
+            var generator = (NoiseBasedChunkGenerator) (Object) this;
+            boolean terraced = OrthIsland.terraced(generator);
+            boolean vertical = OrthIsland.vertical(generator);
+            boolean abyssRock = generator.getBiomeSource() instanceof OrthBiomeSource orth && orth.abyssRock();
+            boolean wallTerraces = generator.getBiomeSource() instanceof OrthBiomeSource orth && orth.wallTerraces();
+            boolean wildEdge = generator.getBiomeSource() instanceof OrthBiomeSource orth && orth.wildEdge();
+            cir.setReturnValue(CompletableFuture.supplyAsync(() -> OrthTerrain.fill(chunk, terraced, vertical, abyssRock, wallTerraces, wildEdge), Util.backgroundExecutor()));
         }
     }
 
@@ -45,8 +50,23 @@ abstract class OrthNoiseGeneratorMixin {
         if (OrthIsland.enabled((NoiseBasedChunkGenerator) (Object) this) && OrthTerrain.supports(chunk)) {
             var generator = (NoiseBasedChunkGenerator) (Object) this;
             boolean forested = generator.getBiomeSource() instanceof OrthBiomeSource orth && orth.forested();
-            OrthCity.generateSurface(chunk, OrthIsland.terraced(generator), OrthIsland.vertical(generator), false, forested);
+            boolean abyssRock = generator.getBiomeSource() instanceof OrthBiomeSource orth && orth.abyssRock();
+            boolean wallTerraces = generator.getBiomeSource() instanceof OrthBiomeSource orth && orth.wallTerraces();
+            boolean wildEdge = generator.getBiomeSource() instanceof OrthBiomeSource orth && orth.wildEdge();
+            OrthCity.generateSurface(chunk, OrthIsland.terraced(generator), OrthIsland.vertical(generator), forested, abyssRock,
+                    wallTerraces, wildEdge);
             ci.cancel();
+        }
+    }
+
+    @Inject(method = {"m_214194_", "buildSurface(Lnet/minecraft/server/level/WorldGenRegion;Lnet/minecraft/world/level/StructureManager;Lnet/minecraft/world/level/levelgen/RandomState;Lnet/minecraft/world/level/chunk/ChunkAccess;)V"},
+            at = @At("RETURN"), remap = false)
+    private void fantasytruth$shareEdgeStructures(WorldGenRegion region, StructureManager structures, RandomState state,
+                                                   ChunkAccess chunk, CallbackInfo ci) {
+        var generator = (NoiseBasedChunkGenerator) (Object) this;
+        if (OrthIsland.vertical(generator) && OrthTerrain.supports(chunk)
+                && generator.getBiomeSource() instanceof OrthBiomeSource orth && orth.abyssRock() && orth.wallTerraces()) {
+            OrthSeam.decorate(region, chunk);
         }
     }
 

@@ -1,0 +1,493 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "shelf_gills": "stratacubes:block/shelf_fungus_shelf_gills",
+    "shelf_cap": "stratacubes:block/shelf_fungus_shelf_cap",
+    "particle": "stratacubes:block/shelf_fungus_shelf_gills"
+  },
+  "elements": [
+    {
+      "name": "large lower gills",
+      "from": [
+        2,
+        5,
+        8
+      ],
+      "to": [
+        14,
+        6,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            8,
+            10,
+            16,
+            11
+          ],
+          "texture": "#shelf_gills"
+        },
+        "north": {
+          "uv": [
+            2,
+            10,
+            14,
+            11
+          ],
+          "texture": "#shelf_gills"
+        },
+        "west": {
+          "uv": [
+            8,
+            10,
+            16,
+            11
+          ],
+          "texture": "#shelf_gills"
+        },
+        "south": {
+          "uv": [
+            2,
+            10,
+            14,
+            11
+          ],
+          "texture": "#shelf_gills"
+        },
+        "up": {
+          "uv": [
+            2,
+            8,
+            14,
+            16
+          ],
+          "texture": "#shelf_gills"
+        },
+        "down": {
+          "uv": [
+            2,
+            8,
+            14,
+            16
+          ],
+          "texture": "#shelf_gills"
+        }
+      }
+    },
+    {
+      "name": "large lower cap",
+      "from": [
+        2,
+        6,
+        8
+      ],
+      "to": [
+        14,
+        8,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            8,
+            8,
+            16,
+            10
+          ],
+          "texture": "#shelf_cap"
+        },
+        "north": {
+          "uv": [
+            2,
+            8,
+            14,
+            10
+          ],
+          "texture": "#shelf_cap"
+        },
+        "west": {
+          "uv": [
+            8,
+            8,
+            16,
+            10
+          ],
+          "texture": "#shelf_cap"
+        },
+        "south": {
+          "uv": [
+            2,
+            8,
+            14,
+            10
+          ],
+          "texture": "#shelf_cap"
+        },
+        "up": {
+          "uv": [
+            2,
+            8,
+            14,
+            16
+          ],
+          "texture": "#shelf_cap"
+        },
+        "down": {
+          "uv": [
+            2,
+            8,
+            14,
+            16
+          ],
+          "texture": "#shelf_cap"
+        }
+      }
+    },
+    {
+      "name": "outer lip",
+      "from": [
+        3,
+        6,
+        6
+      ],
+      "to": [
+        13,
+        7.5,
+        8
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            6,
+            8.5,
+            8,
+            10
+          ],
+          "texture": "#shelf_cap"
+        },
+        "north": {
+          "uv": [
+            3,
+            8.5,
+            13,
+            10
+          ],
+          "texture": "#shelf_cap"
+        },
+        "west": {
+          "uv": [
+            6,
+            8.5,
+            8,
+            10
+          ],
+          "texture": "#shelf_cap"
+        },
+        "south": {
+          "uv": [
+            3,
+            8.5,
+            13,
+            10
+          ],
+          "texture": "#shelf_cap"
+        },
+        "up": {
+          "uv": [
+            3,
+            6,
+            13,
+            8
+          ],
+          "texture": "#shelf_cap"
+        },
+        "down": {
+          "uv": [
+            3,
+            6,
+            13,
+            8
+          ],
+          "texture": "#shelf_cap"
+        }
+      }
+    },
+    {
+      "name": "upper gills",
+      "from": [
+        5,
+        10,
+        10
+      ],
+      "to": [
+        14,
+        11,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            10,
+            5,
+            16,
+            6
+          ],
+          "texture": "#shelf_gills"
+        },
+        "north": {
+          "uv": [
+            5,
+            5,
+            14,
+            6
+          ],
+          "texture": "#shelf_gills"
+        },
+        "west": {
+          "uv": [
+            10,
+            5,
+            16,
+            6
+          ],
+          "texture": "#shelf_gills"
+        },
+        "south": {
+          "uv": [
+            5,
+            5,
+            14,
+            6
+          ],
+          "texture": "#shelf_gills"
+        },
+        "up": {
+          "uv": [
+            5,
+            10,
+            14,
+            16
+          ],
+          "texture": "#shelf_gills"
+        },
+        "down": {
+          "uv": [
+            5,
+            10,
+            14,
+            16
+          ],
+          "texture": "#shelf_gills"
+        }
+      }
+    },
+    {
+      "name": "upper cap",
+      "from": [
+        5,
+        11,
+        9
+      ],
+      "to": [
+        14,
+        13,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            9,
+            3,
+            16,
+            5
+          ],
+          "texture": "#shelf_cap"
+        },
+        "north": {
+          "uv": [
+            5,
+            3,
+            14,
+            5
+          ],
+          "texture": "#shelf_cap"
+        },
+        "west": {
+          "uv": [
+            9,
+            3,
+            16,
+            5
+          ],
+          "texture": "#shelf_cap"
+        },
+        "south": {
+          "uv": [
+            5,
+            3,
+            14,
+            5
+          ],
+          "texture": "#shelf_cap"
+        },
+        "up": {
+          "uv": [
+            5,
+            9,
+            14,
+            16
+          ],
+          "texture": "#shelf_cap"
+        },
+        "down": {
+          "uv": [
+            5,
+            9,
+            14,
+            16
+          ],
+          "texture": "#shelf_cap"
+        }
+      }
+    },
+    {
+      "name": "small shelf",
+      "from": [
+        2,
+        2,
+        11
+      ],
+      "to": [
+        8,
+        4,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            11,
+            12,
+            16,
+            14
+          ],
+          "texture": "#shelf_cap"
+        },
+        "north": {
+          "uv": [
+            2,
+            12,
+            8,
+            14
+          ],
+          "texture": "#shelf_cap"
+        },
+        "west": {
+          "uv": [
+            11,
+            12,
+            16,
+            14
+          ],
+          "texture": "#shelf_cap"
+        },
+        "south": {
+          "uv": [
+            2,
+            12,
+            8,
+            14
+          ],
+          "texture": "#shelf_cap"
+        },
+        "up": {
+          "uv": [
+            2,
+            11,
+            8,
+            16
+          ],
+          "texture": "#shelf_cap"
+        },
+        "down": {
+          "uv": [
+            2,
+            11,
+            8,
+            16
+          ],
+          "texture": "#shelf_cap"
+        }
+      }
+    },
+    {
+      "name": "small shelf underside",
+      "from": [
+        2,
+        1.5,
+        11
+      ],
+      "to": [
+        8,
+        2,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            11,
+            14,
+            16,
+            14.5
+          ],
+          "texture": "#shelf_gills"
+        },
+        "north": {
+          "uv": [
+            2,
+            14,
+            8,
+            14.5
+          ],
+          "texture": "#shelf_gills"
+        },
+        "west": {
+          "uv": [
+            11,
+            14,
+            16,
+            14.5
+          ],
+          "texture": "#shelf_gills"
+        },
+        "south": {
+          "uv": [
+            2,
+            14,
+            8,
+            14.5
+          ],
+          "texture": "#shelf_gills"
+        },
+        "up": {
+          "uv": [
+            2,
+            11,
+            8,
+            16
+          ],
+          "texture": "#shelf_gills"
+        },
+        "down": {
+          "uv": [
+            2,
+            11,
+            8,
+            16
+          ],
+          "texture": "#shelf_gills"
+        }
+      }
+    }
+  ]
+}

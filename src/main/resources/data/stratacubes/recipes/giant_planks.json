@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "stratacubes:l2_giant_trunk"
+    }
+  ],
+  "result": {
+    "item": "stratacubes:giant_planks",
+    "count": 4
+  }
+}

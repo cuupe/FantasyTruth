@@ -9,6 +9,7 @@ import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -34,13 +35,27 @@ abstract class AtlasReceivingLevelMixin {
         return fantasytruth$ready(renderer, pos);
     }
 
+    @Redirect(method = {"m_86600_", "tick"}, at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/player/LocalPlayer;m_5833_()Z"), remap = false, require = 0)
+    private boolean fantasytruth$spectatorSrg(LocalPlayer player) {
+        return player.isSpectator() && !AbyssFrameHold.waitingForTerrain();
+    }
+
+    @Redirect(method = "tick", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/player/LocalPlayer;isSpectator()Z"), remap = false, require = 0)
+    private boolean fantasytruth$spectatorOfficial(LocalPlayer player) {
+        return player.isSpectator() && !AbyssFrameHold.waitingForTerrain();
+    }
+
     @Unique
     private static boolean fantasytruth$ready(LevelRenderer renderer, BlockPos pos) {
-        if (renderer.isChunkCompiled(pos)) return true;
+        boolean crossing = AbyssFrameHold.waitingForTerrain();
+        if (!crossing && renderer.isChunkCompiled(pos)) return true;
+        if (crossing) return AbyssFrameHold.terrainReady(pos);
         var level = Minecraft.getInstance().level;
         if (level == null || level.dimensionTypeRegistration().unwrapKey().isEmpty()) return false;
         ResourceLocation type = level.dimensionTypeRegistration().unwrapKey().orElseThrow().location();
-        if (!type.equals(AbyssTransit.ABYSS) && !type.equals(AbyssTransit.EDGE_TYPE) && !type.equals(AbyssTransit.EXPEDITION)
+        if (!type.equals(AbyssTransit.ABYSS) && !(type.getNamespace().equals(FantasyTruth.ID) && type.getPath().startsWith("abyss_forest")) && !type.equals(AbyssTransit.EDGE_TYPE) && !type.equals(AbyssTransit.EXPEDITION)
                 && (!type.getNamespace().equals(FantasyTruth.ID) || !type.getPath().equals("high_relief"))) return false;
         var chunk = level.getChunkSource().getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, false);
         // A renderer can omit the mesh for a section containing only air. Still wait for real chunk data.

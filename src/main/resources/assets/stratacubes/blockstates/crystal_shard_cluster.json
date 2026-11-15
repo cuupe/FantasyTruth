@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "stratacubes:block/crystal_shard_cluster"
+    }
+  }
+}

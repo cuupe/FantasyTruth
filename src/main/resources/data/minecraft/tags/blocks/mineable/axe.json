@@ -5,6 +5,18 @@
     "stratacubes:orth_dock_plank",
     "stratacubes:orth_timber",
     "stratacubes:giant_log",
-    "stratacubes:camp_supply_crate"
+    "stratacubes:camp_supply_crate",
+    "stratacubes:petrified_planks",
+    "stratacubes:giant_planks",
+    "stratacubes:l2_giant_trunk",
+    "stratacubes:orth_rope_coil",
+    "stratacubes:orth_waterwheel",
+    "stratacubes:orth_signboard",
+    "stratacubes:camp_tent",
+    "stratacubes:camp_bedroll",
+    "stratacubes:camp_flag",
+    "stratacubes:ropeladder",
+    "stratacubes:iruburu_bark",
+    "stratacubes:whistle_stand"
   ]
 }

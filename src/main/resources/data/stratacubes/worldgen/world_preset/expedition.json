@@ -13,7 +13,10 @@
           "coast": "minecraft:plains",
           "ocean": "minecraft:deep_ocean",
           "terraced": true,
-          "forested": true
+          "forested": true,
+          "abyss_rock": true,
+          "wall_terraces": true,
+          "wild_edge": true
         },
         "settings": "stratacubes:expedition_orth_shaft"
       }
@@ -45,6 +48,11 @@
         "type": "stratacubes:abyss_edge",
         "expanded_edge": true,
         "forested_edge": true,
+        "moss_pit": true,
+        "eroded_edge": true,
+        "wall_terraces": true,
+        "wild_edge": true,
+        "forest_mouth": true,
         "biome_source": {
           "type": "minecraft:fixed",
           "biome": "minecraft:meadow"
@@ -52,10 +60,13 @@
       }
     },
     "stratacubes:abyss/forest": {
-      "type": "stratacubes:abyss",
+      "type": "stratacubes:abyss_forest_deep",
       "generator": {
         "type": "stratacubes:abyss",
         "layer": 2,
+        "open_forest": true,
+        "deep_forest": true,
+        "forest_mouth": true,
         "biome_source": {
           "type": "minecraft:fixed",
           "biome": "minecraft:jungle"

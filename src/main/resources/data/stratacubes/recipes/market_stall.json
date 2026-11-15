@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "WWW",
+    "P P",
+    "PPP"
+  ],
+  "key": {
+    "W": {
+      "tag": "minecraft:wool"
+    },
+    "P": [
+      {
+        "item": "stratacubes:iruburu_bark"
+      },
+      {
+        "item": "stratacubes:giant_planks"
+      }
+    ]
+  },
+  "result": {
+    "item": "stratacubes:market_stall",
+    "count": 1
+  }
+}

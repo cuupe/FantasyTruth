@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:smelting",
+  "category": "food",
+  "ingredient": [
+    {
+      "item": "stratacubes:i_demonfish_raw"
+    },
+    {
+      "item": "stratacubes:i_demonfish_raw_b"
+    },
+    {
+      "item": "stratacubes:i_demonfish_raw_c"
+    }
+  ],
+  "result": "stratacubes:cooked_demonfish",
+  "experience": 0.35,
+  "cookingtime": 200
+}

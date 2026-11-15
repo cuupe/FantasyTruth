@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "stratacubes:block/relic_fuel_generator"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "stratacubes:mat_fur"
+    },
+    {
+      "item": "stratacubes:mat_fur"
+    },
+    {
+      "item": "stratacubes:mat_silk_gland"
+    }
+  ],
+  "result": {
+    "item": "stratacubes:i_rope",
+    "count": 2
+  }
+}

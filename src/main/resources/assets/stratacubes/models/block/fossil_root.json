@@ -1,0 +1,391 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "fossil_stone": "stratacubes:block/fossil_root_fossil_stone",
+    "stump_bark": "stratacubes:block/fossil_root_stump_bark",
+    "particle": "stratacubes:block/fossil_root_fossil_stone"
+  },
+  "elements": [
+    {
+      "name": "wall matrix",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#fossil_stone"
+        },
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#fossil_stone"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#fossil_stone"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#fossil_stone"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#fossil_stone"
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#fossil_stone"
+        }
+      }
+    },
+    {
+      "name": "main fossil root",
+      "from": [
+        7,
+        3,
+        -0.6
+      ],
+      "to": [
+        10,
+        16,
+        0.1
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            0,
+            0,
+            0.1,
+            13
+          ],
+          "texture": "#stump_bark"
+        },
+        "north": {
+          "uv": [
+            7,
+            0,
+            10,
+            13
+          ],
+          "texture": "#stump_bark"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            0.1,
+            13
+          ],
+          "texture": "#stump_bark"
+        },
+        "south": {
+          "uv": [
+            7,
+            0,
+            10,
+            13
+          ],
+          "texture": "#stump_bark"
+        },
+        "up": {
+          "uv": [
+            7,
+            0,
+            10,
+            0.1
+          ],
+          "texture": "#stump_bark"
+        },
+        "down": {
+          "uv": [
+            7,
+            0,
+            10,
+            0.1
+          ],
+          "texture": "#stump_bark"
+        }
+      },
+      "rotation": {
+        "origin": [
+          8,
+          9,
+          0
+        ],
+        "axis": "z",
+        "angle": 22.5
+      }
+    },
+    {
+      "name": "split fossil root",
+      "from": [
+        7,
+        2,
+        -0.45
+      ],
+      "to": [
+        9,
+        12,
+        0.1
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            0,
+            4,
+            0.1,
+            14
+          ],
+          "texture": "#stump_bark"
+        },
+        "north": {
+          "uv": [
+            7,
+            4,
+            9,
+            14
+          ],
+          "texture": "#stump_bark"
+        },
+        "west": {
+          "uv": [
+            0,
+            4,
+            0.1,
+            14
+          ],
+          "texture": "#stump_bark"
+        },
+        "south": {
+          "uv": [
+            7,
+            4,
+            9,
+            14
+          ],
+          "texture": "#stump_bark"
+        },
+        "up": {
+          "uv": [
+            7,
+            0,
+            9,
+            0.1
+          ],
+          "texture": "#stump_bark"
+        },
+        "down": {
+          "uv": [
+            7,
+            0,
+            9,
+            0.1
+          ],
+          "texture": "#stump_bark"
+        }
+      },
+      "rotation": {
+        "origin": [
+          8,
+          9,
+          0
+        ],
+        "axis": "z",
+        "angle": -22.5
+      }
+    },
+    {
+      "name": "lower taper",
+      "from": [
+        4,
+        1,
+        -0.25
+      ],
+      "to": [
+        6,
+        6,
+        0.1
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            0,
+            10,
+            0.1,
+            15
+          ],
+          "texture": "#stump_bark"
+        },
+        "north": {
+          "uv": [
+            4,
+            10,
+            6,
+            15
+          ],
+          "texture": "#stump_bark"
+        },
+        "west": {
+          "uv": [
+            0,
+            10,
+            0.1,
+            15
+          ],
+          "texture": "#stump_bark"
+        },
+        "south": {
+          "uv": [
+            4,
+            10,
+            6,
+            15
+          ],
+          "texture": "#stump_bark"
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            6,
+            0.1
+          ],
+          "texture": "#stump_bark"
+        },
+        "down": {
+          "uv": [
+            4,
+            0,
+            6,
+            0.1
+          ],
+          "texture": "#stump_bark"
+        }
+      },
+      "rotation": {
+        "origin": [
+          5,
+          4,
+          0
+        ],
+        "axis": "z",
+        "angle": 22.5
+      }
+    },
+    {
+      "name": "broken side stem",
+      "from": [
+        8,
+        7,
+        -0.35
+      ],
+      "to": [
+        14,
+        9,
+        0.1
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            0,
+            7,
+            0.1,
+            9
+          ],
+          "texture": "#stump_bark"
+        },
+        "north": {
+          "uv": [
+            8,
+            7,
+            14,
+            9
+          ],
+          "texture": "#stump_bark"
+        },
+        "west": {
+          "uv": [
+            0,
+            7,
+            0.1,
+            9
+          ],
+          "texture": "#stump_bark"
+        },
+        "south": {
+          "uv": [
+            8,
+            7,
+            14,
+            9
+          ],
+          "texture": "#stump_bark"
+        },
+        "up": {
+          "uv": [
+            8,
+            0,
+            14,
+            0.1
+          ],
+          "texture": "#stump_bark"
+        },
+        "down": {
+          "uv": [
+            8,
+            0,
+            14,
+            0.1
+          ],
+          "texture": "#stump_bark"
+        }
+      },
+      "rotation": {
+        "origin": [
+          9,
+          8,
+          0
+        ],
+        "axis": "z",
+        "angle": -22.5
+      }
+    }
+  ]
+}

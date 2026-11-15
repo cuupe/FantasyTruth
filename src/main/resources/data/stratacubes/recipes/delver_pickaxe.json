@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "III",
+    " R ",
+    " M "
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "stratacubes:i_rope"
+    },
+    "M": [
+      {
+        "item": "stratacubes:petrified_planks"
+      },
+      {
+        "item": "stratacubes:giant_planks"
+      }
+    ]
+  },
+  "result": {
+    "item": "stratacubes:delver_pickaxe",
+    "count": 1
+  }
+}

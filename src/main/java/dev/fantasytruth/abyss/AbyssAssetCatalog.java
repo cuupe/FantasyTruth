@@ -1,0 +1,184 @@
+package dev.fantasytruth.abyss;
+
+/** Registry entries imported by tools/import-abyss-catalog.py from the local abis catalog. */
+final class AbyssAssetCatalog {
+    @FunctionalInterface
+    interface BlockEntry { void accept(String id, String form, String material, float hardness, int light); }
+
+    @FunctionalInterface
+    interface ItemEntry { void accept(String id, String category, int stackSize); }
+
+    static void blocks(BlockEntry add) {
+        add.accept("stratum_wall", "cube", "stone", 2.0F, 0);
+        add.accept("petrified_log", "pillar", "stone", 2.5F, 0);
+        add.accept("petrified_planks", "cube", "wood", 2.0F, 0);
+        add.accept("petrified_leaves", "cutout", "stone", 0.3F, 0);
+        add.accept("giant_planks", "cube", "wood", 2.0F, 0);
+        add.accept("abyss_gravel", "cube", "earth", 0.8F, 0);
+        add.accept("mist_block", "field", "stone", 0.0F, 0);
+        add.accept("forcefield_block", "field", "stone", -1.0F, 4);
+        add.accept("curse_mist", "field", "stone", 0.0F, 0);
+        add.accept("l2_giant_trunk", "custom", "wood", 3.0F, 0);
+        add.accept("l2_fungus_cap", "cube", "stone", 0.4F, 10);
+        add.accept("l2_upside_vine", "cross", "plant", 0.2F, 0);
+        add.accept("l2_updraft", "field", "stone", 0.0F, 0);
+        add.accept("l3_fault_stone", "cube", "stone", 2.5F, 0);
+        add.accept("l3_honeycomb", "cube", "stone", 2.5F, 0);
+        add.accept("l3_wind_pillar", "cube", "stone", 2.0F, 0);
+        add.accept("l4_creeper_pad", "custom", "stone", 0.8F, 3);
+        add.accept("l4_creeper_stem", "cross", "plant", 0.4F, 0);
+        add.accept("l4_hot_spring", "fluid", "stone", 0.0F, 6);
+        add.accept("l4_acid_pool", "fluid", "stone", 0.0F, 8);
+        add.accept("l5_bone_sand", "cube", "earth", 0.5F, 0);
+        add.accept("l5_bone_block", "cube", "stone", 1.5F, 0);
+        add.accept("l5_crystal", "custom", "glass", 1.0F, 12);
+        add.accept("l5_black_sea", "fluid", "stone", 0.0F, 0);
+        add.accept("l6_golden_brick", "cube", "metal", 3.0F, 2);
+        add.accept("l6_crystal_shell", "cube", "glass", 3.5F, 5);
+        add.accept("l6_vent", "custom", "stone", 2.5F, 9);
+        add.accept("l7_maelstrom_stone", "cube", "stone", 4.0F, 0);
+        add.accept("l7_ring_stone", "cutout", "glass", -1.0F, 15);
+        add.accept("l7_gate_pillar", "custom", "stone", -1.0F, 6);
+        add.accept("eternal_fortune", "cross", "plant", 0.0F, 5);
+        add.accept("eternal_fortune_dry", "cross", "plant", 0.0F, 2);
+        add.accept("fortitude_ash", "cube", "plant", 0.6F, 0);
+        add.accept("water_shroom", "cross", "plant", 0.0F, 3);
+        add.accept("glow_shroom", "cross", "plant", 0.0F, 9);
+        add.accept("abyss_grass_tuft", "cross", "plant", 0.0F, 0);
+        add.accept("giant_flower", "custom", "plant", 0.4F, 6);
+        add.accept("hanging_roots", "cross", "plant", 0.2F, 0);
+        add.accept("bone_vine", "cross", "plant", 0.3F, 0);
+        add.accept("crystal_bloom", "cross", "plant", 0.5F, 10);
+        add.accept("abyss_reeds", "cross", "plant", 0.0F, 0);
+        add.accept("glow_pod", "custom", "plant", 0.4F, 11);
+        add.accept("orth_rope_coil", "custom", "wood", 0.6F, 0);
+        add.accept("orth_street_lamp", "custom", "stone", 0.8F, 14);
+        add.accept("orth_waterwheel", "custom", "wood", 2.0F, 0);
+        add.accept("orth_window", "cutout", "glass", 0.3F, 6);
+        add.accept("orth_signboard", "custom", "wood", 0.8F, 0);
+        add.accept("orth_bell", "custom", "metal", 2.0F, 0);
+        add.accept("camp_tent", "custom", "wood", 0.5F, 0);
+        add.accept("camp_bedroll", "custom", "wood", 0.2F, 0);
+        add.accept("camp_stove", "custom", "metal", 1.0F, 12);
+        add.accept("camp_flag", "custom", "wood", 0.3F, 0);
+        add.accept("ropeladder", "custom", "wood", 0.2F, 0);
+        add.accept("hoist", "custom", "metal", 2.0F, 0);
+        add.accept("stone_ark", "cube", "stone", 5.0F, 0);
+        add.accept("gondola", "custom", "metal", 2.0F, 8);
+        add.accept("netherworld_gate", "custom", "stone", -1.0F, 0);
+        add.accept("altar_core", "custom", "stone", -1.0F, 13);
+        add.accept("camp5_platform", "cube", "stone", 3.0F, 0);
+        add.accept("sky_anchor", "custom", "stone", -1.0F, 4);
+        add.accept("iruburu_flesh", "cube", "stone", 1.0F, 3);
+        add.accept("iruburu_bark", "cube", "wood", 2.5F, 0);
+        add.accept("iruburu_lantern", "custom", "stone", 0.4F, 13);
+        add.accept("value_scale", "custom", "stone", 2.0F, 6);
+        add.accept("value_token_block", "custom", "stone", 1.0F, 5);
+        add.accept("market_stall", "custom", "stone", 1.0F, 4);
+        add.accept("golden_crystal_wall", "cube", "glass", 3.0F, 7);
+        add.accept("ruin_pillar", "custom", "stone", 2.5F, 0);
+        add.accept("sun_bubble", "custom", "stone", -1.0F, 15);
+        add.accept("depth_meter", "custom", "stone", 1.5F, 6);
+        add.accept("curse_beacon", "custom", "stone", 1.5F, 8);
+        add.accept("relic_table", "custom", "stone", 2.0F, 4);
+        add.accept("compass_pedestal", "custom", "stone", 2.0F, 9);
+        add.accept("blessing_altar", "custom", "stone", -1.0F, 10);
+        add.accept("curse_box_block", "custom", "stone", 2.0F, 6);
+        add.accept("whistle_stand", "custom", "wood", 1.0F, 3);
+        add.accept("lifesound_stone_block", "custom", "stone", 3.0F, 7);
+        add.accept("elevator_shaft", "custom", "stone", 3.0F, 0);
+        add.accept("forcefield_generator", "custom", "metal", 2.5F, 5);
+        add.accept("sun_clock", "custom", "stone", 1.5F, 5);
+        add.accept("relic_fuel_generator", "custom", "metal", 2.5F, 9);
+        add.accept("praying_skeleton", "custom", "stone", 0.4F, 0);
+        add.accept("bone_pile", "custom", "stone", 0.3F, 0);
+        add.accept("relic_debris", "custom", "stone", 0.3F, 3);
+        add.accept("grave_marker", "custom", "stone", 1.0F, 0);
+        add.accept("old_campfire", "custom", "stone", 0.4F, 1);
+        add.accept("abyss_dust", "field", "stone", 0.0F, 0);
+        add.accept("iron_rain_scar", "cube", "metal", 2.0F, 0);
+        add.accept("crystal_shard_cluster", "custom", "glass", 0.6F, 8);
+    }
+
+    static void items(ItemEntry add) {
+        add.accept("i_bandage", "equipment", 16);
+        add.accept("i_blaze_reap", "relic", 1);
+        add.accept("i_bone", "material", 64);
+        add.accept("i_cradle", "relic", 1);
+        add.accept("i_crystal_shard", "material", 64);
+        add.accept("i_curse_box", "relic", 1);
+        add.accept("i_demonfish_raw", "material", 64);
+        add.accept("i_demonfish_raw_b", "material", 64);
+        add.accept("i_demonfish_raw_c", "material", 64);
+        add.accept("i_flag", "equipment", 64);
+        add.accept("i_lantern", "equipment", 16);
+        add.accept("i_life_stone", "relic", 1);
+        add.accept("i_narehate_flesh", "material", 64);
+        add.accept("i_oil", "equipment", 16);
+        add.accept("i_rope", "equipment", 64);
+        add.accept("i_shroom_cap", "material", 64);
+        add.accept("i_sparagmos", "relic", 1);
+        add.accept("i_star_compass", "equipment", 16);
+        add.accept("i_thousand_pins", "relic", 1);
+        add.accept("i_unheard_bell", "relic", 1);
+        add.accept("i_value_token", "material", 64);
+        add.accept("i_value_token_10", "material", 64);
+        add.accept("i_value_token_100", "material", 64);
+        add.accept("i_whistle_bell", "equipment", 1);
+        add.accept("i_whistle_black", "equipment", 1);
+        add.accept("i_whistle_blue", "equipment", 1);
+        add.accept("i_whistle_moon", "equipment", 1);
+        add.accept("i_whistle_red", "equipment", 1);
+        add.accept("i_whistle_white_bondrewd", "equipment", 1);
+        add.accept("i_whistle_white_lyza", "equipment", 1);
+        add.accept("i_whistle_white_osen", "equipment", 1);
+        add.accept("i_whistle_white_srajo", "equipment", 1);
+        add.accept("i_whistle_white_wakuna", "equipment", 1);
+        add.accept("i_zoaholic", "relic", 1);
+        add.accept("i_ring_fragment", "relic", 64);
+        add.accept("mat_amaranth_venom", "material", 64);
+        add.accept("mat_beak_plate", "material", 64);
+        add.accept("mat_chitin", "material", 64);
+        add.accept("mat_emperor_shell", "material", 64);
+        add.accept("mat_expedition_log", "material", 64);
+        add.accept("mat_fang", "material", 64);
+        add.accept("mat_feather", "material", 64);
+        add.accept("mat_fin", "material", 64);
+        add.accept("mat_fur", "material", 64);
+        add.accept("mat_glow_loot", "material", 64);
+        add.accept("mat_gold_leaf", "material", 64);
+        add.accept("mat_gorilla_pelt", "material", 64);
+        add.accept("mat_ink", "material", 64);
+        add.accept("mat_iron_core", "material", 64);
+        add.accept("mat_kazura_egg", "material", 64);
+        add.accept("mat_lost_item", "material", 64);
+        add.accept("mat_mail_balloon", "material", 64);
+        add.accept("mat_map_scrap", "material", 64);
+        add.accept("mat_meat", "material", 64);
+        add.accept("mat_needle", "material", 64);
+        add.accept("mat_paralyze_toxin", "material", 64);
+        add.accept("mat_prism_eye", "material", 64);
+        add.accept("mat_pseudo_sac", "material", 64);
+        add.accept("mat_ration", "material", 64);
+        add.accept("mat_rope", "material", 64);
+        add.accept("mat_scale", "material", 64);
+        add.accept("mat_shell", "material", 64);
+        add.accept("mat_sickle_horn", "material", 64);
+        add.accept("mat_silk_gland", "material", 64);
+        add.accept("mat_specimen_jar", "material", 64);
+        add.accept("mat_squid_meat", "material", 64);
+        add.accept("mat_stinger_tip", "material", 64);
+        add.accept("mat_sun_crystal", "material", 64);
+        add.accept("mat_surgery_kit", "material", 64);
+        add.accept("mat_symbiotic_spore", "material", 64);
+        add.accept("mat_tenmaku_film", "material", 64);
+        add.accept("mat_turbine_core", "material", 64);
+        add.accept("mat_turbine_shell", "material", 64);
+        add.accept("mat_venom_sac", "material", 64);
+        add.accept("mat_voice_sac", "material", 64);
+        add.accept("mat_whistle_case", "material", 64);
+        add.accept("mat_wing_membrane", "material", 64);
+    }
+
+    private AbyssAssetCatalog() {}
+}

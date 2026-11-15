@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " H ",
+    "G G",
+    "PPP"
+  ],
+  "key": {
+    "H": {
+      "item": "stratacubes:hoist"
+    },
+    "G": {
+      "item": "minecraft:glass_pane"
+    },
+    "P": {
+      "item": "stratacubes:pier_platform"
+    }
+  },
+  "result": {
+    "item": "stratacubes:gondola",
+    "count": 1
+  }
+}

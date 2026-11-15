@@ -24,7 +24,7 @@ final class AbyssFormations {
         boolean grove = shape.layer == AbyssLayer.EDGE || shape.layer == AbyssLayer.FOREST;
         int spacing = grove ? 19 : 37;
         int reach = grove ? 8 : 17;
-        Writer writer = new Writer(chunk);
+        Writer writer = new Writer(chunk, shape.forestMouth);
         for (int gz = Math.floorDiv(writer.z - reach, spacing); gz <= Math.floorDiv(writer.z + 15 + reach, spacing); gz++) {
             for (int gx = Math.floorDiv(writer.x - reach, spacing); gx <= Math.floorDiv(writer.x + 15 + reach, spacing); gx++) {
                 var random = new SplittableRandom(AtlasField.hash(shape.seed, gx, 913, gz));
@@ -118,9 +118,11 @@ final class AbyssFormations {
         private final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         private final int x;
         private final int z;
+        private final boolean forestMouth;
 
-        Writer(ChunkAccess chunk) {
+        Writer(ChunkAccess chunk, boolean forestMouth) {
             this.chunk = chunk;
+            this.forestMouth = forestMouth;
             this.x = chunk.getPos().getMinBlockX();
             this.z = chunk.getPos().getMinBlockZ();
         }
@@ -134,7 +136,12 @@ final class AbyssFormations {
         }
 
         void put(int x, int y, int z, BlockState state) {
-            if (contains(x, y, z) && at(x, y, z).isAir()) chunk.setBlockState(pos.set(x, y, z), state, false);
+            if (!contains(x, y, z) || !at(x, y, z).isAir()) return;
+            // Keep the shared arrival volume clear of the deeper forest's overlapping formations.
+            int mouthY = y - ForestMouth.OFFSET;
+            if (forestMouth && mouthY >= EdgeTerrain.EXIT - 46 && mouthY < ForestMouth.SEAM_ROOF
+                    && ForestMouth.opening(OrthIsland.localX(x), OrthIsland.localZ(z))) return;
+            chunk.setBlockState(pos.set(x, y, z), state, false);
         }
     }
 

@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "stratacubes:block/value_token_block"
+    }
+  }
+}

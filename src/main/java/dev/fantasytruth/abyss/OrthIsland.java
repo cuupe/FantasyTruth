@@ -48,6 +48,10 @@ public final class OrthIsland {
         return shaftColumn(localX(Mth.floor(x)), localZ(Mth.floor(z)));
     }
 
+    public static double shaftSetback(double x, double z) {
+        return OrthRelief.pitDistance(localX(Mth.floor(x)), localZ(Mth.floor(z))) - SHAFT_RADIUS;
+    }
+
     static boolean shaftColumn(int x, int z) {
         return Math.abs(x) < 650 && Math.abs(z) < 650 && OrthRelief.pitDistance(x, z) < SHAFT_RADIUS;
     }

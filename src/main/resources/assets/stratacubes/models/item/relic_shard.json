@@ -1,12 +1,7 @@
 {
-  "format_version": "26.3",
   "credit": "Made with Blockbench",
-  "texture_size": [
-    32,
-    32
-  ],
   "textures": {
-    "0": "stratacubes:item/relic_shard"
+    "0": "stratacubes:item/i_relic_shard"
   },
   "elements": [
     {
@@ -236,5 +231,7 @@
         0
       ]
     }
-  }
+  },
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout"
 }
