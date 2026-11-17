@@ -8,6 +8,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.extensions.IForgeEntity;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
@@ -30,6 +32,8 @@ public final class AbyssTransit {
     public static final ResourceLocation ABYSS = new ResourceLocation("stratacubes", "abyss");
     public static final ResourceLocation EDGE_TYPE = new ResourceLocation("stratacubes", "abyss_edge");
     public static final int SURFACE_BUFFER = 8;
+    private static final String PLAYER_PERSISTED_DATA = "PlayerPersisted";
+    private static final String RETURN_SITE = "FantasyTruthAbyssReturn";
     private static final int PRELOAD_DISTANCE = 180;
     private static final int HOLD_DISTANCE = 38;
     private static final int LAYER_BUFFER = 4;
@@ -38,12 +42,46 @@ public final class AbyssTransit {
     private record Arrival(ServerLevel level, int settleUntil) {}
     private record Warmup(ServerLevel level, ChunkPos chunk, int refreshed) {}
     private record Approach(ServerLevel level, int started, Double heldVelocity) {}
+    private record Shift(ServerLevel source, ServerLevel destination, double x, double y, double z, NaturalAbyssSite entry) {}
     private final Map<ServerPlayer, Arrival> arrivals = new WeakHashMap<>();
     private final Map<ServerPlayer, Warmup> warming = new WeakHashMap<>();
     private final Map<ServerPlayer, Approach> approaches = new WeakHashMap<>();
+    private final Map<ServerPlayer, Shift> shifts = new WeakHashMap<>();
 
     public static boolean expedition(ServerLevel level) {
         return level.dimension() == Level.OVERWORLD && level.dimensionTypeId().location().equals(EXPEDITION);
+    }
+
+    private static boolean hasAbyss(ServerLevel level) {
+        return expedition(level) || NaturalAbyssSite.distribution(level) != null;
+    }
+
+    private static void remember(ServerPlayer player, NaturalAbyssSite site) {
+        var data = ((IForgeEntity) player).getPersistentData();
+        var persistent = data.getCompound(PLAYER_PERSISTED_DATA);
+        persistent.putLong(RETURN_SITE, ChunkPos.asLong(site.offsetX() >> 4, site.offsetZ() >> 4));
+        data.put(PLAYER_PERSISTED_DATA, persistent);
+    }
+
+    private static NaturalAbyssSite returnSite(ServerPlayer player, ServerLevel surface) {
+        var persistent = ((IForgeEntity) player).getPersistentData().getCompound(PLAYER_PERSISTED_DATA);
+        if (!persistent.contains(RETURN_SITE, Tag.TAG_LONG)) return null;
+        var offset = new ChunkPos(persistent.getLong(RETURN_SITE));
+        var site = NaturalAbyssSite.find(surface, offset.getMiddleBlockX(), offset.getMiddleBlockZ());
+        return site != null && site.offsetX() == offset.getMinBlockX() && site.offsetZ() == offset.getMinBlockZ() ? site : null;
+    }
+
+    private static NaturalAbyssSite commandSite(CommandSourceStack source) {
+        var level = source.getLevel();
+        if (level.dimension() == Level.OVERWORLD) {
+            var pos = source.getPosition();
+            return NaturalAbyssSite.find(level, Mth.floor(pos.x), Mth.floor(pos.z));
+        }
+        return source.getEntity() instanceof ServerPlayer player ? returnSite(player, source.getServer().overworld()) : null;
+    }
+
+    private static BlockPos translate(NaturalAbyssSite site, BlockPos pos) {
+        return site == null ? pos : site.world(pos);
     }
 
     @SubscribeEvent
@@ -68,6 +106,15 @@ public final class AbyssTransit {
                         Component.translatable("abyss.stratacubes." + layer.id), layer.entrance,
                         source.getLevel().getChunkSource().getGenerator() instanceof AbyssChunkGenerator generator
                                 ? generator.exitY() : layer.exit), false);
+            } else if (NaturalAbyssSite.extended(source.getLevel())) {
+                var site = commandSite(source);
+                if (site == null) {
+                    source.sendFailure(Component.translatable("commands.stratacubes.abyss.locate"));
+                    return 0;
+                }
+                source.sendSuccess(() -> Component.translatable("commands.stratacubes.abyss.mouth",
+                        AbyssLayer.CENTER_X + site.offsetX(), AbyssEdgeGenerator.ENTRANCE,
+                        AbyssLayer.CENTER_Z + site.offsetZ()), false);
             } else if (expedition(source.getLevel())) {
                 source.sendSuccess(() -> Component.translatable("commands.stratacubes.abyss.mouth", AbyssLayer.CENTER_X,
                         OrthIsland.vertical(source.getLevel().getChunkSource().getGenerator()) ? AbyssEdgeGenerator.ENTRANCE
@@ -107,15 +154,19 @@ public final class AbyssTransit {
     private static int entrances(CommandSourceStack source) {
         var server = source.getServer();
         var edge = server.getLevel(AbyssLayer.EDGE.key);
-        if (!expedition(server.overworld()) || !OrthIsland.vertical(server.overworld().getChunkSource().getGenerator())
-                || edge == null
+        var site = commandSite(source);
+        if (site == null && NaturalAbyssSite.extended(server.overworld())) {
+            source.sendFailure(Component.translatable("commands.stratacubes.abyss.locate"));
+            return 0;
+        }
+        if ((site == null && !OrthIsland.vertical(server.overworld().getChunkSource().getGenerator())) || edge == null
                 || !(edge.getChunkSource().getGenerator() instanceof AbyssEdgeGenerator generator) || !generator.mossPit()) {
             source.sendFailure(Component.translatable("commands.stratacubes.abyss.route_required"));
             return 0;
         }
-        entrance(source, "gate", OrthDescent.gate().entrance());
-        entrance(source, "wharf", OrthDescent.wharf().entrance());
-        entrance(source, "pier", OrthDescent.pierBell());
+        entrance(source, "gate", translate(site, OrthDescent.gate().entrance()));
+        entrance(source, "wharf", translate(site, OrthDescent.wharf().entrance()));
+        entrance(source, "pier", translate(site, OrthDescent.pierBell()));
         return 1;
     }
 
@@ -132,11 +183,15 @@ public final class AbyssTransit {
         ServerLevel level = player.serverLevel();
         ServerLevel surface = level.getServer().overworld();
         ServerLevel edge = level.getServer().getLevel(AbyssLayer.EDGE.key);
-        if (edge == null || !expedition(surface) || !OrthIsland.vertical(surface.getChunkSource().getGenerator())
-                || !(edge.getChunkSource().getGenerator() instanceof AbyssEdgeGenerator generator) || !generator.mossPit()) return;
-        boolean down = level == surface && event.getPos().equals(OrthDescent.pierBell());
+        if (edge == null || !(edge.getChunkSource().getGenerator() instanceof AbyssEdgeGenerator generator)
+                || !generator.mossPit() || level != surface && level != edge) return;
+        var site = level == surface ? NaturalAbyssSite.find(surface, event.getPos().getX(), event.getPos().getZ())
+                : returnSite(player, surface);
+        if (site == null && !OrthIsland.vertical(surface.getChunkSource().getGenerator())) return;
+        var pier = translate(site, OrthDescent.pierBell());
+        boolean down = level == surface && event.getPos().equals(pier);
         if (!down && (level != edge || !event.getPos().equals(OrthDescent.arkBell()))) return;
-        var stop = down ? OrthDescent.arkBell() : OrthDescent.pierBell();
+        var stop = down ? OrthDescent.arkBell() : pier;
         ServerLevel destination = down ? edge : surface;
         destination.getChunk(stop);
         var arrival = stop.east();
@@ -149,13 +204,14 @@ public final class AbyssTransit {
         event.setCanceled(true);
         player.setDeltaMovement(0, 0, 0);
         player.fallDistance = 0;
+        if (down && site != null) remember(player, site);
         move(player, destination, arrival.getX() + 0.5, arrival.getY(), arrival.getZ() + 0.5, 12);
         player.displayClientMessage(Component.translatable("commands.stratacubes.abyss.cable_arrival." + (down ? "ark" : "pier")), true);
     }
 
     private static int route(CommandSourceStack source) {
         ServerLevel edge = source.getServer().getLevel(AbyssLayer.EDGE.key);
-        boolean inExpedition = expedition(source.getLevel()) || source.getLevel() == edge;
+        boolean inExpedition = hasAbyss(source.getLevel()) || source.getLevel() == edge;
         if (!inExpedition || edge == null
                 || !(edge.getChunkSource().getGenerator() instanceof AbyssEdgeGenerator generator) || !generator.expanded()) {
             source.sendFailure(Component.translatable("commands.stratacubes.abyss.route_required"));
@@ -190,13 +246,15 @@ public final class AbyssTransit {
         ServerLevel current = player.serverLevel();
         AbyssLayer layer = AbyssLayer.of(current.dimension());
         boolean surface = expedition(current);
-        boolean shaft = surface && OrthIsland.vertical(current.getChunkSource().getGenerator());
+        var site = Math.abs(player.getY()) <= PRELOAD_DISTANCE + HOLD_DISTANCE
+                ? NaturalAbyssSite.find(current, player.getBlockX(), player.getBlockZ()) : null;
+        boolean shaft = site != null || surface && OrthIsland.vertical(current.getChunkSource().getGenerator());
         boolean edge = current.getChunkSource().getGenerator() instanceof AbyssEdgeGenerator;
         if (shaft || edge) {
             if (current.getChunkSource().getGenerator() instanceof AbyssEdgeGenerator generator && generator.eroded()) {
                 EdgeFauna.tick(player, current, generator);
             }
-            tickEdge(player, current, shaft);
+            tickEdge(player, current, shaft, site);
             return;
         }
         double y = player.getY();
@@ -230,7 +288,7 @@ public final class AbyssTransit {
             }
             return;
         }
-        if (!expedition(current.getServer().overworld())
+        if (!hasAbyss(current.getServer().overworld())
                 || !(current.getChunkSource().getGenerator() instanceof AbyssChunkGenerator generator) || generator.layer() != layer) return;
         if (Math.abs(y - layer.entrance) <= PRELOAD_DISTANCE) {
             AbyssLayer upper = layer.previous();
@@ -251,18 +309,23 @@ public final class AbyssTransit {
         }
     }
 
-    private void tickEdge(ServerPlayer player, ServerLevel current, boolean surface) {
-        if (!player.isAlive() || player.isPassenger() || player.isSleeping()
-                || !OrthIsland.inShaft(player.getX(), player.getZ())) {
+    private void tickEdge(ServerPlayer player, ServerLevel current, boolean surface, NaturalAbyssSite site) {
+        boolean inShaft = site == null ? OrthIsland.inShaft(player.getX(), player.getZ())
+                : site.inShaft(player.getX(), player.getZ());
+        if (!player.isAlive() || player.isPassenger() || player.isSleeping() || !inShaft) {
             approaches.remove(player);
             return;
         }
         double y = player.getY();
         if (Math.abs(y) <= PRELOAD_DISTANCE) {
             ServerLevel adjacent = surface ? current.getServer().getLevel(AbyssLayer.EDGE.key) : current.getServer().overworld();
-            if (adjacent != null && (surface ? adjacent.getChunkSource().getGenerator() instanceof AbyssEdgeGenerator
-                    : OrthIsland.vertical(adjacent.getChunkSource().getGenerator()))) {
-                pass(player, adjacent, 0, 0, surface, SURFACE_BUFFER, true);
+            var anchor = surface ? site : returnSite(player, adjacent);
+            if (surface ? adjacent != null && adjacent.getChunkSource().getGenerator() instanceof AbyssEdgeGenerator
+                    : anchor != null || OrthIsland.vertical(adjacent.getChunkSource().getGenerator())) {
+                int direction = surface ? -1 : 1;
+                int dx = anchor == null ? 0 : direction * anchor.offsetX();
+                int dz = anchor == null ? 0 : direction * anchor.offsetZ();
+                pass(player, adjacent, 0, 0, surface, SURFACE_BUFFER, true, dx, dz, surface ? anchor : null);
             }
         } else if (!surface && Math.abs(y - AbyssEdgeGenerator.EXIT) <= PRELOAD_DISTANCE
                 && current.getChunkSource().getGenerator() instanceof AbyssEdgeGenerator edge
@@ -279,8 +342,8 @@ public final class AbyssTransit {
         return edge.mossPit() ? EdgeBasin.APPROACH_RADIUS : AbyssLayer.PASSAGE_RADIUS + 24;
     }
 
-    private ChunkPos warm(ServerPlayer player, ServerLevel destination, int tick) {
-        ChunkPos center = player.chunkPosition();
+    private ChunkPos warm(ServerPlayer player, ServerLevel destination, int tick, int dx, int dz) {
+        ChunkPos center = new ChunkPos(player.blockPosition().offset(dx, 0, dz));
         Warmup previous = warming.get(player);
         if (previous == null || previous.level != destination || !previous.chunk.equals(center) || tick - previous.refreshed >= 24) {
             destination.getChunkSource().addRegionTicket(PASSAGE, center, 2, center);
@@ -320,6 +383,11 @@ public final class AbyssTransit {
 
     private void pass(ServerPlayer player, ServerLevel destination, int fromY, int toY, boolean descending,
                       int buffer, boolean sharedHeight) {
+        pass(player, destination, fromY, toY, descending, buffer, sharedHeight, 0, 0, null);
+    }
+
+    private void pass(ServerPlayer player, ServerLevel destination, int fromY, int toY, boolean descending,
+                      int buffer, boolean sharedHeight, int dx, int dz, NaturalAbyssSite entry) {
         var source = player.serverLevel();
         if (destination == null || destination == source || (!sharedHeight && !inOpening(player, destination))) {
             approaches.remove(player);
@@ -331,7 +399,7 @@ public final class AbyssTransit {
         double crossed = overshoot * direction;
         var recent = arrivals.get(player);
         if (recent != null && recent.level == source && now < recent.settleUntil) return;
-        var center = warm(player, destination, now);
+        var center = warm(player, destination, now, dx, dz);
         if (crossed < buffer) {
             approaches.remove(player);
             return;
@@ -355,30 +423,48 @@ public final class AbyssTransit {
             return;
         }
         double arrival = sharedHeight ? player.getY() : toY + direction * Math.min(crossed, 44);
-        if (!canArrive(player, destination, arrival)) {
+        if (!canArrive(player, destination, arrival, dx, dz)) {
             if (sharedHeight) return;
             // Stay on the same line through the aperture. Never move the player sideways into a different tunnel.
             arrival = toY + direction * buffer;
-            if (!canArrive(player, destination, arrival)) return;
+            if (!canArrive(player, destination, arrival, dx, dz)) return;
         }
         if (approach.heldVelocity != null && player.getDeltaMovement().y * direction >= 0) {
             var motion = player.getDeltaMovement();
             player.setDeltaMovement(motion.x, approach.heldVelocity, motion.z);
         }
         approaches.remove(player);
-        move(player, destination, arrival, 8);
+        if (dx != 0 || dz != 0) {
+            // The connection restores the pre-tick coordinates after ServerPlayer.doTick().
+            shifts.put(player, new Shift(source, destination, player.getX() + dx, arrival, player.getZ() + dz, entry));
+        } else {
+            if (entry != null) remember(player, entry);
+            move(player, destination, player.getX(), arrival, player.getZ(), 8);
+        }
     }
 
-    private static boolean canArrive(ServerPlayer player, ServerLevel destination, double y) {
-        var box = player.getBoundingBox().move(0, y - player.getY(), 0);
+    @SubscribeEvent
+    public void finishShifts(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || shifts.isEmpty()) return;
+        var queue = shifts.entrySet().iterator();
+        while (queue.hasNext()) {
+            var next = queue.next();
+            var player = next.getKey();
+            var shift = next.getValue();
+            if (shift.source.getServer() != event.getServer()) continue;
+            queue.remove();
+            if (player.serverLevel() != shift.source || !player.isAlive() || player.hasDisconnected()) continue;
+            move(player, shift.destination, shift.x, shift.y, shift.z, 8);
+            if (shift.entry != null && player.serverLevel() == shift.destination) remember(player, shift.entry);
+        }
+    }
+
+    private static boolean canArrive(ServerPlayer player, ServerLevel destination, double y, int dx, int dz) {
+        var box = player.getBoundingBox().move(dx, y - player.getY(), dz);
         var min = BlockPos.containing(box.minX - 1, box.minY, box.minZ - 1);
         var max = BlockPos.containing(box.maxX + 1, box.maxY, box.maxZ + 1);
         return !destination.isOutsideBuildHeight(min) && !destination.isOutsideBuildHeight(max)
                 && destination.hasChunksAt(min, max) && destination.noCollision(player, box);
-    }
-
-    private void move(ServerPlayer player, ServerLevel destination, double y, int settleTicks) {
-        move(player, destination, player.getX(), y, player.getZ(), settleTicks);
     }
 
     private void move(ServerPlayer player, ServerLevel destination, double x, double y, double z, int settleTicks) {

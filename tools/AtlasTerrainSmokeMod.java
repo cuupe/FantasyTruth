@@ -8,9 +8,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState.SelectedGameMode;
+import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState.WorldTypeEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.LayeredRegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.RegistryLayer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -47,9 +51,9 @@ public final class AtlasTerrainSmokeMod {
                 ui.setName("AtlasTerrainSmoke");
                 ui.setSeed(Long.toString(SEED));
                 ui.setGameMode(SelectedGameMode.SURVIVAL);
-                ui.setWorldType(ui.getNormalPresetList().stream().filter(entry -> entry.preset() != null
-                        && entry.preset().unwrapKey().orElseThrow().location().toString().equals("stratacubes:atlas"))
-                        .findFirst().orElseThrow());
+                var preset = ResourceKey.create(Registries.WORLD_PRESET, new ResourceLocation("stratacubes", "atlas"));
+                var registry = ui.getSettings().worldgenLoadContext().registryOrThrow(Registries.WORLD_PRESET);
+                ui.setWorldType(new WorldTypeEntry(registry.getHolderOrThrow(preset)));
                 var context = ui.getSettings();
                 var dimensions = context.selectedDimensions().bake(context.datapackDimensions());
                 var registries = context.worldgenRegistries().replaceFrom(RegistryLayer.DIMENSIONS, dimensions.dimensionsRegistryAccess());

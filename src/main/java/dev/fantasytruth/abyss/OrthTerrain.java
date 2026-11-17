@@ -89,10 +89,14 @@ public final class OrthTerrain {
 
     // The outer coast starts with the ordinary overworld chunk, including its biome and noise.
     public static void blendCoast(ChunkAccess chunk, int sea) {
+        blendCoast(chunk, sea, 0, 0);
+    }
+
+    static void blendCoast(ChunkAccess chunk, int sea, int offsetX, int offsetZ) {
         if (!(chunk instanceof ProtoChunk) || chunk.isUpgrading()) return;
         int x0 = chunk.getPos().getMinBlockX(), z0 = chunk.getPos().getMinBlockZ();
-        if (Math.abs(OrthIsland.localX(x0)) > OrthIsland.SITE_RADIUS + 16
-                || Math.abs(OrthIsland.localZ(z0)) > OrthIsland.SITE_RADIUS + 16) return;
+        if (Math.abs(OrthIsland.localX(x0 - offsetX)) > OrthIsland.SITE_RADIUS + 16
+                || Math.abs(OrthIsland.localZ(z0 - offsetZ)) > OrthIsland.SITE_RADIUS + 16) return;
         var pos = new BlockPos.MutableBlockPos();
         var gravel = Blocks.GRAVEL.defaultBlockState();
         var stone = Blocks.STONE.defaultBlockState();
@@ -101,11 +105,11 @@ public final class OrthTerrain {
         for (int dz = 0; dz < 16; dz++) {
             for (int dx = 0; dx < 16; dx++) {
                 int x = x0 + dx, z = z0 + dz;
-                double weight = OrthIsland.siteWeight(OrthIsland.localX(x), OrthIsland.localZ(z));
+                double weight = OrthIsland.siteWeight(OrthIsland.localX(x - offsetX), OrthIsland.localZ(z - offsetZ));
                 if (weight == 0) continue;
                 int floor = chunk.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, dx, dz);
                 int top = chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG, dx, dz);
-                int shore = coastFloor(x, z, floor);
+                int shore = coastFloor(x - offsetX, z - offsetZ, floor);
                 if (shore == floor && weight < 1) continue;
                 if (shore > floor) {
                     for (int y = floor + 1; y <= shore; y++) {

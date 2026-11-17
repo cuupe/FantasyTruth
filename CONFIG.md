@@ -1,10 +1,10 @@
 # Atlas 工作台配置表
 
-本表适用于旧版「FantasyTruth：无限主世界（实验）」预设。「FantasyTruth：阿比斯探窟」使用原版世界生成配置，预设定义在 `data/stratacubes/worldgen/world_preset/expedition.json`。主世界高度由 `dimension_type/expedition.json` 定义，0.6.1 的噪声配置为 `worldgen/noise_settings/expedition_coast.json`。
+本表记录旧版「FantasyTruth：无限主世界（实验）」的配置。新版从原版「默认」世界类型进入，主世界高度由 `data/stratacubes/dimension_type/extended_overworld.json` 定义。
 
 ## 入口和批量应用
 
-在 **创建世界 → 世界 → 世界类型「FantasyTruth：无限主世界（实验）」→ 自定义** 打开工作台。地形、群系、矿脉、结构和掉落都属于同一份草稿。可以先改多个表格，再按一次 **应用整套**。工作台会为这个世界生成并启用一个数据包，地形参数同时写入该世界的主世界生成器。
+旧版可通过 **创建世界 → 世界 → 世界类型「FantasyTruth：无限主世界（实验）」→ 自定义** 打开工作台。地形、群系、矿脉、结构和掉落都属于同一份草稿。可以先改多个表格，再按一次 **应用整套**。工作台会为这个世界生成并启用一个数据包，地形参数同时写入该世界的主世界生成器。
 
 在主菜单的 **模组 → FantasyTruth → 配置** 也可打开工作台，校验、保存或导出预设。**JSON** 页可直接粘贴整份配置。各分类的 **本段 JSON** 可批量新增、替换或删除数组条目。表格筛选接受键名、规则 ID 和中文地形名称。矿脉页的 **批量倍率** 一次调整全部矿脉的概率，结果最大为 1。
 

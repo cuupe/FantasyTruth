@@ -13,6 +13,7 @@ import dev.fantasytruth.abyss.AbyssLayer;
 import dev.fantasytruth.abyss.AbyssTransit;
 import dev.fantasytruth.abyss.ForestCoordinates;
 import dev.fantasytruth.abyss.OrthIsland;
+import dev.fantasytruth.abyss.NaturalAbyssSite;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -70,10 +71,12 @@ public final class AbyssFrameHold {
         double y = mc.player.getY();
         double x = mc.player.getX(), z = mc.player.getZ();
         if (source.equals(Level.OVERWORLD) && to == AbyssLayer.EDGE) {
+            if (mc.level.dimensionTypeId().location().equals(NaturalAbyssSite.OVERWORLD_TYPE)) return near(y, 0);
             return mc.level.dimensionTypeId().location().equals(AbyssTransit.EXPEDITION)
                     && (near(y, 0) && OrthIsland.inShaft(x, z) || near(y, AbyssLayer.MOUTH_GATE) && AbyssLayer.passage(x, z, 42));
         }
         if (from == AbyssLayer.EDGE && target.equals(Level.OVERWORLD)) {
+            if (packet.getDimensionType().location().equals(NaturalAbyssSite.OVERWORLD_TYPE)) return near(y, 0) && OrthIsland.inShaft(x, z);
             return packet.getDimensionType().location().equals(AbyssTransit.EXPEDITION)
                     && (near(y, 0) && OrthIsland.inShaft(x, z) || near(y, from.entrance) && AbyssLayer.passage(x, z, 42));
         }

@@ -1,4 +1,7 @@
 {
+  "options.stratacubes.horizon_distance": "远景",
+  "options.stratacubes.horizon_distance.tooltip": "调整简化地形的显示距离。设为关可关闭远景。",
+  "options.stratacubes.horizon_distance.tooltip.shader_pack": "启用光影包时，内置远景暂停。",
   "generator.stratacubes.high_relief": "FantasyTruth：大高差地形",
   "generator.stratacubes.atlas": "FantasyTruth：无限主世界（实验）",
   "generator.stratacubes.expedition": "FantasyTruth：阿比斯探窟 · 奥斯",
@@ -11,6 +14,7 @@
   "abyss.stratacubes.maelstrom": "尽头的漩涡",
   "commands.stratacubes.abyss.mouth": "阿比斯入口在 X %1$s、Z %3$s。沿中央竖井下潜，经过 Y %2$s 的过渡带进入第一层。",
   "commands.stratacubes.abyss.layer": "深界第 %s 层 · %s。中央通道上缘 Y %s，下缘 Y %s。",
+  "commands.stratacubes.abyss.locate": "阿比斯在主世界罕见生成。用 /locate structure abyss 搜寻入口。",
   "commands.stratacubes.abyss.required": "当前世界未启用阿比斯探窟。",
   "screen.stratacubes.title": "FantasyTruth Atlas 工作台",
   "screen.stratacubes.subtitle": "在一套预设中编辑整个主世界",

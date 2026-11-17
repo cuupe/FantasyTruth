@@ -69,7 +69,7 @@ final class AbyssDevices {
             if (!(level instanceof ServerLevel server) || !(player instanceof ServerPlayer explorer)) return InteractionResult.SUCCESS;
             switch (id) {
                 case "depth_meter" -> player.displayClientMessage(AbyssGear.depth(level, pos), true);
-                case "compass_pedestal" -> player.displayClientMessage(AbyssGear.bearing(pos), true);
+                case "compass_pedestal" -> player.displayClientMessage(AbyssGear.bearing(level, pos), true);
                 case "curse_beacon" -> player.displayClientMessage(Component.translatable("message.stratacubes.field.signal",
                         getAnalogOutputSignal(state, level, pos), 15), true);
                 case "sun_clock" -> {

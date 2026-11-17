@@ -1,0 +1,19 @@
+{
+  "structures": [
+    {
+      "structure": "minecraft:abyss",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 2048,
+    "separation": 384,
+    "salt": 26710359,
+    "locate_offset": [
+      8,
+      0,
+      8
+    ]
+  }
+}

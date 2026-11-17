@@ -35,28 +35,35 @@ public final class OrthResidents {
                 || level.dimension() != Level.OVERWORLD || level.getGameTime() % 20 != 0 || level.players().isEmpty()) return;
         var chunks = level.getChunkSource();
         var generator = chunks.getGenerator();
-        if (!OrthIsland.enabled(generator)) return;
-        boolean terraced = OrthIsland.terraced(generator), vertical = OrthIsland.vertical(generator);
+        var sites = NaturalAbyssSite.distribution(level);
+        if (sites == null && !OrthIsland.enabled(generator)) return;
+        boolean terraced = sites != null || OrthIsland.terraced(generator), vertical = sites != null || OrthIsland.vertical(generator);
         var data = level.getDataStorage().computeIfAbsent(Population::load, Population::new, DATA);
         int remaining = level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING) ? 4 : 0;
         for (var player : level.players()) {
-            if (!player.isAlive() || Math.abs(OrthIsland.localX(player.getBlockX())) > 1220
-                    || Math.abs(OrthIsland.localZ(player.getBlockZ())) > 1220 || player.getBlockY() < 32) continue;
+            if (!player.isAlive() || player.getBlockY() < 32) continue;
+            var site = sites == null ? null : sites.near(player.getBlockX(), player.getBlockZ());
+            if (sites != null && site == null) continue;
+            int offsetX = site == null ? 0 : site.offsetX(), offsetZ = site == null ? 0 : site.offsetZ();
+            if (Math.abs(OrthIsland.localX(player.getBlockX() - offsetX)) > 1220
+                    || Math.abs(OrthIsland.localZ(player.getBlockZ() - offsetZ)) > 1220) continue;
             var center = player.chunkPosition();
             for (int z = center.z - DISTANCE; z <= center.z + DISTANCE; z++) {
                 for (int x = center.x - DISTANCE; x <= center.x + DISTANCE; x++) {
                     var loaded = chunks.getChunkNow(x, z);
-                    if (loaded == null || !OrthCity.developed(loaded.getPos(), terraced, vertical)) continue;
+                    if (loaded == null) continue;
+                    var local = site == null ? loaded.getPos() : site.local(loaded.getPos());
+                    if (!OrthCity.developed(local, terraced, vertical)) continue;
                     if (data.indexed.add(loaded.getPos().toLong())) indexVillageBlocks(level, loaded);
                     if (remaining == 0) continue;
-                    for (var house : OrthCity.residences(loaded.getPos(), terraced, vertical)) {
+                    for (var house : OrthCity.residences(local, terraced, vertical)) {
                         if (Math.abs(house.y() - player.getBlockY()) > 72) continue;
-                        BlockPos origin = house.at(0, 0, 0);
+                        BlockPos origin = house.at(0, 0, 0).offset(offsetX, 0, offsetZ);
                         long id = origin.asLong();
                         int spacing = house.floors() == 1 ? 2 : 3;
                         long roll = Mth.getSeed(origin.getX(), origin.getY(), origin.getZ()) ^ level.getSeed();
                         if (Math.floorMod(roll, spacing) != 0 || data.seeded.contains(id)) continue;
-                        if (settle(level, house, id)) {
+                        if (settle(level, house, id, offsetX, offsetZ)) {
                             data.seeded.add(id);
                             data.setDirty();
                             if (--remaining == 0) break;
@@ -88,22 +95,22 @@ public final class OrthResidents {
         }
     }
 
-    private static boolean settle(ServerLevel level, OrthCity.Residence house, long id) {
+    private static boolean settle(ServerLevel level, OrthCity.Residence house, long id, int offsetX, int offsetZ) {
         int bedroom = (house.floors() - 1) * 5;
-        BlockPos feet = house.at(0, bedroom + 1, 3);
+        BlockPos feet = house.at(0, bedroom + 1, 3).offset(offsetX, 0, offsetZ);
         if (!level.isPositionEntityTicking(feet) || !level.getBlockState(feet.below()).is(OrthBlocks.PLANK.get())
                 || !level.getFluidState(feet).isEmpty()) return false;
 
         int bedZ = house.floors() == 1 ? 1 - house.depth() : house.depth() - 1;
-        BlockPos head = house.at(house.width() - 1, bedroom + 1, bedZ);
+        BlockPos head = house.at(house.width() - 1, bedroom + 1, bedZ).offset(offsetX, 0, offsetZ);
         if (!level.hasChunkAt(head)) return false;
         var bed = level.getBlockState(head);
         if (!(bed.getBlock() instanceof BedBlock) || bed.getValue(BedBlock.PART) != BedPart.HEAD) return false;
         BlockPos foot = head.relative(bed.getValue(BedBlock.FACING).getOpposite());
         if (!level.hasChunkAt(foot) || !level.getBlockState(foot).is(bed.getBlock())) return false;
 
-        var corner = house.at(1 - house.width(), 1, 1 - house.depth());
-        var opposite = house.at(house.width() - 1, bedroom + 4, house.depth() - 1);
+        var corner = house.at(1 - house.width(), 1, 1 - house.depth()).offset(offsetX, 0, offsetZ);
+        var opposite = house.at(house.width() - 1, bedroom + 4, house.depth() - 1).offset(offsetX, 0, offsetZ);
         var inside = new AABB(corner, opposite).expandTowards(1, 1, 1);
         if (!level.getEntitiesOfClass(Mob.class, inside, mob -> mob.isAlive()
                 && (mob instanceof Villager || mob.getTags().contains(RESIDENT))).isEmpty()) return true;

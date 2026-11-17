@@ -52,8 +52,14 @@ final class AbyssGear {
         return ((net.minecraftforge.common.extensions.IForgeEntity) player).getPersistentData().getLong(SHELTER_UNTIL) > player.level().getGameTime();
     }
 
-    static Component bearing(BlockPos pos) {
+    static Component bearing(Level level, BlockPos pos) {
         int dx = AbyssLayer.CENTER_X - pos.getX(), dz = AbyssLayer.CENTER_Z - pos.getZ();
+        if (level instanceof ServerLevel server && NaturalAbyssSite.extended(server)) {
+            var site = NaturalAbyssSite.find(server, pos.getX(), pos.getZ());
+            if (site == null) return Component.translatable("commands.stratacubes.abyss.locate");
+            dx += site.offsetX();
+            dz += site.offsetZ();
+        }
         if (Math.abs(dx) < 2 && Math.abs(dz) < 2) return Component.translatable("message.stratacubes.compass.center");
         return Component.translatable("message.stratacubes.compass.bearing",
                 Math.floorMod(Math.round((float) Math.toDegrees(Math.atan2(dx, -dz))), 360),
@@ -62,8 +68,11 @@ final class AbyssGear {
 
     static Component depth(Level level, BlockPos pos) {
         var layer = AbyssLayer.of(level.dimension());
-        if (level instanceof ServerLevel server && layer == null && AbyssTransit.expedition(server)
-                && pos.getY() < 0 && OrthIsland.inShaft(pos.getX(), pos.getZ())) layer = AbyssLayer.EDGE;
+        if (level instanceof ServerLevel server && layer == null && pos.getY() < 0) {
+            var site = NaturalAbyssSite.find(server, pos.getX(), pos.getZ());
+            if (site != null ? site.inShaft(pos.getX(), pos.getZ())
+                    : AbyssTransit.expedition(server) && OrthIsland.inShaft(pos.getX(), pos.getZ())) layer = AbyssLayer.EDGE;
+        }
         if (layer == null) return Component.translatable("item.stratacubes.depth_gauge.altitude", pos.getY());
         int depth;
         if (layer == AbyssLayer.EDGE) depth = Math.max(0, -pos.getY());
@@ -138,7 +147,7 @@ final class AbyssGear {
 
         private void perform(Level level, Player player, ItemStack stack) {
             switch (action) {
-                case COMPASS -> player.displayClientMessage(bearing(player.blockPosition()), true);
+                case COMPASS -> player.displayClientMessage(bearing(level, player.blockPosition()), true);
                 case WHISTLE -> {
                     float pitch = stack.is(item("i_whistle_bell")) ? 1.48F : 0.94F;
                     level.playSound(null, player.blockPosition(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 1.4F, pitch);

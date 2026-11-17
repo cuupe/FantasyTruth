@@ -1,12 +1,21 @@
 {
+  "blend": { "func": "add", "srcrgb": "srcalpha", "dstrgb": "1-srcalpha" },
   "vertex": "fantasytruth_horizon",
   "fragment": "fantasytruth_horizon",
   "attributes": [
     "Position",
     "Color"
   ],
-  "samplers": [],
+  "samplers": [{ "name": "Blocks" }],
   "uniforms": [
+    { "name": "Tile", "type": "float", "count": 4, "values": [0, 0, 64, 65535] },
+    { "name": "StoneUV", "type": "float", "count": 4, "values": [0, 0, 1, 1] },
+    { "name": "SandUV", "type": "float", "count": 4, "values": [0, 0, 1, 1] },
+    { "name": "LeavesUV", "type": "float", "count": 4, "values": [0, 0, 1, 1] },
+    { "name": "GrassUV", "type": "float", "count": 4, "values": [0, 0, 1, 1] },
+    { "name": "WoodUV", "type": "float", "count": 4, "values": [0, 0, 1, 1] },
+    { "name": "PlankUV", "type": "float", "count": 4, "values": [0, 0, 1, 1] },
+    { "name": "SoilUV", "type": "float", "count": 4, "values": [0, 0, 1, 1] },
     {
       "name": "ModelViewMat",
       "type": "matrix4x4",
@@ -54,28 +63,17 @@
       ]
     },
     {
-      "name": "Origin",
+      "name": "Clip",
       "type": "float",
       "count": 3,
       "values": [
-        0,
-        0,
-        0
-      ]
-    },
-    {
-      "name": "Clip",
-      "type": "float",
-      "count": 4,
-      "values": [
-        0,
         0,
         0,
         6144
       ]
     },
     {
-      "name": "FogColor",
+      "name": "HorizonFog",
       "type": "float",
       "count": 4,
       "values": [

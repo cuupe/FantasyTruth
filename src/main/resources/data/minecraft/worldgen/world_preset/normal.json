@@ -1,23 +1,12 @@
 {
   "dimensions": {
     "minecraft:overworld": {
-      "type": "stratacubes:expedition",
+      "type": "stratacubes:extended_overworld",
       "generator": {
         "type": "minecraft:noise",
         "biome_source": {
-          "type": "stratacubes:orth",
-          "surroundings": {
-            "type": "minecraft:multi_noise",
-            "preset": "minecraft:overworld"
-          },
-          "coast": "minecraft:plains",
-          "ocean": "minecraft:deep_ocean",
-          "terraced": true,
-          "forested": true,
-          "abyss_rock": true,
-          "wall_terraces": true,
-          "wild_edge": true,
-          "natural_site": true
+          "type": "minecraft:multi_noise",
+          "preset": "minecraft:overworld"
         },
         "settings": "minecraft:overworld"
       }

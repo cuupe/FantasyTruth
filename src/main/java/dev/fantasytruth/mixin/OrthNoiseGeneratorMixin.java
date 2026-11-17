@@ -1,5 +1,6 @@
 package dev.fantasytruth.mixin;
 
+import dev.fantasytruth.abyss.NaturalAbyssSite;
 import dev.fantasytruth.abyss.OrthCity;
 import dev.fantasytruth.abyss.OrthBiomeSource;
 import dev.fantasytruth.abyss.OrthIsland;
@@ -69,6 +70,8 @@ abstract class OrthNoiseGeneratorMixin {
         boolean natural = OrthIsland.natural(generator);
         boolean core = OrthTerrain.supports(chunk, natural);
         if (natural && !core) OrthTerrain.blendCoast(chunk, generator.getSeaLevel());
+        var site = NaturalAbyssSite.find(region.getLevel(), chunk.getPos().getMiddleBlockX(), chunk.getPos().getMiddleBlockZ());
+        if (site != null) site.build(region.getLevel(), chunk, generator.getSeaLevel());
         if (OrthIsland.vertical(generator) && core
                 && generator.getBiomeSource() instanceof OrthBiomeSource orth && orth.abyssRock() && orth.wallTerraces()) {
             OrthSeam.decorate(region, chunk);

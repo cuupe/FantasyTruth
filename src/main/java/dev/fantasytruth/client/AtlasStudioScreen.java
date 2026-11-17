@@ -35,6 +35,7 @@ public final class AtlasStudioScreen extends Screen {
     private static final int ROW_TOP = 106;
     private static final int ROW_HEIGHT = 22;
     private static final int FOOTER = 48;
+    private static final int HORIZON_BUTTON_WIDTH = 90;
     private static final ResourceLocation MAP_TEXTURE = new ResourceLocation("stratacubes", "studio_preview");
 
     private enum Tab { TERRAIN, BIOMES, DEPOSITS, LANDMARKS, LOOT, JSON, MAP }
@@ -87,6 +88,12 @@ public final class AtlasStudioScreen extends Screen {
     protected void init() {
         panelWidth = Math.min(width - 20, 760);
         left = (width - panelWidth) / 2;
+        if (creation == null) {
+            button(left + panelWidth - HORIZON_BUTTON_WIDTH, 12, HORIZON_BUTTON_WIDTH,
+                    Component.translatable(HorizonVideoSettings.LABEL), () -> {
+                        if (commitEdits()) minecraft.setScreen(HorizonVideoSettings.open(this));
+                    });
+        }
         int index = 0;
         for (Tab entry : Tab.values()) {
             int x = left + panelWidth * index / Tab.values().length;
@@ -435,7 +442,8 @@ public final class AtlasStudioScreen extends Screen {
         g.fillGradient(0, 0, width, height, 0xff102329, 0xff091218);
         g.fill(left, 39, left + panelWidth, 40, 0xff37766e);
         g.drawString(font, title, left, 13, ACCENT);
-        g.drawString(font, t("subtitle"), left, 26, MUTED);
+        int subtitleWidth = creation == null ? panelWidth - HORIZON_BUTTON_WIDTH - 6 : panelWidth;
+        g.drawString(font, font.plainSubstrByWidth(t("subtitle").getString(), subtitleWidth), left, 26, MUTED);
         if (tab == Tab.JSON) g.drawString(font, t("json_scope", scope == Scope.ALL ? "atlas-studio.json" : scope.path), left, 77, INK);
         else if (tab == Tab.MAP) renderMap(g);
         else renderTable(g, mouseX, mouseY);

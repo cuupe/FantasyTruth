@@ -1,4 +1,7 @@
 {
+  "options.stratacubes.horizon_distance": "Horizon",
+  "options.stratacubes.horizon_distance.tooltip": "Sets the draw distance for simplified distant terrain. Choose Off to disable it.",
+  "options.stratacubes.horizon_distance.tooltip.shader_pack": "Built-in distant terrain pauses while a shader pack is active.",
   "generator.stratacubes.high_relief": "FantasyTruth: High Relief",
   "generator.stratacubes.atlas": "FantasyTruth: Atlas (Experimental)",
   "generator.stratacubes.expedition": "FantasyTruth: Abyss Expedition – Orth",
@@ -11,6 +14,7 @@
   "abyss.stratacubes.maelstrom": "Final Maelstrom",
   "commands.stratacubes.abyss.mouth": "Abyss entrance at X %1$s, Z %3$s. Descend the central shaft past the Y %2$s transition to enter the first layer.",
   "commands.stratacubes.abyss.layer": "Layer %s · %s. Central passage from Y %s to Y %s.",
+  "commands.stratacubes.abyss.locate": "Abyss sites are rare in the Overworld. Use /locate structure abyss to find an entrance.",
   "commands.stratacubes.abyss.required": "Abyss Expedition is unavailable in this world.",
   "screen.stratacubes.title": "Atlas Studio",
   "screen.stratacubes.subtitle": "One profile for the entire Overworld",
