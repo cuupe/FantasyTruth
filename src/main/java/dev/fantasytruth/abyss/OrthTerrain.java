@@ -1,6 +1,8 @@
 package dev.fantasytruth.abyss;
 
 import java.util.Arrays;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,20 +20,20 @@ public final class OrthTerrain {
     private static final int PREVIEW_BOTTOM = -224;
     static final int SHARED_BOTTOM = -480;
 
-    public static boolean supports(ChunkAccess chunk) {
+    public static boolean supports(ChunkAccess chunk, boolean natural) {
         if (!(chunk instanceof ProtoChunk) || chunk.isUpgrading()) return false;
         int x = OrthIsland.localX(chunk.getPos().getMinBlockX());
         int z = OrthIsland.localZ(chunk.getPos().getMinBlockZ());
         int edgeX = Math.max(Math.abs(x), Math.abs(x + 15));
         int edgeZ = Math.max(Math.abs(z), Math.abs(z + 15));
-        return OrthIsland.authored(edgeX, edgeZ);
+        return natural ? OrthIsland.siteCore(edgeX, edgeZ) : OrthIsland.authored(edgeX, edgeZ);
     }
 
     public static ChunkAccess fill(ChunkAccess chunk, boolean terraced, boolean vertical, boolean abyssRock) {
-        return fill(chunk, terraced, vertical, abyssRock, false, false);
+        return fill(chunk, terraced, vertical, abyssRock, false, false, SEA_SURFACE);
     }
 
-    public static ChunkAccess fill(ChunkAccess chunk, boolean terraced, boolean vertical, boolean abyssRock, boolean wallTerraces, boolean wildEdge) {
+    public static ChunkAccess fill(ChunkAccess chunk, boolean terraced, boolean vertical, boolean abyssRock, boolean wallTerraces, boolean wildEdge, int seaSurface) {
         var oceanFloor = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
         var worldSurface = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
         BlockState stone = Blocks.STONE.defaultBlockState();
@@ -58,11 +60,11 @@ public final class OrthTerrain {
                 anyIsland |= island[i];
                 int top = floor(x, z, surface, terraced, vertical);
                 floor[i] = top;
-                ocean[i] = top <= SEA_SURFACE && top == surface;
+                ocean[i] = top <= seaSurface && top == surface;
                 allOcean &= ocean[i];
                 minimum = Math.min(minimum, top);
                 maximum = Math.max(maximum, top);
-                int visibleTop = ocean[i] ? SEA_SURFACE : top;
+                int visibleTop = ocean[i] ? seaSurface : top;
                 highest = Math.max(highest, visibleTop);
                 oceanFloor.update(lx, top, lz, stone);
                 worldSurface.update(lx, visibleTop, lz, ocean[i] ? water : stone);
@@ -75,14 +77,53 @@ public final class OrthTerrain {
             int high = low + 15;
             if (index > 0 && high <= minimum - 4 && (allIsland || !anyIsland)) {
                 replace(sections, index, allIsland ? islandRock : high < 0 ? deep : stone);
-            } else if (allOcean && low > maximum && high <= SEA_SURFACE) {
+            } else if (allOcean && low > maximum && high <= seaSurface) {
                 replace(sections, index, Blocks.WATER.defaultBlockState());
             } else {
-                fillMixed(sections[index], low, high, bottom, floor, ocean, island, islandRock);
+                fillMixed(sections[index], low, high, bottom, floor, ocean, island, islandRock, seaSurface);
             }
         }
         if (vertical && abyssRock) shareUpperShelves(chunk, x0, z0, wallTerraces, wildEdge);
         return chunk;
+    }
+
+    // The outer coast starts with the ordinary overworld chunk, including its biome and noise.
+    public static void blendCoast(ChunkAccess chunk, int sea) {
+        if (!(chunk instanceof ProtoChunk) || chunk.isUpgrading()) return;
+        int x0 = chunk.getPos().getMinBlockX(), z0 = chunk.getPos().getMinBlockZ();
+        if (Math.abs(OrthIsland.localX(x0)) > OrthIsland.SITE_RADIUS + 16
+                || Math.abs(OrthIsland.localZ(z0)) > OrthIsland.SITE_RADIUS + 16) return;
+        var pos = new BlockPos.MutableBlockPos();
+        var gravel = Blocks.GRAVEL.defaultBlockState();
+        var stone = Blocks.STONE.defaultBlockState();
+        var water = Blocks.WATER.defaultBlockState();
+        var air = Blocks.AIR.defaultBlockState();
+        for (int dz = 0; dz < 16; dz++) {
+            for (int dx = 0; dx < 16; dx++) {
+                int x = x0 + dx, z = z0 + dz;
+                double weight = OrthIsland.siteWeight(OrthIsland.localX(x), OrthIsland.localZ(z));
+                if (weight == 0) continue;
+                int floor = chunk.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, dx, dz);
+                int top = chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG, dx, dz);
+                int shore = coastFloor(x, z, floor);
+                if (shore == floor && weight < 1) continue;
+                if (shore > floor) {
+                    for (int y = floor + 1; y <= shore; y++) {
+                        chunk.setBlockState(pos.set(x, y, z), y < shore - 2 ? stone : gravel, false);
+                    }
+                } else if (shore < sea) {
+                    chunk.setBlockState(pos.set(x, shore, z), gravel, false);
+                }
+                for (int y = shore + 1; y <= Math.max(top, sea - 1); y++) {
+                    chunk.setBlockState(pos.set(x, y, z), y < sea ? water : air, false);
+                }
+            }
+        }
+    }
+
+    static int coastFloor(int worldX, int worldZ, int vanillaFloor) {
+        int x = OrthIsland.localX(worldX), z = OrthIsland.localZ(worldZ);
+        return Mth.floor(Mth.lerp(OrthIsland.siteWeight(x, z), vanillaFloor, OrthIsland.oceanFloor(x, z)));
     }
 
     private static void shareUpperShelves(ChunkAccess chunk, int x0, int z0, boolean wallTerraces, boolean wildEdge) {
@@ -121,7 +162,7 @@ public final class OrthTerrain {
     }
 
     private static void fillMixed(LevelChunkSection section, int low, int high, int bottom,
-                                  int[] floor, boolean[] ocean, boolean[] island, BlockState islandRock) {
+                                  int[] floor, boolean[] ocean, boolean[] island, BlockState islandRock, int seaSurface) {
         BlockState water = Blocks.WATER.defaultBlockState();
         BlockState stone = Blocks.STONE.defaultBlockState();
         BlockState deep = Blocks.DEEPSLATE.defaultBlockState();
@@ -133,7 +174,7 @@ public final class OrthTerrain {
             for (int lx = 0; lx < 16; lx++) {
                 int i = (lz << 4) | lx;
                 int surface = floor[i];
-                int top = ocean[i] ? SEA_SURFACE : surface;
+                int top = ocean[i] ? seaSurface : surface;
                 for (int y = low; y <= high && y <= top; y++) {
                     BlockState state;
                     if (y == bottom) state = bedrock;

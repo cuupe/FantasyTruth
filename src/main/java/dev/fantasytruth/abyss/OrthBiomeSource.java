@@ -18,7 +18,8 @@ public final class OrthBiomeSource extends BiomeSource {
             Codec.BOOL.optionalFieldOf("forested", false).forGetter(OrthBiomeSource::forested),
             Codec.BOOL.optionalFieldOf("abyss_rock", false).forGetter(OrthBiomeSource::abyssRock),
             Codec.BOOL.optionalFieldOf("wall_terraces", false).forGetter(OrthBiomeSource::wallTerraces),
-            Codec.BOOL.optionalFieldOf("wild_edge", false).forGetter(OrthBiomeSource::wildEdge)
+            Codec.BOOL.optionalFieldOf("wild_edge", false).forGetter(OrthBiomeSource::wildEdge),
+            Codec.BOOL.optionalFieldOf("natural_site", false).forGetter(OrthBiomeSource::naturalSite)
     ).apply(instance, OrthBiomeSource::new));
 
     private final BiomeSource surroundings;
@@ -30,9 +31,10 @@ public final class OrthBiomeSource extends BiomeSource {
     private final boolean abyssRock;
     private final boolean wallTerraces;
     private final boolean wildEdge;
+    private final boolean naturalSite;
 
     private OrthBiomeSource(BiomeSource surroundings, Holder<Biome> coast, Holder<Biome> ocean,
-                            boolean terraced, boolean forested, boolean abyssRock, boolean wallTerraces, boolean wildEdge) {
+                            boolean terraced, boolean forested, boolean abyssRock, boolean wallTerraces, boolean wildEdge, boolean naturalSite) {
         this.surroundings = surroundings;
         this.coast = coast;
         this.ocean = ocean;
@@ -41,8 +43,10 @@ public final class OrthBiomeSource extends BiomeSource {
         this.abyssRock = abyssRock;
         this.wallTerraces = wallTerraces;
         this.wildEdge = wallTerraces && wildEdge;
+        this.naturalSite = naturalSite;
     }
 
+    public boolean naturalSite() { return naturalSite; }
     public boolean forested() { return forested; }
     public boolean abyssRock() { return abyssRock; }
     public boolean wallTerraces() { return wallTerraces; }
@@ -59,7 +63,7 @@ public final class OrthBiomeSource extends BiomeSource {
     public Holder<Biome> getNoiseBiome(int x, int y, int z, Climate.Sampler sampler) {
         int localX = OrthIsland.localX(QuartPos.toBlock(x));
         int localZ = OrthIsland.localZ(QuartPos.toBlock(z));
-        if (!OrthIsland.authored(localX, localZ)) return surroundings.getNoiseBiome(x, y, z, sampler);
+        if (naturalSite ? !OrthIsland.siteCore(localX, localZ) : !OrthIsland.authored(localX, localZ)) return surroundings.getNoiseBiome(x, y, z, sampler);
         return OrthIsland.elevation(localX, localZ, terraced) < OrthIsland.SEA ? ocean : coast;
     }
 }

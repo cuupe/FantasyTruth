@@ -21,6 +21,9 @@ public final class OrthIsland {
     private static final ResourceKey<NoiseGeneratorSettings> SHAFT_SETTINGS = ResourceKey.create(
             Registries.NOISE_SETTINGS, new ResourceLocation("stratacubes", "expedition_orth_shaft"));
     static final int SHAFT_RADIUS = 499;
+    private static final int SITE_CORE = 1856;
+    private static final int SITE_BLEND_START = 1888;
+    public static final int SITE_RADIUS = 3072;
 
     public static final int SEA = 78;
     public static final int OCEAN_RADIUS = 4352;
@@ -30,18 +33,34 @@ public final class OrthIsland {
     private static final int GRID_SIDE = 1 + GRID_RADIUS * 2 / GRID_STEP;
     private static final TerrainField FIELD = new TerrainField(0x4f525448L);
 
+    public static boolean natural(ChunkGenerator generator) {
+        return generator instanceof NoiseBasedChunkGenerator
+                && generator.getBiomeSource() instanceof OrthBiomeSource orth && orth.naturalSite();
+    }
+
+    static boolean siteCore(int x, int z) {
+        return Math.abs(x) <= SITE_CORE && Math.abs(z) <= SITE_CORE
+                && x * x + z * z <= SITE_CORE * SITE_CORE;
+    }
+
+    static double siteWeight(int x, int z) {
+        if (Math.abs(x) >= SITE_RADIUS || Math.abs(z) >= SITE_RADIUS
+                || x * x + z * z >= SITE_RADIUS * SITE_RADIUS) return 0;
+        return 1 - smooth(SITE_BLEND_START, SITE_RADIUS, distance(x, z));
+    }
+
     public static boolean enabled(ChunkGenerator generator) {
         return generator instanceof NoiseBasedChunkGenerator noise
-                && (noise.generatorSettings().is(SETTINGS) || noise.generatorSettings().is(TERRACED_SETTINGS) || noise.generatorSettings().is(SHAFT_SETTINGS));
+                && (natural(generator) || noise.generatorSettings().is(SETTINGS) || noise.generatorSettings().is(TERRACED_SETTINGS) || noise.generatorSettings().is(SHAFT_SETTINGS));
     }
 
     public static boolean terraced(ChunkGenerator generator) {
         return generator instanceof NoiseBasedChunkGenerator noise
-                && (noise.generatorSettings().is(TERRACED_SETTINGS) || noise.generatorSettings().is(SHAFT_SETTINGS));
+                && (natural(generator) || noise.generatorSettings().is(TERRACED_SETTINGS) || noise.generatorSettings().is(SHAFT_SETTINGS));
     }
 
     public static boolean vertical(ChunkGenerator generator) {
-        return generator instanceof NoiseBasedChunkGenerator noise && noise.generatorSettings().is(SHAFT_SETTINGS);
+        return generator instanceof NoiseBasedChunkGenerator noise && (natural(generator) || noise.generatorSettings().is(SHAFT_SETTINGS));
     }
 
     public static boolean inShaft(double x, double z) {

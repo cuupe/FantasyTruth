@@ -1,7 +1,6 @@
 {
   "replace": false,
   "values": [
-    "stratacubes:expedition",
     "stratacubes:high_relief",
     "stratacubes:atlas"
   ]

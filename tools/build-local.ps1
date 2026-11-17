@@ -38,7 +38,10 @@ $toOfficial = Join-Path $stage 'srg-to-official.tsrg'
 $toSrg = Join-Path $stage 'official-to-srg.tsrg'
 $named = Join-Path $stage 'minecraft-official.jar'
 $devJar = Join-Path $stage 'FantasyTruth-dev.jar'
-$modJar = Join-Path $out 'FantasyTruth-0.11.0-alpha.17.jar'
+$metadata = Get-Content -Raw -LiteralPath (Join-Path $project 'src/main/resources/META-INF/mods.toml')
+$version = [regex]::Match($metadata, '(?m)^version\s*=\s*"([^"]+)"').Groups[1].Value
+if (-not $version) { throw 'Missing version in mods.toml.' }
+$modJar = Join-Path $out "FantasyTruth-$version.jar"
 
 Run-Jdk 'java' @('-cp', $mappingLib, (Join-Path $PSScriptRoot 'LocalMappings.java'),
     $merged, "$client-mappings.txt", $toOfficial, $toSrg)

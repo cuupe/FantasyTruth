@@ -16,6 +16,7 @@ import dev.fantasytruth.atlas.AtlasBiomeSource;
 import dev.fantasytruth.atlas.AtlasChunkGenerator;
 import dev.fantasytruth.atlas.AtlasPages;
 import dev.fantasytruth.worldgen.TerrainDensity;
+import dev.fantasytruth.horizon.HorizonNetwork;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -30,6 +31,7 @@ public final class FantasyTruth {
     public static final String ID = "stratacubes";
 
     public FantasyTruth() {
+        HorizonNetwork.register();
         DeferredRegister<Codec<? extends DensityFunction>> types =
                 DeferredRegister.create(Registries.DENSITY_FUNCTION_TYPE, ID);
         types.register("relief", TerrainDensity.CODEC::codec);

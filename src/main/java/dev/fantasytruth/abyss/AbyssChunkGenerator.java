@@ -70,7 +70,7 @@ public final class AbyssChunkGenerator extends ChunkGenerator {
         return terrain;
     }
 
-    private AbyssShape shape(RandomState state) {
+    AbyssShape shape(RandomState state) {
         Binding current = binding;
         if (current != null && current.random == state) return current.shape;
         long seed = state.getOrCreateRandomFactory(SEED).at(layer.ordinal(), 0, 0).nextLong();

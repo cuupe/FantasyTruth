@@ -31,14 +31,16 @@ abstract class OrthNoiseGeneratorMixin {
     private void fantasytruth$fillOrth(Executor executor, Blender blender, RandomState state,
                                        StructureManager structures, ChunkAccess chunk,
                                        CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir) {
-        if (OrthIsland.enabled((NoiseBasedChunkGenerator) (Object) this) && OrthTerrain.supports(chunk)) {
-            var generator = (NoiseBasedChunkGenerator) (Object) this;
+        var generator = (NoiseBasedChunkGenerator) (Object) this;
+        boolean natural = OrthIsland.natural(generator);
+        if (OrthIsland.enabled(generator) && OrthTerrain.supports(chunk, natural)) {
             boolean terraced = OrthIsland.terraced(generator);
             boolean vertical = OrthIsland.vertical(generator);
             boolean abyssRock = generator.getBiomeSource() instanceof OrthBiomeSource orth && orth.abyssRock();
             boolean wallTerraces = generator.getBiomeSource() instanceof OrthBiomeSource orth && orth.wallTerraces();
             boolean wildEdge = generator.getBiomeSource() instanceof OrthBiomeSource orth && orth.wildEdge();
-            cir.setReturnValue(CompletableFuture.supplyAsync(() -> OrthTerrain.fill(chunk, terraced, vertical, abyssRock, wallTerraces, wildEdge), Util.backgroundExecutor()));
+            cir.setReturnValue(CompletableFuture.supplyAsync(() -> OrthTerrain.fill(chunk, terraced, vertical, abyssRock, wallTerraces, wildEdge,
+                    natural ? generator.getSeaLevel() - 1 : OrthIsland.SEA - 1), Util.backgroundExecutor()));
         }
     }
 
@@ -47,8 +49,8 @@ abstract class OrthNoiseGeneratorMixin {
     private void fantasytruth$buildOrth(ChunkAccess chunk, WorldGenerationContext context, RandomState state,
                                         StructureManager structures, BiomeManager biomes, Registry<Biome> registry,
                                         Blender blender, CallbackInfo ci) {
-        if (OrthIsland.enabled((NoiseBasedChunkGenerator) (Object) this) && OrthTerrain.supports(chunk)) {
-            var generator = (NoiseBasedChunkGenerator) (Object) this;
+        var generator = (NoiseBasedChunkGenerator) (Object) this;
+        if (OrthIsland.enabled(generator) && OrthTerrain.supports(chunk, OrthIsland.natural(generator))) {
             boolean forested = generator.getBiomeSource() instanceof OrthBiomeSource orth && orth.forested();
             boolean abyssRock = generator.getBiomeSource() instanceof OrthBiomeSource orth && orth.abyssRock();
             boolean wallTerraces = generator.getBiomeSource() instanceof OrthBiomeSource orth && orth.wallTerraces();
@@ -64,7 +66,10 @@ abstract class OrthNoiseGeneratorMixin {
     private void fantasytruth$shareEdgeStructures(WorldGenRegion region, StructureManager structures, RandomState state,
                                                    ChunkAccess chunk, CallbackInfo ci) {
         var generator = (NoiseBasedChunkGenerator) (Object) this;
-        if (OrthIsland.vertical(generator) && OrthTerrain.supports(chunk)
+        boolean natural = OrthIsland.natural(generator);
+        boolean core = OrthTerrain.supports(chunk, natural);
+        if (natural && !core) OrthTerrain.blendCoast(chunk, generator.getSeaLevel());
+        if (OrthIsland.vertical(generator) && core
                 && generator.getBiomeSource() instanceof OrthBiomeSource orth && orth.abyssRock() && orth.wallTerraces()) {
             OrthSeam.decorate(region, chunk);
         }
@@ -74,7 +79,9 @@ abstract class OrthNoiseGeneratorMixin {
     private void fantasytruth$preserveOrthCliffs(WorldGenRegion region, long seed, RandomState state, BiomeManager biomes,
                                                   StructureManager structures, ChunkAccess chunk,
                                                   GenerationStep.Carving step, CallbackInfo ci) {
-        if (OrthIsland.enabled((NoiseBasedChunkGenerator) (Object) this) && OrthCity.authored(chunk.getPos())) {
+        var generator = (NoiseBasedChunkGenerator) (Object) this;
+        if (OrthIsland.enabled(generator) && (OrthIsland.natural(generator)
+                ? OrthTerrain.supports(chunk, true) : OrthCity.authored(chunk.getPos()))) {
             ci.cancel();
         }
     }

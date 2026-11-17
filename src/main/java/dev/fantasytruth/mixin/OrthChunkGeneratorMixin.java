@@ -2,6 +2,7 @@ package dev.fantasytruth.mixin;
 
 import dev.fantasytruth.abyss.OrthCity;
 import dev.fantasytruth.abyss.OrthIsland;
+import dev.fantasytruth.abyss.OrthTerrain;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
@@ -20,14 +21,17 @@ abstract class OrthChunkGeneratorMixin {
     private void fantasytruth$preserveOrthStructures(RegistryAccess registry, ChunkGeneratorStructureState state,
                                                      StructureManager structures, ChunkAccess chunk,
                                                      StructureTemplateManager templates, CallbackInfo ci) {
-        if (OrthIsland.enabled((ChunkGenerator) (Object) this) && OrthCity.authored(chunk.getPos())) ci.cancel();
+        var generator = (ChunkGenerator) (Object) this;
+        if (OrthIsland.enabled(generator) && (OrthIsland.natural(generator)
+                ? OrthTerrain.supports(chunk, true) : OrthCity.authored(chunk.getPos()))) ci.cancel();
     }
 
     @Inject(method = {"m_213609_", "applyBiomeDecoration"}, at = @At("HEAD"), cancellable = true, remap = false)
     private void fantasytruth$preserveOrthDecoration(WorldGenLevel region, ChunkAccess chunk,
                                                      StructureManager structures, CallbackInfo ci) {
-        if (OrthIsland.enabled((ChunkGenerator) (Object) this) && OrthCity.authored(chunk.getPos())) {
-            var generator = (ChunkGenerator) (Object) this;
+        var generator = (ChunkGenerator) (Object) this;
+        if (OrthIsland.enabled(generator) && (OrthIsland.natural(generator)
+                ? OrthTerrain.supports(chunk, true) : OrthCity.authored(chunk.getPos()))) {
             OrthCity.generateDetails(chunk, OrthIsland.terraced(generator), OrthIsland.vertical(generator));
             ci.cancel();
         }

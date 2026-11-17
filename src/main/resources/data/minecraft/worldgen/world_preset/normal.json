@@ -1,0 +1,133 @@
+{
+  "dimensions": {
+    "minecraft:overworld": {
+      "type": "stratacubes:expedition",
+      "generator": {
+        "type": "minecraft:noise",
+        "biome_source": {
+          "type": "stratacubes:orth",
+          "surroundings": {
+            "type": "minecraft:multi_noise",
+            "preset": "minecraft:overworld"
+          },
+          "coast": "minecraft:plains",
+          "ocean": "minecraft:deep_ocean",
+          "terraced": true,
+          "forested": true,
+          "abyss_rock": true,
+          "wall_terraces": true,
+          "wild_edge": true,
+          "natural_site": true
+        },
+        "settings": "minecraft:overworld"
+      }
+    },
+    "minecraft:the_nether": {
+      "type": "minecraft:the_nether",
+      "generator": {
+        "type": "minecraft:noise",
+        "biome_source": {
+          "type": "minecraft:multi_noise",
+          "preset": "minecraft:nether"
+        },
+        "settings": "minecraft:nether"
+      }
+    },
+    "minecraft:the_end": {
+      "type": "minecraft:the_end",
+      "generator": {
+        "type": "minecraft:noise",
+        "biome_source": {
+          "type": "minecraft:the_end"
+        },
+        "settings": "minecraft:end"
+      }
+    },
+    "stratacubes:abyss/edge": {
+      "type": "stratacubes:abyss_edge",
+      "generator": {
+        "type": "stratacubes:abyss_edge",
+        "expanded_edge": true,
+        "forested_edge": true,
+        "moss_pit": true,
+        "eroded_edge": true,
+        "wall_terraces": true,
+        "wild_edge": true,
+        "forest_mouth": true,
+        "biome_source": {
+          "type": "minecraft:fixed",
+          "biome": "minecraft:meadow"
+        }
+      }
+    },
+    "stratacubes:abyss/forest": {
+      "type": "stratacubes:abyss_forest_deep",
+      "generator": {
+        "type": "stratacubes:abyss",
+        "layer": 2,
+        "open_forest": true,
+        "deep_forest": true,
+        "forest_mouth": true,
+        "biome_source": {
+          "type": "minecraft:fixed",
+          "biome": "minecraft:jungle"
+        }
+      }
+    },
+    "stratacubes:abyss/fault": {
+      "type": "stratacubes:abyss",
+      "generator": {
+        "type": "stratacubes:abyss",
+        "layer": 3,
+        "biome_source": {
+          "type": "minecraft:fixed",
+          "biome": "minecraft:dripstone_caves"
+        }
+      }
+    },
+    "stratacubes:abyss/goblets": {
+      "type": "stratacubes:abyss",
+      "generator": {
+        "type": "stratacubes:abyss",
+        "layer": 4,
+        "biome_source": {
+          "type": "minecraft:fixed",
+          "biome": "minecraft:lush_caves"
+        }
+      }
+    },
+    "stratacubes:abyss/sea": {
+      "type": "stratacubes:abyss",
+      "generator": {
+        "type": "stratacubes:abyss",
+        "layer": 5,
+        "biome_source": {
+          "type": "minecraft:fixed",
+          "biome": "minecraft:deep_cold_ocean"
+        }
+      }
+    },
+    "stratacubes:abyss/capital": {
+      "type": "stratacubes:abyss",
+      "generator": {
+        "type": "stratacubes:abyss",
+        "layer": 6,
+        "biome_source": {
+          "type": "minecraft:fixed",
+          "biome": "minecraft:wooded_badlands"
+        }
+      }
+    },
+    "stratacubes:abyss/maelstrom": {
+      "type": "stratacubes:abyss",
+      "generator": {
+        "type": "stratacubes:abyss",
+        "layer": 7,
+        "biome_source": {
+          "type": "minecraft:fixed",
+          "biome": "minecraft:deep_dark"
+        }
+      }
+    }
+  }
+}

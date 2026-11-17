@@ -4,7 +4,7 @@ license = "All Rights Reserved"
 
 [[mods]]
 modId = "stratacubes"
-version = "0.11.0-alpha.17"
+version = "0.11.0-alpha.18"
 displayName = "FantasyTruth"
 description = "Explore Orth, an island city built around the Abyss, or create a configurable Atlas Overworld."
 

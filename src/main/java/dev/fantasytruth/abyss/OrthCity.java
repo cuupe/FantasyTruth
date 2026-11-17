@@ -37,6 +37,19 @@ public final class OrthCity {
         return terraced ? OrthTownLayout.SPAWN_Z : SPAWN_Z;
     }
 
+    static int distantRoof(int worldX, int worldZ, int ground) {
+        int x = OrthIsland.localX(worldX), z = OrthIsland.localZ(worldZ);
+        if (Math.abs(x) > 1450 || Math.abs(z) > 1450) return ground;
+        var lots = TerracePlan.ROOFS.get(ChunkPos.asLong(worldX >> 4, worldZ >> 4));
+        if (lots == null) return ground;
+        for (var lot : lots) {
+            if (Math.abs(lot.x() - x) <= lot.extentX() && Math.abs(lot.z() - z) <= lot.extentZ()) {
+                return lot.y() + (lot.mill() ? 16 : 5 + lot.floors() * 4);
+            }
+        }
+        return ground;
+    }
+
     public static boolean authored(ChunkPos chunk) {
         return OrthIsland.authored(OrthIsland.localX(chunk.getMiddleBlockX()),
                 OrthIsland.localZ(chunk.getMiddleBlockZ()));
@@ -443,6 +456,22 @@ public final class OrthCity {
     }
 
     private static final class TerracePlan {
+        private static final OrthTownLayout.Survey SURVEY = OrthTownLayout.survey();
+        private static final Map<Long, List<OrthTownLayout.Lot>> ROOFS = roofIndex();
+
+        private static Map<Long, List<OrthTownLayout.Lot>> roofIndex() {
+            var index = new HashMap<Long, List<OrthTownLayout.Lot>>();
+            for (var lot : SURVEY.lots()) {
+                int x = lot.x() + AbyssLayer.CENTER_X, z = lot.z() + AbyssLayer.CENTER_Z;
+                for (int cx = (x - lot.extentX()) >> 4; cx <= (x + lot.extentX()) >> 4; cx++) {
+                    for (int cz = (z - lot.extentZ()) >> 4; cz <= (z + lot.extentZ()) >> 4; cz++) {
+                        index.computeIfAbsent(ChunkPos.asLong(cx, cz), unused -> new ArrayList<>()).add(lot);
+                    }
+                }
+            }
+            return Map.copyOf(index);
+        }
+
         private static final class Sloped {
             static final Map<Long, List<Piece>> PIECES = create(false);
         }
@@ -456,7 +485,7 @@ public final class OrthCity {
 
         private static Map<Long, List<Piece>> create(boolean vertical) {
             Map<Long, List<Piece>> pieces = new HashMap<>();
-            var survey = OrthTownLayout.survey();
+            var survey = SURVEY;
             for (var road : survey.roads()) addRoad(pieces, road, false);
             for (var lot : survey.lots()) addRoad(pieces, lot.access(), true);
             for (var lot : survey.lots()) {

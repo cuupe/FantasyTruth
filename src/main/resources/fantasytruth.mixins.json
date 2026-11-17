@@ -20,9 +20,7 @@
     "AbyssRespawnMixin",
     "AbyssFrameBlendMixin",
     "AbyssCloudsMixin",
-    "AbyssSkyHorizonMixin",
-    "AbyssDhColumnDataMixin",
-    "AbyssDhColumnMeshMixin"
+    "AbyssSkyHorizonMixin"
   ],
   "injectors": {
     "defaultRequire": 1
